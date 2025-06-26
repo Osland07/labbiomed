@@ -11,6 +11,7 @@ class Kunjungan extends Model
 
     protected $fillable = [
         'ruangan_id',
+        'user_id',
         'nama',
         'nim_nip',
         'instansi',
@@ -23,5 +24,10 @@ class Kunjungan extends Model
     public function ruangan()
     {
         return $this->belongsTo(Ruangan::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 } 

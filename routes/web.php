@@ -36,6 +36,23 @@ use App\Http\Controllers\KunjunganController;
 
 Route::get('/',  [AuthenticatedSessionController::class, 'create'])->name('beranda');
 
+// Kunjungan Routes - Bisa diakses tanpa login (untuk tamu umum)
+Route::get('/kunjungan/checkin/{ruangan_id}', [KunjunganController::class, 'showCheckin'])->name('kunjungan.checkin');
+Route::post('/kunjungan/checkin/{ruangan_id}', [KunjunganController::class, 'storeCheckin'])->name('kunjungan.checkin.store');
+Route::get('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'showCheckout'])->name('kunjungan.checkout');
+Route::post('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'storeCheckout'])->name('kunjungan.checkout.store');
+Route::get('/kunjungan/checkin-success/{ruangan_id}', [KunjunganController::class, 'checkinSuccess'])->name('kunjungan.checkin.success');
+Route::get('/kunjungan/checkout-success/{ruangan_id}', [KunjunganController::class, 'checkoutSuccess'])->name('kunjungan.checkout.success');
+
+// Dashboard Kunjungan - Bisa diakses tanpa login
+Route::get('/kunjungan/dashboard', [KunjunganController::class, 'dashboard'])->name('kunjungan.dashboard');
+
+// QR Code Routes - Bisa diakses tanpa login
+Route::get('/kunjungan/qr/checkin/{ruangan_id}', [KunjunganController::class, 'generateCheckinQR'])->name('kunjungan.qr.checkin');
+Route::get('/kunjungan/qr/checkout/{ruangan_id}', [KunjunganController::class, 'generateCheckoutQR'])->name('kunjungan.qr.checkout');
+Route::get('/kunjungan/scan-qr', function() { return view('kunjungan.scan-qr'); })->name('kunjungan.scan');
+Route::post('/kunjungan/scan-qr', [KunjunganController::class, 'scanQR'])->name('kunjungan.scan.qr');
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -91,23 +108,6 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
-
-    // Kunjungan Routes
-    Route::get('/kunjungan/checkin/{ruangan_id}', [KunjunganController::class, 'showCheckin'])->name('kunjungan.checkin')->middleware('permission:create-kunjungan');
-    Route::post('/kunjungan/checkin/{ruangan_id}', [KunjunganController::class, 'storeCheckin'])->name('kunjungan.checkin.store')->middleware('permission:create-kunjungan');
-    Route::get('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'showCheckout'])->name('kunjungan.checkout')->middleware('permission:edit-kunjungan');
-    Route::post('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'storeCheckout'])->name('kunjungan.checkout.store')->middleware('permission:edit-kunjungan');
-    Route::get('/kunjungan/checkin-success/{ruangan_id}', [KunjunganController::class, 'checkinSuccess'])->name('kunjungan.checkin.success')->middleware('permission:create-kunjungan');
-    Route::get('/kunjungan/checkout-success/{ruangan_id}', [KunjunganController::class, 'checkoutSuccess'])->name('kunjungan.checkout.success')->middleware('permission:edit-kunjungan');
-
-    // Dashboard Kunjungan
-    Route::get('/kunjungan/dashboard', [KunjunganController::class, 'dashboard'])->name('kunjungan.dashboard')->middleware('permission:dashboard-kunjungan');
-
-    // QR Code Routes
-    Route::get('/kunjungan/qr/checkin/{ruangan_id}', [KunjunganController::class, 'generateCheckinQR'])->name('kunjungan.qr.checkin')->middleware('permission:qr-checkin-kunjungan');
-    Route::get('/kunjungan/qr/checkout/{ruangan_id}', [KunjunganController::class, 'generateCheckoutQR'])->name('kunjungan.qr.checkout')->middleware('permission:qr-checkout-kunjungan');
-    Route::get('/kunjungan/scan-qr', function() { return view('kunjungan.scan-qr'); })->name('kunjungan.scan')->middleware('permission:scan-qr-kunjungan');
-    Route::post('/kunjungan/scan-qr', [KunjunganController::class, 'scanQR'])->name('kunjungan.scan.qr')->middleware('permission:scan-qr-kunjungan');
 });
 
 require __DIR__ . '/auth.php';

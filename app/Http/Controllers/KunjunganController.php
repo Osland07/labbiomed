@@ -19,7 +19,7 @@ class KunjunganController extends Controller
         // Cek apakah user sudah ada kunjungan aktif di ruangan ini
         if ($user) {
             $activeVisit = Kunjungan::where('ruangan_id', $ruangan->id)
-                ->where('nama', $user->name)
+                ->where('user_id', $user->id)
                 ->whereNull('waktu_keluar')
                 ->first();
                 
@@ -55,7 +55,7 @@ class KunjunganController extends Controller
         // Cek apakah sudah ada kunjungan aktif
         if ($user) {
             $activeVisit = Kunjungan::where('ruangan_id', $ruangan->id)
-                ->where('nama', $user->name)
+                ->where('user_id', $user->id)
                 ->whereNull('waktu_keluar')
                 ->first();
                 
@@ -71,6 +71,7 @@ class KunjunganController extends Controller
         ];
         
         if ($user) {
+            $data['user_id'] = $user->id;
             $data['nama'] = $user->name;
             $data['nim_nip'] = $user->nim_nip ?? null;
             $data['instansi'] = $user->instansi ?? null;
@@ -104,7 +105,7 @@ class KunjunganController extends Controller
         } else {
             // Cek apakah user memiliki kunjungan aktif
             $activeVisit = Kunjungan::where('ruangan_id', $ruangan->id)
-                ->where('nama', $user->name)
+                ->where('user_id', $user->id)
                 ->whereNull('waktu_keluar')
                 ->first();
                 
@@ -125,7 +126,7 @@ class KunjunganController extends Controller
         
         if ($user) {
             $kunjungan = Kunjungan::where('ruangan_id', $ruangan->id)
-                ->where('nama', $user->name)
+                ->where('user_id', $user->id)
                 ->whereNull('waktu_keluar')
                 ->latest('waktu_masuk')
                 ->first();
@@ -181,26 +182,26 @@ class KunjunganController extends Controller
     {
         $user = Auth::user();
         
-        // Statistik untuk user
+        // Statistik untuk user (jika login)
         $stats = [
-            'total' => Kunjungan::where('nama', $user->name)->count(),
-            'today' => Kunjungan::where('nama', $user->name)->whereDate('waktu_masuk', Carbon::today())->count(),
-            'this_month' => Kunjungan::where('nama', $user->name)->whereMonth('waktu_masuk', Carbon::now()->month)->count(),
-            'this_week' => Kunjungan::where('nama', $user->name)->whereBetween('waktu_masuk', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
+            'total' => $user ? Kunjungan::where('user_id', $user->id)->count() : 0,
+            'today' => $user ? Kunjungan::where('user_id', $user->id)->whereDate('waktu_masuk', Carbon::today())->count() : 0,
+            'this_month' => $user ? Kunjungan::where('user_id', $user->id)->whereMonth('waktu_masuk', Carbon::now()->month)->count() : 0,
+            'this_week' => $user ? Kunjungan::where('user_id', $user->id)->whereBetween('waktu_masuk', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count() : 0,
         ];
         
-        // Kunjungan aktif
-        $activeVisits = Kunjungan::where('nama', $user->name)
+        // Kunjungan aktif (jika login)
+        $activeVisits = $user ? Kunjungan::where('user_id', $user->id)
             ->whereNull('waktu_keluar')
             ->with('ruangan')
-            ->get();
+            ->get() : collect();
             
-        // Kunjungan terbaru
-        $recentVisits = Kunjungan::where('nama', $user->name)
+        // Kunjungan terbaru (jika login)
+        $recentVisits = $user ? Kunjungan::where('user_id', $user->id)
             ->with('ruangan')
             ->orderBy('waktu_masuk', 'desc')
             ->take(5)
-            ->get();
+            ->get() : collect();
             
         // Ruangan yang tersedia
         $ruangans = Ruangan::orderBy('name')->get();
@@ -215,7 +216,8 @@ class KunjunganController extends Controller
             'recentVisits', 
             'ruangans',
             'todayVisits',
-            'activeVisitsCount'
+            'activeVisitsCount',
+            'user'
         ));
     }
 
@@ -274,50 +276,63 @@ class KunjunganController extends Controller
             
             if ($qrData['type'] === 'checkin') {
                 // Proses check-in
-                $activeVisit = Kunjungan::where('ruangan_id', $ruangan->id)
-                    ->where('nama', $user->name)
-                    ->whereNull('waktu_keluar')
-                    ->first();
+                if ($user) {
+                    $activeVisit = Kunjungan::where('ruangan_id', $ruangan->id)
+                        ->where('user_id', $user->id)
+                        ->whereNull('waktu_keluar')
+                        ->first();
+                        
+                    if ($activeVisit) {
+                        return back()->with('warning', 'Anda sudah melakukan check-in di ruangan ini.');
+                    }
                     
-                if ($activeVisit) {
-                    return back()->with('warning', 'Anda sudah melakukan check-in di ruangan ini.');
+                    Kunjungan::create([
+                        'ruangan_id' => $ruangan->id,
+                        'user_id' => $user->id,
+                        'nama' => $user->name,
+                        'nim_nip' => $user->nim_nip ?? null,
+                        'instansi' => $user->instansi ?? null,
+                        'tujuan' => 'Check-in via QR Code',
+                        'waktu_masuk' => Carbon::now(),
+                    ]);
+                } else {
+                    // Untuk tamu umum, redirect ke form check-in
+                    return redirect()->route('kunjungan.checkin', $ruangan->id)
+                        ->with('info', 'Silakan isi data lengkap untuk check-in.');
                 }
-                
-                Kunjungan::create([
-                    'ruangan_id' => $ruangan->id,
-                    'nama' => $user->name,
-                    'nim_nip' => $user->nim_nip ?? null,
-                    'instansi' => $user->instansi ?? null,
-                    'tujuan' => 'Check-in via QR Code',
-                    'waktu_masuk' => Carbon::now(),
-                ]);
                 
                 return back()->with('success', 'Check-in berhasil! Selamat datang di ' . $ruangan->name);
                 
             } elseif ($qrData['type'] === 'checkout') {
                 // Proses check-out
-                $kunjungan = Kunjungan::where('ruangan_id', $ruangan->id)
-                    ->where('nama', $user->name)
-                    ->whereNull('waktu_keluar')
-                    ->latest('waktu_masuk')
-                    ->first();
+                if ($user) {
+                    $kunjungan = Kunjungan::where('ruangan_id', $ruangan->id)
+                        ->where('user_id', $user->id)
+                        ->whereNull('waktu_keluar')
+                        ->latest('waktu_masuk')
+                        ->first();
+                        
+                    if (!$kunjungan) {
+                        return back()->with('warning', 'Anda belum melakukan check-in di ruangan ini.');
+                    }
                     
-                if (!$kunjungan) {
-                    return back()->with('warning', 'Anda belum melakukan check-in di ruangan ini.');
+                    $waktuMasuk = Carbon::parse($kunjungan->waktu_masuk);
+                    $waktuKeluar = Carbon::now();
+                    $durasi = $waktuMasuk->diffInMinutes($waktuKeluar);
+                    
+                    $kunjungan->waktu_keluar = $waktuKeluar;
+                    $kunjungan->save();
+                    
+                    $durasiText = $durasi >= 60 
+                        ? floor($durasi / 60) . ' jam ' . ($durasi % 60) . ' menit'
+                        : $durasi . ' menit';
+                    
+                    return back()->with('success', 'Check-out berhasil! Durasi kunjungan: ' . $durasiText);
+                } else {
+                    // Untuk tamu umum, redirect ke form check-out
+                    return redirect()->route('kunjungan.checkout', $ruangan->id)
+                        ->with('info', 'Silakan pilih kunjungan untuk check-out.');
                 }
-                
-                $waktuMasuk = Carbon::parse($kunjungan->waktu_masuk);
-                $waktuKeluar = Carbon::now();
-                $durasi = $waktuMasuk->diffInMinutes($waktuKeluar);
-                
-                $kunjungan->waktu_keluar = $waktuKeluar;
-                $kunjungan->save();
-                
-                $durasiText = $durasi >= 60 
-                    ? floor($durasi / 60) . ' jam ' . ($durasi % 60) . ' menit'
-                    : $durasi . ' menit';
-                
-                return back()->with('success', 'Check-out berhasil! Durasi kunjungan: ' . $durasiText);
             }
             
         } catch (\Exception $e) {
