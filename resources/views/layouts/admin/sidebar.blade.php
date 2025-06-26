@@ -198,7 +198,6 @@
                     <x-sidebar-link route="jadwal" icon="calendar" label="Jadwal" can="jadwal-dashboard" />
                 @endcan
 
-<<<<<<< HEAD
                 @can('view-kunjungan')
                     <li class="nav-item has-treeview {{ Request::routeIs('admin.kunjungan.*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link text-white {{ Request::routeIs('admin.kunjungan.*') ? 'active' : '' }}">
@@ -223,14 +222,12 @@
                 @can('kunjungan-client')
                     <x-sidebar-link route="client.riwayat-kunjungan" icon="history" label="Riwayat Kunjungan" can="kunjungan-client" />
                 @endcan
-=======
                 <li class="nav-item">
                     <a class="nav-link text-white" href="{{ route('admin.kunjungan.index') }}">
                         <i class="fas fa-fw fa-users"></i>
                         <span>Kunjungan Lab</span>
                     </a>
                 </li>
->>>>>>> beb307dfe502eedce80aab7aef5cf105f5a248be
 
                 <li class="nav-item">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" hidden>
