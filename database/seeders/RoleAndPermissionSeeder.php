@@ -20,7 +20,8 @@ class RoleAndPermissionSeeder extends Seeder
             'ruangan' => ['view', 'create', 'edit', 'delete'],
             'transaksi' => ['view', 'peminjaman', 'penggunaan', 'pengembalian'],
             'laporan' => ['view', 'peminjaman', 'penggunaan', 'kerusakan'],
-            'client' => ['check', 'pengajuan-peminjaman', 'penggunaan-alat', 'penggunaan-ruangan', 'history'],
+            'kunjungan' => ['view', 'create', 'edit', 'delete', 'qr-checkin', 'qr-checkout', 'scan-qr', 'dashboard'],
+            'client' => ['check', 'pengajuan-peminjaman', 'penggunaan-alat', 'penggunaan-ruangan', 'history', 'kunjungan'],
         ];
 
         foreach ($entities as $entity => $actions) {
@@ -43,6 +44,13 @@ class RoleAndPermissionSeeder extends Seeder
                 'penggunaan-ruangan-client',
                 'jadwal-dashboard',
                 'history-client',
+                'kunjungan-client',
+                'view-kunjungan',
+                'create-kunjungan',
+                'qr-checkin-kunjungan',
+                'qr-checkout-kunjungan',
+                'scan-qr-kunjungan',
+                'dashboard-kunjungan',
             ],
             'Mahasiswa' => [
                 'check-client',
@@ -51,6 +59,13 @@ class RoleAndPermissionSeeder extends Seeder
                 'penggunaan-ruangan-client',
                 'jadwal-dashboard',
                 'history-client',
+                'kunjungan-client',
+                'view-kunjungan',
+                'create-kunjungan',
+                'qr-checkin-kunjungan',
+                'qr-checkout-kunjungan',
+                'scan-qr-kunjungan',
+                'dashboard-kunjungan',
             ],
         ];
 

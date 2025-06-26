@@ -84,12 +84,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/penggunaan-ruangan', [ClientPenggunaanController::class, 'storeRuangan'])->name('penggunaan-ruangan.store');
         Route::get('/riwayat-pengajuan', [ClientRiwayatController::class, 'riwayatPengajuan'])->name('riwayat-pengajuan');
         Route::get('/riwayat-penggunaan', [ClientRiwayatController::class, 'riwayatPenggunaan'])->name('riwayat-penggunaan');
+        Route::get('/riwayat-kunjungan', [ClientRiwayatController::class, 'kunjungan'])->name('riwayat-kunjungan');
         Route::post('/penggunaan-alat/kembalikan/{id}', [ClientPenggunaanController::class, 'kembalikanAlat'])->name('penggunaan-alat.kembalikan');
     });
 
 
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
     Route::get('/admin/kunjungan', [AdminKunjunganController::class, 'index'])->name('admin.kunjungan.index');
+    Route::get('/admin/kunjungan/export', [AdminKunjunganController::class, 'export'])->name('admin.kunjungan.export');
 });
 
 
@@ -99,4 +101,14 @@ Route::get('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'sho
 Route::post('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'storeCheckout'])->name('kunjungan.checkout.store');
 Route::get('/kunjungan/checkin-success/{ruangan_id}', [KunjunganController::class, 'checkinSuccess'])->name('kunjungan.checkin.success');
 Route::get('/kunjungan/checkout-success/{ruangan_id}', [KunjunganController::class, 'checkoutSuccess'])->name('kunjungan.checkout.success');
+
+// Dashboard Kunjungan
+Route::get('/kunjungan/dashboard', [KunjunganController::class, 'dashboard'])->name('kunjungan.dashboard')->middleware('permission:dashboard-kunjungan');
+
+// QR Code Routes
+Route::get('/kunjungan/qr/checkin/{ruangan_id}', [KunjunganController::class, 'generateCheckinQR'])->name('kunjungan.qr.checkin')->middleware('permission:qr-checkin-kunjungan');
+Route::get('/kunjungan/qr/checkout/{ruangan_id}', [KunjunganController::class, 'generateCheckoutQR'])->name('kunjungan.qr.checkout')->middleware('permission:qr-checkout-kunjungan');
+Route::get('/kunjungan/scan-qr', function() { return view('kunjungan.scan-qr'); })->name('kunjungan.scan')->middleware('permission:scan-qr-kunjungan');
+Route::post('/kunjungan/scan-qr', [KunjunganController::class, 'scanQR'])->name('kunjungan.scan.qr')->middleware('permission:scan-qr-kunjungan');
+
 require __DIR__ . '/auth.php';
