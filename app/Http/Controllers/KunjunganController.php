@@ -172,6 +172,158 @@ class KunjunganController extends Controller
     public function checkoutSuccess($ruangan_id)
     {
         $ruangan = Ruangan::findOrFail($ruangan_id);
-        return back()->with('message', 'Berhasil Check-in' . $ruangan->nama);
+        return redirect()->route('beranda')
+            ->with('success', 'Check-out berhasil! Terima kasih telah mengunjungi ' . $ruangan->name);
+    }
+
+    // Dashboard Kunjungan
+    public function dashboard()
+    {
+        $user = Auth::user();
+        
+        // Statistik untuk user
+        $stats = [
+            'total' => Kunjungan::where('nama', $user->name)->count(),
+            'today' => Kunjungan::where('nama', $user->name)->whereDate('waktu_masuk', Carbon::today())->count(),
+            'this_month' => Kunjungan::where('nama', $user->name)->whereMonth('waktu_masuk', Carbon::now()->month)->count(),
+            'this_week' => Kunjungan::where('nama', $user->name)->whereBetween('waktu_masuk', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->count(),
+        ];
+        
+        // Kunjungan aktif
+        $activeVisits = Kunjungan::where('nama', $user->name)
+            ->whereNull('waktu_keluar')
+            ->with('ruangan')
+            ->get();
+            
+        // Kunjungan terbaru
+        $recentVisits = Kunjungan::where('nama', $user->name)
+            ->with('ruangan')
+            ->orderBy('waktu_masuk', 'desc')
+            ->take(5)
+            ->get();
+            
+        // Ruangan yang tersedia
+        $ruangans = Ruangan::orderBy('name')->get();
+        
+        // Counts for dashboard
+        $todayVisits = Kunjungan::whereDate('waktu_masuk', Carbon::today())->count();
+        $activeVisitsCount = Kunjungan::whereNull('waktu_keluar')->count();
+        
+        return view('kunjungan.dashboard', compact(
+            'stats', 
+            'activeVisits', 
+            'recentVisits', 
+            'ruangans',
+            'todayVisits',
+            'activeVisitsCount'
+        ));
+    }
+
+    // Generate QR Code untuk Check-in
+    public function generateCheckinQR($ruangan_id)
+    {
+        $ruangan = Ruangan::findOrFail($ruangan_id);
+        $qrData = [
+            'type' => 'checkin',
+            'ruangan_id' => $ruangan->id,
+            'ruangan_name' => $ruangan->name,
+            'timestamp' => now()->timestamp,
+        ];
+        
+        $qrCode = \QrCode::size(300)->generate(json_encode($qrData));
+        
+        return view('kunjungan.qr-checkin', compact('ruangan', 'qrCode', 'qrData'));
+    }
+
+    // Generate QR Code untuk Check-out
+    public function generateCheckoutQR($ruangan_id)
+    {
+        $ruangan = Ruangan::findOrFail($ruangan_id);
+        $qrData = [
+            'type' => 'checkout',
+            'ruangan_id' => $ruangan->id,
+            'ruangan_name' => $ruangan->name,
+            'timestamp' => now()->timestamp,
+        ];
+        
+        $qrCode = \QrCode::size(300)->generate(json_encode($qrData));
+        
+        return view('kunjungan.qr-checkout', compact('ruangan', 'qrCode', 'qrData'));
+    }
+
+    // Scan QR Code
+    public function scanQR(Request $request)
+    {
+        $request->validate([
+            'qr_data' => 'required|string',
+        ]);
+        
+        try {
+            $qrData = json_decode($request->qr_data, true);
+            
+            if (!$qrData || !isset($qrData['type']) || !isset($qrData['ruangan_id'])) {
+                return back()->withErrors(['error' => 'QR Code tidak valid.']);
+            }
+            
+            $ruangan = Ruangan::find($qrData['ruangan_id']);
+            if (!$ruangan) {
+                return back()->withErrors(['error' => 'Ruangan tidak ditemukan.']);
+            }
+            
+            $user = Auth::user();
+            
+            if ($qrData['type'] === 'checkin') {
+                // Proses check-in
+                $activeVisit = Kunjungan::where('ruangan_id', $ruangan->id)
+                    ->where('nama', $user->name)
+                    ->whereNull('waktu_keluar')
+                    ->first();
+                    
+                if ($activeVisit) {
+                    return back()->with('warning', 'Anda sudah melakukan check-in di ruangan ini.');
+                }
+                
+                Kunjungan::create([
+                    'ruangan_id' => $ruangan->id,
+                    'nama' => $user->name,
+                    'nim_nip' => $user->nim_nip ?? null,
+                    'instansi' => $user->instansi ?? null,
+                    'tujuan' => 'Check-in via QR Code',
+                    'waktu_masuk' => Carbon::now(),
+                ]);
+                
+                return back()->with('success', 'Check-in berhasil! Selamat datang di ' . $ruangan->name);
+                
+            } elseif ($qrData['type'] === 'checkout') {
+                // Proses check-out
+                $kunjungan = Kunjungan::where('ruangan_id', $ruangan->id)
+                    ->where('nama', $user->name)
+                    ->whereNull('waktu_keluar')
+                    ->latest('waktu_masuk')
+                    ->first();
+                    
+                if (!$kunjungan) {
+                    return back()->with('warning', 'Anda belum melakukan check-in di ruangan ini.');
+                }
+                
+                $waktuMasuk = Carbon::parse($kunjungan->waktu_masuk);
+                $waktuKeluar = Carbon::now();
+                $durasi = $waktuMasuk->diffInMinutes($waktuKeluar);
+                
+                $kunjungan->waktu_keluar = $waktuKeluar;
+                $kunjungan->save();
+                
+                $durasiText = $durasi >= 60 
+                    ? floor($durasi / 60) . ' jam ' . ($durasi % 60) . ' menit'
+                    : $durasi . ' menit';
+                
+                return back()->with('success', 'Check-out berhasil! Durasi kunjungan: ' . $durasiText);
+            }
+            
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memproses QR Code.']);
+        }
+        
+        return back()->withErrors(['error' => 'Tipe QR Code tidak dikenali.']);
     }
 } 

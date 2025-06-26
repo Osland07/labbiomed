@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
 use App\Models\Laporan;
 use App\Models\LaporanPeminjaman;
+use App\Models\Ruangan;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,12 @@ class AppServiceProvider extends ServiceProvider
                 'jumlahValidasiPenggunaan' => $jumlahValidasiPenggunaan,
                 'jumlahValidasiPengembalian' => $jumlahValidasiPengembalian,
             ]);
+        });
+
+        // Share ruangans data with all admin views for sidebar menu
+        View::composer('layouts.admin.*', function ($view) {
+            $ruangans = Ruangan::orderBy('name')->get();
+            $view->with('ruangans', $ruangans);
         });
     }
 }

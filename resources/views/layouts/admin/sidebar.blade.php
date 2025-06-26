@@ -146,6 +146,57 @@
                     </li>
                 @endcan
 
+                @php
+                    $dataKunjunganRoutes = [
+                        'admin.kunjungan.index',
+                        'kunjungan.dashboard',
+                        'kunjungan.scan',
+                        'kunjungan.qr.checkin',
+                        'kunjungan.qr.checkout',
+                    ];
+                    $isDataKunjunganActive = in_array(Route::currentRouteName(), $dataKunjunganRoutes);
+                @endphp
+
+                @if (Auth::user()->can('view-kunjungan') ||
+                        Auth::user()->can('dashboard-kunjungan') ||
+                        Auth::user()->can('qr-checkin-kunjungan') ||
+                        Auth::user()->can('qr-checkout-kunjungan') ||
+                        Auth::user()->can('scan-qr-kunjungan'))
+                    <li class="nav-item has-treeview {{ $isDataKunjunganActive ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link text-white {{ $isDataKunjunganActive ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>
+                                Kunjungan
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <x-sidebar-link route="admin.kunjungan.index" label="Data Kunjungan" can="view-kunjungan" />
+                            <x-sidebar-link route="kunjungan.dashboard" label="Dashboard Kunjungan" can="dashboard-kunjungan" />
+                            <x-sidebar-link route="kunjungan.scan" label="Scan QR Code" can="scan-qr-kunjungan" />
+                            @if($ruangans ?? false)
+                                <li class="nav-header text-white-50">QR Code Generator</li>
+                                @foreach($ruangans as $ruangan)
+                                    @if(Auth::user()->can('qr-checkin-kunjungan'))
+                                        <li class="nav-item ps-4 {{ Request::routeIs('kunjungan.qr.checkin') && request()->route('ruangan_id') == $ruangan->id ? 'aktif' : '' }}">
+                                            <a href="{{ route('kunjungan.qr.checkin', $ruangan->id) }}" class="nav-link text-white">
+                                                <p><i class="fas fa-sign-in-alt text-success mr-2"></i>Check-in {{ $ruangan->name }}</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                    @if(Auth::user()->can('qr-checkout-kunjungan'))
+                                        <li class="nav-item ps-4 {{ Request::routeIs('kunjungan.qr.checkout') && request()->route('ruangan_id') == $ruangan->id ? 'aktif' : '' }}">
+                                            <a href="{{ route('kunjungan.qr.checkout', $ruangan->id) }}" class="nav-link text-white">
+                                                <p><i class="fas fa-sign-out-alt text-danger mr-2"></i>Check-out {{ $ruangan->name }}</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </ul>
+                    </li>
+                @endif
+
                 @can('check-client')
                     <x-sidebar-link route="client.check.index" icon="search" label="Cek Ketersediaan" can="check-client" />
                 @endcan
@@ -196,27 +247,6 @@
 
                 @can('jadwal-dashboard')
                     <x-sidebar-link route="jadwal" icon="calendar" label="Jadwal" can="jadwal-dashboard" />
-                @endcan
-
-                @can('view-kunjungan')
-                    <li class="nav-item has-treeview {{ Request::routeIs('admin.kunjungan.*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link text-white {{ Request::routeIs('admin.kunjungan.*') ? 'active' : '' }}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>
-                                Kunjungan Lab
-                                <i class="right fas fa-angle-left"></i>
-                            </p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <x-sidebar-link route="admin.kunjungan.index" label="Data Kunjungan" can="view-kunjungan" />
-                            @can('dashboard-kunjungan')
-                                <x-sidebar-link route="kunjungan.dashboard" label="Dashboard Kunjungan" can="dashboard-kunjungan" />
-                            @endcan
-                            @can('scan-qr-kunjungan')
-                                <x-sidebar-link route="kunjungan.scan" label="Scan QR Code" can="scan-qr-kunjungan" />
-                            @endcan
-                        </ul>
-                    </li>
                 @endcan
 
                 @can('kunjungan-client')

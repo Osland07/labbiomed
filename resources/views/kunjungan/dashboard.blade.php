@@ -48,7 +48,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Sedang di Lab</p>
-                            <p class="text-2xl font-bold text-gray-800">{{ $activeVisits }}</p>
+                            <p class="text-2xl font-bold text-gray-800">{{ $activeVisitsCount }}</p>
                         </div>
                     </div>
                 </div>

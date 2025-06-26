@@ -21,10 +21,13 @@
                 <div class="mr-3">
                     <span class="badge badge-success">Hari Ini: {{ $kunjungans->where('waktu_masuk', '>=', \Carbon\Carbon::today())->count() }}</span>
                 </div>
+                <a href="{{ route('kunjungan.dashboard') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-dashboard mr-1"></i>Dashboard Kunjungan
+                </a>
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Enhanced Stats Cards -->
         <div class="row mb-4">
             <div class="col-xl-4 col-md-6 mb-4">
                 <div class="card border-left-primary shadow h-100 py-2">
@@ -34,6 +37,7 @@
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Total Kunjungan</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $kunjungans->total() }}</div>
+                                <div class="text-xs text-muted">Semua waktu</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-calendar-check fa-2x text-gray-300"></i>
@@ -51,6 +55,7 @@
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Kunjungan Bulan Ini</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $kunjungans->where('waktu_masuk', '>=', \Carbon\Carbon::now()->startOfMonth())->count() }}</div>
+                                <div class="text-xs text-muted">{{ \Carbon\Carbon::now()->format('M Y') }}</div>
                             </div>
                             <div class="col-auto">
                                 <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
@@ -66,13 +71,12 @@
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Ruangan Favorit</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                    {{ $kunjungans->groupBy('ruangan_id')->sortByDesc(function($group) { return $group->count(); })->first()->first()->ruangan->name ?? 'N/A' }}
-                                </div>
+                                    Kunjungan Minggu Ini</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $kunjungans->where('waktu_masuk', '>=', \Carbon\Carbon::now()->startOfWeek())->count() }}</div>
+                                <div class="text-xs text-muted">7 hari terakhir</div>
                             </div>
                             <div class="col-auto">
-                                <i class="fas fa-heart fa-2x text-gray-300"></i>
+                                <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
                             </div>
                         </div>
                     </div>
@@ -83,7 +87,9 @@
         <!-- Main Table Card -->
         <div class="card shadow mb-4">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">Daftar Kunjungan</h6>
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-table mr-2"></i>Riwayat Kunjungan ({{ $kunjungans->total() }} data)
+                </h6>
                 <div class="dropdown no-arrow">
                     <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
@@ -93,6 +99,10 @@
                         <a class="dropdown-item" href="#" onclick="window.print()">
                             <i class="fas fa-print fa-sm fa-fw mr-2 text-gray-400"></i>
                             Cetak Riwayat
+                        </a>
+                        <a class="dropdown-item" href="{{ route('kunjungan.dashboard') }}">
+                            <i class="fas fa-dashboard fa-sm fa-fw mr-2 text-gray-400"></i>
+                            Dashboard Kunjungan
                         </a>
                     </div>
                 </div>
@@ -104,11 +114,11 @@
                             <tr>
                                 <th class="text-center" style="width: 5%">No</th>
                                 <th style="width: 20%">Ruangan</th>
-                                <th style="width: 25%">Keperluan</th>
+                                <th style="width: 20%">Tujuan</th>
                                 <th style="width: 15%">Waktu Masuk</th>
                                 <th style="width: 15%">Waktu Keluar</th>
                                 <th style="width: 10%">Status</th>
-                                <th style="width: 10%">Durasi</th>
+                                <th style="width: 15%">Durasi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -117,44 +127,35 @@
                                 <td class="text-center">{{ $index + 1 + ($kunjungans->currentPage() - 1) * $kunjungans->perPage() }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="mr-3">
-                                            <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                                                <i class="fas fa-building text-white text-sm"></i>
-                                            </div>
+                                        <div class="mr-2">
+                                            <i class="fas fa-building text-primary"></i>
                                         </div>
                                         <div>
-                                            <strong class="text-primary">{{ $k->ruangan->name ?? '-' }}</strong>
-                                            @if($k->ruangan)
-                                                <br><small class="text-muted">{{ $k->ruangan->lokasi ?? 'Lokasi tidak tersedia' }}</small>
-                                            @endif
+                                            <strong>{{ $k->ruangan->name ?? '-' }}</strong>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="text-wrap" style="max-width: 300px;">
-                                        <strong>{{ Str::limit($k->tujuan, 60) }}</strong>
+                                    <div class="text-wrap" style="max-width: 250px;">
+                                        {{ Str::limit($k->tujuan, 60) }}
                                         @if(strlen($k->tujuan) > 60)
-                                            <br><small class="text-muted">{{ $k->tujuan }}</small>
+                                            <button type="button" class="btn btn-sm btn-link p-0 ml-1" data-toggle="tooltip" data-placement="top" title="{{ $k->tujuan }}">
+                                                <i class="fas fa-info-circle text-info"></i>
+                                            </button>
                                         @endif
                                     </div>
                                 </td>
                                 <td>
                                     <div class="d-flex flex-column">
-                                        <div class="d-flex align-items-center mb-1">
-                                            <i class="fas fa-sign-in-alt text-success mr-2"></i>
-                                            <strong>{{ \Carbon\Carbon::parse($k->waktu_masuk)->format('H:i') }}</strong>
-                                        </div>
                                         <small class="text-muted">{{ \Carbon\Carbon::parse($k->waktu_masuk)->format('d/m/Y') }}</small>
+                                        <strong>{{ \Carbon\Carbon::parse($k->waktu_masuk)->format('H:i') }}</strong>
                                     </div>
                                 </td>
                                 <td>
                                     @if($k->waktu_keluar)
                                         <div class="d-flex flex-column">
-                                            <div class="d-flex align-items-center mb-1">
-                                                <i class="fas fa-sign-out-alt text-danger mr-2"></i>
-                                                <strong>{{ \Carbon\Carbon::parse($k->waktu_keluar)->format('H:i') }}</strong>
-                                            </div>
                                             <small class="text-muted">{{ \Carbon\Carbon::parse($k->waktu_keluar)->format('d/m/Y') }}</small>
+                                            <strong>{{ \Carbon\Carbon::parse($k->waktu_keluar)->format('H:i') }}</strong>
                                         </div>
                                     @else
                                         <span class="badge badge-warning">
@@ -204,9 +205,14 @@
                                         </div>
                                         <h6 class="text-gray-500 mb-2">Belum ada riwayat kunjungan</h6>
                                         <p class="text-muted text-center mb-3">Anda belum pernah melakukan kunjungan ke laboratorium</p>
-                                        <a href="{{ route('beranda') }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-plus mr-1"></i>Mulai Kunjungan
-                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <a href="{{ route('kunjungan.dashboard') }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-dashboard mr-1"></i>Dashboard Kunjungan
+                                            </a>
+                                            <a href="{{ route('kunjungan.scan') }}" class="btn btn-success btn-sm">
+                                                <i class="fas fa-qrcode mr-1"></i>Scan QR Code
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -226,41 +232,29 @@
         @if($kunjungans->count() > 0)
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Aktivitas Terbaru</h6>
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-history mr-2"></i>Aktivitas Kunjungan Terbaru
+                </h6>
             </div>
             <div class="card-body">
                 <div class="timeline">
                     @foreach($kunjungans->take(5) as $k)
-                    <div class="timeline-item d-flex mb-3">
-                        <div class="timeline-marker mr-3">
-                            @if($k->waktu_keluar)
-                                <div class="w-8 h-8 bg-success rounded-full flex items-center justify-center">
-                                    <i class="fas fa-check text-white text-xs"></i>
-                                </div>
-                            @else
-                                <div class="w-8 h-8 bg-warning rounded-full flex items-center justify-center">
-                                    <i class="fas fa-clock text-white text-xs"></i>
-                                </div>
-                            @endif
+                    <div class="timeline-item">
+                        <div class="timeline-marker {{ $k->waktu_keluar ? 'bg-success' : 'bg-warning' }}">
+                            <i class="fas {{ $k->waktu_keluar ? 'fa-check' : 'fa-clock' }} text-white"></i>
                         </div>
-                        <div class="timeline-content flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <strong class="text-gray-800">{{ $k->ruangan->name ?? 'Ruangan' }}</strong>
-                                    <p class="text-muted mb-1">{{ $k->tujuan }}</p>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar mr-1"></i>
-                                        {{ \Carbon\Carbon::parse($k->waktu_masuk)->format('d M Y, H:i') }}
-                                    </small>
-                                </div>
-                                <div class="text-right">
-                                    @if($k->waktu_keluar)
-                                        <span class="badge badge-success">Selesai</span>
-                                    @else
-                                        <span class="badge badge-warning">Aktif</span>
-                                    @endif
-                                </div>
+                        <div class="timeline-content">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ $k->ruangan->name ?? 'Ruangan' }}</h6>
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($k->waktu_masuk)->diffForHumans() }}</small>
                             </div>
+                            <p class="mb-1">{{ Str::limit($k->tujuan, 100) }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-sign-in-alt mr-1"></i>{{ \Carbon\Carbon::parse($k->waktu_masuk)->format('d/m/Y H:i') }}
+                                @if($k->waktu_keluar)
+                                    <i class="fas fa-sign-out-alt ml-2 mr-1"></i>{{ \Carbon\Carbon::parse($k->waktu_keluar)->format('d/m/Y H:i') }}
+                                @endif
+                            </small>
                         </div>
                     </div>
                     @endforeach
@@ -271,22 +265,40 @@
     </div>
 
     <style>
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
         .timeline-item {
             position: relative;
+            margin-bottom: 20px;
         }
-        
-        .timeline-item:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 32px;
-            bottom: -16px;
-            width: 2px;
-            background-color: #e3e6f0;
-        }
-        
         .timeline-marker {
-            flex-shrink: 0;
+            position: absolute;
+            left: -35px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .timeline-content {
+            background: #f8f9fc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4e73df;
+        }
+        .gap-2 {
+            gap: 0.5rem;
         }
     </style>
+
+    <script>
+        // Initialize tooltips
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
 </x-admin-table>

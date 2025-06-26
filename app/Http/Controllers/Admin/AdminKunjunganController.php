@@ -23,7 +23,7 @@ class AdminKunjunganController extends Controller
                   ->orWhere('instansi', 'like', "%{$search}%")
                   ->orWhere('tujuan', 'like', "%{$search}%")
                   ->orWhereHas('ruangan', function($rq) use ($search) {
-                      $rq->where('nama', 'like', "%{$search}%");
+                      $rq->where('name', 'like', "%{$search}%");
                   });
             });
         }
@@ -70,7 +70,7 @@ class AdminKunjunganController extends Controller
             
         $popularRoomName = $popularRoom ? Ruangan::find($popularRoom->ruangan_id)->name : 'N/A';
         
-        // Daftar ruangan untuk filter
+        // Daftar ruangan untuk filter dan sidebar
         $ruangans = Ruangan::orderBy('name')->get();
         
         return view('admin.kunjungan.index', compact(
