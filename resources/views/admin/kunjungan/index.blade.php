@@ -22,6 +22,7 @@
                     <span class="badge badge-info">Hari Ini: {{ $stats['today'] }}</span>
                 </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
                 <div class="dropdown">
                     <button class="btn btn-primary dropdown-toggle" type="button" id="qrDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-qrcode mr-1"></i>QR Code
@@ -41,6 +42,8 @@
                         @endforeach
                     </div>
                 </div>
+=======
+>>>>>>> beb307dfe502eedce80aab7aef5cf105f5a248be
 =======
 >>>>>>> beb307dfe502eedce80aab7aef5cf105f5a248be
             </div>
