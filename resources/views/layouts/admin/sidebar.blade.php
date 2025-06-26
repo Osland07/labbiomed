@@ -199,7 +199,7 @@
                 @endcan
 
                 <li class="nav-item">
-                    <a class="nav-link text" href="{{ route('admin.kunjungan.index') }}">
+                    <a class="nav-link text-white" href="{{ route('admin.kunjungan.index') }}">
                         <i class="fas fa-fw fa-users"></i>
                         <span>Kunjungan Lab</span>
                     </a>
