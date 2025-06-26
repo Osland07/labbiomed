@@ -13,11 +13,15 @@ use App\Http\Controllers\Admin\AdminBahanController;
 use App\Http\Controllers\Admin\AdminRuanganController;
 use App\Http\Controllers\Admin\AdminTransaksiController;
 use App\Http\Controllers\Admin\AdminLaporanController;
+use App\Http\Controllers\Admin\AdminKunjunganController;
 use App\Http\Controllers\Client\ClientCekController;
 use App\Http\Controllers\Client\ClientPengajuanController;
 use App\Http\Controllers\Client\ClientPenggunaanController;
 use App\Http\Controllers\Client\ClientRiwayatController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\KunjunganController;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -83,7 +87,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/penggunaan-alat/kembalikan/{id}', [ClientPenggunaanController::class, 'kembalikanAlat'])->name('penggunaan-alat.kembalikan');
     });
 
+
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
+    Route::get('/admin/kunjungan', [AdminKunjunganController::class, 'index'])->name('admin.kunjungan.index');
 });
 
+
+Route::get('/kunjungan/checkin/{ruangan_id}', [KunjunganController::class, 'showCheckin'])->name('kunjungan.checkin');
+Route::post('/kunjungan/checkin/{ruangan_id}', [KunjunganController::class, 'storeCheckin'])->name('kunjungan.checkin.store');
+Route::get('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'showCheckout'])->name('kunjungan.checkout');
+Route::post('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'storeCheckout'])->name('kunjungan.checkout.store');
+Route::get('/kunjungan/checkin-success/{ruangan_id}', [KunjunganController::class, 'checkinSuccess'])->name('kunjungan.checkin.success');
+Route::get('/kunjungan/checkout-success/{ruangan_id}', [KunjunganController::class, 'checkoutSuccess'])->name('kunjungan.checkout.success');
 require __DIR__ . '/auth.php';
