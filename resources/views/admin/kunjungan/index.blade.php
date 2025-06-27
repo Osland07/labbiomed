@@ -21,6 +21,26 @@
                 <div class="mr-3">
                     <span class="badge badge-info">Hari Ini: {{ $stats['today'] }}</span>
                 </div>
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="generateDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-link mr-1"></i>Generate Alamat
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generateDropdown" style="max-height: 400px; overflow-y: auto;">
+                        <h6 class="dropdown-header">Alamat Check-in Ruangan</h6>
+                        @foreach($ruangans as $ruangan)
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="showUrlOverlay('{{ route('kunjungan.checkin', $ruangan->id) }}', 'Check-in {{ $ruangan->name }}')">
+                                <i class="fas fa-sign-in-alt text-success mr-2"></i>Check-in {{ $ruangan->name }}
+                            </a>
+                        @endforeach
+                        <div class="dropdown-divider"></div>
+                        <h6 class="dropdown-header">Alamat Check-out Ruangan</h6>
+                        @foreach($ruangans as $ruangan)
+                            <a class="dropdown-item" href="javascript:void(0)" onclick="showUrlOverlay('{{ route('kunjungan.checkout', $ruangan->id) }}', 'Check-out {{ $ruangan->name }}')">
+                                <i class="fas fa-sign-out-alt text-danger mr-2"></i>Check-out {{ $ruangan->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -146,7 +166,7 @@
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="fas fa-filter mr-2"></i>Filter & Pencarian
                 </h6>
-                <button class="btn btn-sm btn-outline-primary" type="button" data-toggle="collapse" data-target="#filterCollapse">
+                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
@@ -283,7 +303,7 @@
                                     <div class="text-wrap" style="max-width: 200px;">
                                         {{ Str::limit($k->tujuan, 50) }}
                                         @if(strlen($k->tujuan) > 50)
-                                            <button type="button" class="btn btn-sm btn-link p-0 ml-1" data-toggle="tooltip" data-placement="top" title="{{ $k->tujuan }}">
+                                            <button type="button" class="btn btn-sm btn-link p-0 ml-1" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $k->tujuan }}">
                                                 <i class="fas fa-info-circle text-info"></i>
                                             </button>
                                         @endif
@@ -365,10 +385,189 @@
         </div>
     </div>
 
+    <!-- Overlay untuk menampilkan URL -->
+    <div id="urlOverlay" class="url-overlay" style="display: none;">
+        <div class="url-overlay-content">
+            <div class="url-overlay-header">
+                <h5><i class="fas fa-link mr-2"></i><span id="overlayTitle">Alamat Check-in/Check-out</span></h5>
+                <button type="button" class="close-overlay" onclick="hideUrlOverlay()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="url-overlay-body">
+                <div class="form-group">
+                    <label>URL:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="overlayUrlDisplay" readonly>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-primary" type="button" onclick="copyUrlFromOverlay()">
+                                <i class="fas fa-copy mr-1"></i>Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    URL ini dapat dibagikan kepada pengunjung untuk akses langsung ke halaman check-in/check-out.
+                </div>
+            </div>
+            <div class="url-overlay-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideUrlOverlay()">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="openUrlFromOverlay()">
+                    <i class="fas fa-external-link-alt mr-1"></i>Buka URL
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .url-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .url-overlay-content {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .url-overlay-header {
+            padding: 20px 20px 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .url-overlay-header h5 {
+            margin: 0;
+            color: #333;
+        }
+        
+        .close-overlay {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-overlay:hover {
+            color: #333;
+        }
+        
+        .url-overlay-body {
+            padding: 20px;
+        }
+        
+        .url-overlay-footer {
+            padding: 0 20px 20px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+
     <script>
         // Initialize tooltips
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+
+        // Function to copy URL to clipboard
+        function copyUrlToClipboard(url) {
+            // Create a temporary input element
+            const tempInput = document.createElement('input');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            
+            // Select and copy the text
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand('copy');
+            
+            // Remove the temporary input
+            document.body.removeChild(tempInput);
+        }
+
+        // Function to show URL overlay
+        function showUrlOverlay(url, title) {
+            document.getElementById('overlayTitle').innerText = title;
+            document.getElementById('overlayUrlDisplay').value = url;
+            document.getElementById('urlOverlay').style.display = 'flex';
+        }
+
+        // Function to hide URL overlay
+        function hideUrlOverlay() {
+            document.getElementById('urlOverlay').style.display = 'none';
+        }
+
+        // Function to copy URL from overlay
+        function copyUrlFromOverlay() {
+            const url = document.getElementById('overlayUrlDisplay').value;
+            copyUrlToClipboard(url);
+            showNotification('URL berhasil disalin ke clipboard!', 'success');
+            hideUrlOverlay();
+        }
+
+        // Function to open URL from overlay
+        function openUrlFromOverlay() {
+            const url = document.getElementById('overlayUrlDisplay').value;
+            window.open(url, '_blank');
+            hideUrlOverlay();
+        }
+
+        // Function to show notifications
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'info'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Close overlay when clicking outside
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('urlOverlay').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideUrlOverlay();
+                }
+            });
         });
     </script>
 </x-admin-table>
