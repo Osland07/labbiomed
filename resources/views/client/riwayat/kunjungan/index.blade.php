@@ -100,10 +100,6 @@
                             <i class="fas fa-print fa-sm fa-fw mr-2 text-gray-400"></i>
                             Cetak Riwayat
                         </a>
-                        <a class="dropdown-item" href="{{ route('kunjungan.dashboard') }}">
-                            <i class="fas fa-dashboard fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Dashboard Kunjungan
-                        </a>
                     </div>
                 </div>
             </div>
@@ -205,14 +201,6 @@
                                         </div>
                                         <h6 class="text-gray-500 mb-2">Belum ada riwayat kunjungan</h6>
                                         <p class="text-muted text-center mb-3">Anda belum pernah melakukan kunjungan ke laboratorium</p>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('kunjungan.dashboard') }}" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-dashboard mr-1"></i>Dashboard Kunjungan
-                                            </a>
-                                            <a href="{{ route('kunjungan.scan') }}" class="btn btn-success btn-sm">
-                                                <i class="fas fa-qrcode mr-1"></i>Scan QR Code
-                                            </a>
-                                        </div>
                                     </div>
                                 </td>
                             </tr>

@@ -172,27 +172,6 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <x-sidebar-link route="admin.kunjungan.index" label="Data Kunjungan" can="view-kunjungan" />
-                            <x-sidebar-link route="kunjungan.dashboard" label="Dashboard Kunjungan" can="dashboard-kunjungan" />
-                            <x-sidebar-link route="kunjungan.scan" label="Scan QR Code" can="scan-qr-kunjungan" />
-                            @if($ruangans ?? false)
-                                <li class="nav-header text-white-50">QR Code Generator</li>
-                                @foreach($ruangans as $ruangan)
-                                    @if(Auth::user()->can('qr-checkin-kunjungan'))
-                                        <li class="nav-item ps-4 {{ Request::routeIs('kunjungan.qr.checkin') && request()->route('ruangan_id') == $ruangan->id ? 'aktif' : '' }}">
-                                            <a href="{{ route('kunjungan.qr.checkin', $ruangan->id) }}" class="nav-link text-white">
-                                                <p><i class="fas fa-sign-in-alt text-success mr-2"></i>Check-in {{ $ruangan->name }}</p>
-                                            </a>
-                                        </li>
-                                    @endif
-                                    @if(Auth::user()->can('qr-checkout-kunjungan'))
-                                        <li class="nav-item ps-4 {{ Request::routeIs('kunjungan.qr.checkout') && request()->route('ruangan_id') == $ruangan->id ? 'aktif' : '' }}">
-                                            <a href="{{ route('kunjungan.qr.checkout', $ruangan->id) }}" class="nav-link text-white">
-                                                <p><i class="fas fa-sign-out-alt text-danger mr-2"></i>Check-out {{ $ruangan->name }}</p>
-                                            </a>
-                                        </li>
-                                    @endif
-                                @endforeach
-                            @endif
                         </ul>
                     </li>
                 @endif

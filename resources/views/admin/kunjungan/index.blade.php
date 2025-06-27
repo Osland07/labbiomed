@@ -21,25 +21,6 @@
                 <div class="mr-3">
                     <span class="badge badge-info">Hari Ini: {{ $stats['today'] }}</span>
                 </div>
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="qrDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-qrcode mr-1"></i>QR Code
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="qrDropdown">
-                        <h6 class="dropdown-header">Generate QR Code</h6>
-                        @foreach($ruangans as $ruangan)
-                            <a class="dropdown-item" href="{{ route('kunjungan.qr.checkin', $ruangan->id) }}">
-                                <i class="fas fa-sign-in-alt text-success mr-2"></i>Check-in {{ $ruangan->name }}
-                            </a>
-                            <a class="dropdown-item" href="{{ route('kunjungan.qr.checkout', $ruangan->id) }}">
-                                <i class="fas fa-sign-out-alt text-danger mr-2"></i>Check-out {{ $ruangan->name }}
-                            </a>
-                            @if(!$loop->last)
-                                <div class="dropdown-divider"></div>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -368,14 +349,6 @@
                                         </div>
                                         <h6 class="text-gray-500 mb-2">Belum ada data kunjungan</h6>
                                         <p class="text-muted text-center mb-3">Data kunjungan akan muncul di sini setelah ada pengunjung yang melakukan check-in</p>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ route('kunjungan.dashboard') }}" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-dashboard mr-1"></i>Dashboard Kunjungan
-                                            </a>
-                                            <a href="{{ route('kunjungan.scan') }}" class="btn btn-success btn-sm">
-                                                <i class="fas fa-qrcode mr-1"></i>Scan QR Code
-                                            </a>
-                                        </div>
                                     </div>
                                 </td>
                             </tr>

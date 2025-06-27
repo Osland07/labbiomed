@@ -27,12 +27,7 @@
                                 </div>
                             </div>
                             <div class="space-y-2">
-                                <a href="{{ route('kunjungan.dashboard') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
-                                    <i class="fas fa-qrcode mr-2"></i>Dashboard Kunjungan
-                                </a>
-                                <a href="{{ route('kunjungan.scan') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
-                                    <i class="fas fa-camera mr-2"></i>Scan QR Code
-                                </a>
+                                <!-- QR code functionality removed -->
                             </div>
                         </div>
 
@@ -86,28 +81,6 @@
                             </div>
                         </div>
                         @endauth
-                    </div>
-
-                    <!-- QR Code Info -->
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                        <div class="flex items-start">
-                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-blue-800 mb-2">Sistem QR Code Kunjungan</h3>
-                                <p class="text-blue-700 mb-3">Sistem kunjungan laboratorium kini dilengkapi dengan QR code untuk memudahkan proses check-in dan check-out. Fitur yang tersedia:</p>
-                                <ul class="text-blue-700 space-y-1 text-sm">
-                                    <li>• <strong>QR Code Check-in:</strong> Scan QR code untuk melakukan check-in ke ruangan</li>
-                                    <li>• <strong>QR Code Check-out:</strong> Scan QR code untuk melakukan check-out dari ruangan</li>
-                                    <li>• <strong>Scanner QR Code:</strong> Gunakan kamera untuk scan QR code</li>
-                                    <li>• <strong>Dashboard Kunjungan:</strong> Lihat semua ruangan dan QR code dalam satu halaman</li>
-                                    <li>• <strong>Riwayat Kunjungan:</strong> Pantau riwayat kunjungan Anda</li>
-                                </ul>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Recent Activity -->
