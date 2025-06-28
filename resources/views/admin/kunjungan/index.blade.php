@@ -8,41 +8,6 @@
     @include('components.alert')
     
     <div class="container-fluid">
-        <!-- Header Section -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h1 class="h3 mb-0 text-gray-800">Daftar Kunjungan Laboratorium</h1>
-                <p class="text-muted">Kelola dan pantau semua kunjungan ke laboratorium</p>
-            </div>
-            <div class="d-flex align-items-center">
-                <div class="mr-3">
-                    <span class="badge badge-success">Total: {{ $stats['total'] }}</span>
-                </div>
-                <div class="mr-3">
-                    <span class="badge badge-info">Hari Ini: {{ $stats['today'] }}</span>
-                </div>
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="generateDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-link mr-1"></i>Generate Alamat
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="generateDropdown" style="max-height: 400px; overflow-y: auto;">
-                        <h6 class="dropdown-header">Alamat Check-in Ruangan</h6>
-                        @foreach($ruangans as $ruangan)
-                            <a class="dropdown-item" href="javascript:void(0)" onclick="showUrlOverlay('{{ route('kunjungan.checkin', $ruangan->id) }}', 'Check-in {{ $ruangan->name }}')">
-                                <i class="fas fa-sign-in-alt text-success mr-2"></i>Check-in {{ $ruangan->name }}
-                            </a>
-                        @endforeach
-                        <div class="dropdown-divider"></div>
-                        <h6 class="dropdown-header">Alamat Check-out Ruangan</h6>
-                        @foreach($ruangans as $ruangan)
-                            <a class="dropdown-item" href="javascript:void(0)" onclick="showUrlOverlay('{{ route('kunjungan.checkout', $ruangan->id) }}', 'Check-out {{ $ruangan->name }}')">
-                                <i class="fas fa-sign-out-alt text-danger mr-2"></i>Check-out {{ $ruangan->name }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Enhanced Stats Cards -->
         <div class="row mb-4">
@@ -170,7 +135,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
-            <div class="collapse show" id="filterCollapse">
+            <div class="collapse" id="filterCollapse">
                 <div class="card-body">
                     <form method="GET" action="{{ route('admin.kunjungan.index') }}" class="row">
                         <div class="col-md-3 mb-3">
@@ -227,22 +192,9 @@
                 <h6 class="m-0 font-weight-bold text-primary">
                     <i class="fas fa-table mr-2"></i>Riwayat Kunjungan ({{ $kunjungans->total() }} data)
                 </h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-                        <div class="dropdown-header">Aksi:</div>
-                        <a class="dropdown-item" href="#" onclick="window.print()">
-                            <i class="fas fa-print fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Cetak Laporan
-                        </a>
-                        <a class="dropdown-item" href="{{ route('admin.kunjungan.export') }}?{{ http_build_query($request->all()) }}">
-                            <i class="fas fa-file-excel fa-sm fa-fw mr-2 text-gray-400"></i>
-                            Export Excel
-                        </a>
-                    </div>
-                </div>
+                <a class="btn btn-success btn-sm ms-auto" href="{{ route('admin.kunjungan.export') }}?{{ http_build_query($request->all()) }}">
+                    <i class="fas fa-file-excel mr-1"></i>Export
+                </a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -376,7 +328,6 @@
                         </tbody>
                     </table>
                 </div>
-                
                 <!-- Pagination -->
                 <div class="d-flex justify-content-center mt-4">
                     {{ $kunjungans->appends($request->all())->links() }}

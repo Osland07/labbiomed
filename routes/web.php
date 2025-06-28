@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan/exportKerusakan', [AdminLaporanController::class, 'exportLaporanKerusakan'])->name('laporan.kerusakan.export');
         Route::get('/kunjungan', [AdminKunjunganController::class, 'index'])->name('kunjungan.index')->middleware('permission:view-kunjungan');
         Route::get('/kunjungan/export', [AdminKunjunganController::class, 'export'])->name('kunjungan.export')->middleware('permission:view-kunjungan');
+        Route::get('/kunjungan/generate-qr', [AdminKunjunganController::class, 'generateQR'])->name('kunjungan.generate-qr')->middleware('permission:view-kunjungan');
     });
 
     // CMS CLIENT

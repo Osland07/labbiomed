@@ -149,6 +149,7 @@
                 @php
                     $dataKunjunganRoutes = [
                         'admin.kunjungan.index',
+                        'admin.kunjungan.generate-qr',
                     ];
                     $isDataKunjunganActive = in_array(Route::currentRouteName(), $dataKunjunganRoutes);
                 @endphp
@@ -164,6 +165,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <x-sidebar-link route="admin.kunjungan.index" label="Data Kunjungan" can="view-kunjungan" />
+                            <x-sidebar-link route="admin.kunjungan.generate-qr" label="Generate QR Code" can="view-kunjungan" />
                         </ul>
                     </li>
                 @endif

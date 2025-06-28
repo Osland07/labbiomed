@@ -30,6 +30,11 @@
                                 <a href="{{ route('admin.kunjungan.index') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
                                     <i class="fas fa-list mr-2"></i>Data Kunjungan
                                 </a>
+                                @if(auth()->user() && auth()->user()->hasRole('admin'))
+                                <a href="{{ route('admin.kunjungan.generate-qr') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
+                                    <i class="fas fa-qrcode mr-2"></i>Generate QR Code
+                                </a>
+                                @endif
                             </div>
                         </div>
 
@@ -54,6 +59,9 @@
                                 </a>
                                 <a href="{{ route('admin.kunjungan.index') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
                                     <i class="fas fa-list mr-2"></i>Data Kunjungan
+                                </a>
+                                <a href="{{ route('admin.kunjungan.generate-qr') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
+                                    <i class="fas fa-qrcode mr-2"></i>Generate QR Code
                                 </a>
                             </div>
                         </div>
