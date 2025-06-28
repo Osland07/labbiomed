@@ -57,6 +57,9 @@
                     <a href="{{ route('kunjungan.dashboard') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                         Dashboard
                     </a>
+                    <a href="{{ route('kunjungan.scan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                        Scan QR
+                    </a>
                     @auth
                         <a href="{{ route('client.riwayat-kunjungan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                             Riwayat
@@ -89,6 +92,9 @@
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-300">
                     <a href="{{ route('kunjungan.dashboard') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">
                         Dashboard
+                    </a>
+                    <a href="{{ route('kunjungan.scan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">
+                        Scan QR
                     </a>
                     @auth
                         <a href="{{ route('client.riwayat-kunjungan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium">

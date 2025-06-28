@@ -172,49 +172,4 @@ class AdminKunjunganController extends Controller
         
         return response()->stream($callback, 200, $headers);
     }
-
-    public function generateQrCode(Request $request, $ruangan_id, $type = 'checkin')
-    {
-        try {
-            $ruangan = Ruangan::findOrFail($ruangan_id);
-            
-            // Generate URL based on type
-            if ($type === 'checkout') {
-                $url = route('kunjungan.checkout', $ruangan_id);
-                $title = "Check-out {$ruangan->name}";
-            } else {
-                $url = route('kunjungan.checkin', $ruangan_id);
-                $title = "Check-in {$ruangan->name}";
-            }
-            
-            // QR code generation using QR Server API
-            $qrServerUrl = 'http://api.qrserver.com/v1/create-qr-code/?data=' . urlencode($url) . '&size=300x300';
-            
-            // Get the QR code image from QR Server
-            $qrImage = file_get_contents($qrServerUrl);
-            
-            if ($qrImage === false) {
-                throw new \Exception('Failed to generate QR code from QR Server API');
-            }
-            
-            // Return QR code as response
-            return response($qrImage)
-                ->header('Content-Type', 'image/png')
-                ->header('Content-Disposition', 'inline; filename="qr-' . $type . '-' . $ruangan->id . '.png"');
-                
-        } catch (\Exception $e) {
-            // Log the error
-            \Log::error('QR Code generation failed: ' . $e->getMessage());
-            
-            // Return a simple error image or text
-            return response('QR Code generation failed: ' . $e->getMessage(), 500);
-        }
-    }
-
-    public function qrCodePage(Request $request)
-    {
-        $ruangans = Ruangan::orderBy('name')->get();
-        
-        return view('admin.kunjungan.qr-codes', compact('ruangans'));
-    }
 }

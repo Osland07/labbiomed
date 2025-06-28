@@ -22,6 +22,12 @@
                     </x-nav-link>
                     @endcan
                     
+                    @can('scan-qr-kunjungan')
+                    <x-nav-link :href="route('kunjungan.scan')" :active="request()->routeIs('kunjungan.scan')">
+                        {{ __('Scan QR Code') }}
+                    </x-nav-link>
+                    @endcan
+                    
                     @can('kunjungan-client')
                     <x-nav-link :href="route('client.riwayat-kunjungan')" :active="request()->routeIs('client.riwayat-kunjungan')">
                         {{ __('Riwayat Kunjungan') }}
@@ -124,6 +130,12 @@
             @can('dashboard-kunjungan')
             <x-responsive-nav-link :href="route('kunjungan.dashboard')" :active="request()->routeIs('kunjungan.dashboard')">
                 {{ __('Kunjungan Lab') }}
+            </x-responsive-nav-link>
+            @endcan
+            
+            @can('scan-qr-kunjungan')
+            <x-responsive-nav-link :href="route('kunjungan.scan')" :active="request()->routeIs('kunjungan.scan')">
+                {{ __('Scan QR Code') }}
             </x-responsive-nav-link>
             @endcan
             
