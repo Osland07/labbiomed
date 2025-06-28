@@ -21,7 +21,7 @@
                 <div class="mr-3">
                     <span class="badge badge-info">Hari Ini: {{ $stats['today'] }}</span>
                 </div>
-                <div class="dropdown">
+                <div class="dropdown mr-2">
                     <button class="btn btn-primary dropdown-toggle" type="button" id="generateDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-link mr-1"></i>Generate Alamat
                     </button>
@@ -41,6 +41,9 @@
                         @endforeach
                     </div>
                 </div>
+                <a href="{{ route('admin.kunjungan.qr-codes') }}" class="btn btn-success mr-2">
+                    <i class="fas fa-qrcode mr-1"></i>QR Code
+                </a>
             </div>
         </div>
 
@@ -270,8 +273,22 @@
                                         <div class="mr-2">
                                             <i class="fas fa-building text-primary"></i>
                                         </div>
-                                        <div>
+                                        <div class="flex-grow-1">
                                             <strong>{{ $k->ruangan->name ?? '-' }}</strong>
+                                            @if($k->ruangan)
+                                                <div class="btn-group btn-group-sm mt-1" role="group">
+                                                    <button type="button" class="btn btn-outline-success btn-sm" 
+                                                            onclick="showQRCode('{{ route('admin.kunjungan.qr-code', ['ruangan_id' => $k->ruangan->id, 'type' => 'checkin']) }}', 'Check-in {{ $k->ruangan->name }}')"
+                                                            data-bs-toggle="tooltip" title="QR Code Check-in">
+                                                        <i class="fas fa-qrcode"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                            onclick="showQRCode('{{ route('admin.kunjungan.qr-code', ['ruangan_id' => $k->ruangan->id, 'type' => 'checkout']) }}', 'Check-out {{ $k->ruangan->name }}')"
+                                                            data-bs-toggle="tooltip" title="QR Code Check-out">
+                                                        <i class="fas fa-qrcode"></i>
+                                                    </button>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -395,20 +412,61 @@
                 </button>
             </div>
             <div class="url-overlay-body">
-                <div class="form-group">
-                    <label>URL:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="overlayUrlDisplay" readonly>
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-primary" type="button" onclick="copyUrlFromOverlay()">
-                                <i class="fas fa-copy mr-1"></i>Copy
-                            </button>
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs mb-3" id="overlayTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="url-tab" data-bs-toggle="tab" data-bs-target="#url-content" type="button" role="tab">
+                            <i class="fas fa-link mr-1"></i>URL
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="qr-tab" data-bs-toggle="tab" data-bs-target="#qr-content" type="button" role="tab">
+                            <i class="fas fa-qrcode mr-1"></i>QR Code
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="overlayTabContent">
+                    <!-- URL Tab -->
+                    <div class="tab-pane fade show active" id="url-content" role="tabpanel">
+                        <div class="form-group">
+                            <label>URL:</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="overlayUrlDisplay" readonly>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary" type="button" onclick="copyUrlFromOverlay()">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            URL ini dapat dibagikan kepada pengunjung untuk akses langsung ke halaman check-in/check-out.
                         </div>
                     </div>
-                </div>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    URL ini dapat dibagikan kepada pengunjung untuk akses langsung ke halaman check-in/check-out.
+                    
+                    <!-- QR Code Tab -->
+                    <div class="tab-pane fade" id="qr-content" role="tabpanel">
+                        <div class="text-center">
+                            <div id="qrCodeContainer" class="mb-3">
+                                <!-- QR code will be generated here -->
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-success" onclick="downloadQRFromOverlay()">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="printQRFromOverlay()">
+                                    <i class="fas fa-print mr-1"></i>Cetak
+                                </button>
+                            </div>
+                        </div>
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-qrcode mr-2"></i>
+                            QR code ini dapat dicetak dan ditempel di ruangan untuk memudahkan pengunjung melakukan check-in/check-out.
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="url-overlay-footer">
@@ -514,6 +572,115 @@
             document.getElementById('overlayTitle').innerText = title;
             document.getElementById('overlayUrlDisplay').value = url;
             document.getElementById('urlOverlay').style.display = 'flex';
+            
+            // Generate QR code for the URL
+            generateQRCode(url);
+        }
+
+        // Function to generate QR code
+        function generateQRCode(url) {
+            // Extract ruangan_id and type from URL
+            const urlParts = url.split('/');
+            const ruanganId = urlParts[urlParts.length - 1];
+            const type = urlParts[urlParts.length - 2] === 'checkout' ? 'checkout' : 'checkin';
+            
+            // Generate QR code URL
+            const qrCodeUrl = `{{ route('admin.kunjungan.qr-code', ['ruangan_id' => ':ruangan_id', 'type' => ':type']) }}`
+                .replace(':ruangan_id', ruanganId)
+                .replace(':type', type);
+            
+            // Display QR code
+            const qrContainer = document.getElementById('qrCodeContainer');
+            qrContainer.innerHTML = `
+                <img src="${qrCodeUrl}" alt="QR Code" class="img-fluid border rounded" style="max-width: 250px;">
+            `;
+        }
+
+        // Function to download QR code from overlay
+        function downloadQRFromOverlay() {
+            const url = document.getElementById('overlayUrlDisplay').value;
+            const urlParts = url.split('/');
+            const ruanganId = urlParts[urlParts.length - 1];
+            const type = urlParts[urlParts.length - 2] === 'checkout' ? 'checkout' : 'checkin';
+            
+            const qrCodeUrl = `{{ route('admin.kunjungan.qr-code', ['ruangan_id' => ':ruangan_id', 'type' => ':type']) }}`
+                .replace(':ruangan_id', ruanganId)
+                .replace(':type', type);
+            
+            const link = document.createElement('a');
+            link.href = qrCodeUrl;
+            link.download = `${type}-ruangan-${ruanganId}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('QR code berhasil diunduh!', 'success');
+        }
+
+        // Function to print QR code from overlay
+        function printQRFromOverlay() {
+            const url = document.getElementById('overlayUrlDisplay').value;
+            const title = document.getElementById('overlayTitle').innerText;
+            const urlParts = url.split('/');
+            const ruanganId = urlParts[urlParts.length - 1];
+            const type = urlParts[urlParts.length - 2] === 'checkout' ? 'checkout' : 'checkin';
+            
+            const qrCodeUrl = `{{ route('admin.kunjungan.qr-code', ['ruangan_id' => ':ruangan_id', 'type' => ':type']) }}`
+                .replace(':ruangan_id', ruanganId)
+                .replace(':type', type);
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${title}</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            text-align: center; 
+                            padding: 20px;
+                            margin: 0;
+                        }
+                        .qr-container {
+                            display: inline-block;
+                            padding: 20px;
+                            border: 2px solid #333;
+                            border-radius: 10px;
+                            margin: 20px;
+                        }
+                        .qr-title {
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 15px;
+                        }
+                        .qr-image {
+                            max-width: 200px;
+                            height: auto;
+                        }
+                        @media print {
+                            body { margin: 0; }
+                            .qr-container { 
+                                border: 1px solid #000; 
+                                page-break-inside: avoid;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="qr-container">
+                        <div class="qr-title">${title}</div>
+                        <img src="${qrCodeUrl}" alt="${title}" class="qr-image">
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
         }
 
         // Function to hide URL overlay
@@ -569,5 +736,75 @@
                 }
             });
         });
+
+        // Function to show individual QR code
+        function showQRCode(qrCodeUrl, title) {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>${title}</title>
+                    <style>
+                        body { 
+                            font-family: Arial, sans-serif; 
+                            text-align: center; 
+                            padding: 20px;
+                            margin: 0;
+                            background: #f8f9fa;
+                        }
+                        .qr-container {
+                            display: inline-block;
+                            padding: 30px;
+                            border: 3px solid #333;
+                            border-radius: 15px;
+                            margin: 20px;
+                            background: white;
+                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                        }
+                        .qr-title {
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                            color: #333;
+                        }
+                        .qr-image {
+                            max-width: 250px;
+                            height: auto;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                        }
+                        .qr-info {
+                            margin-top: 15px;
+                            font-size: 14px;
+                            color: #666;
+                        }
+                        @media print {
+                            body { 
+                                margin: 0; 
+                                background: white;
+                            }
+                            .qr-container { 
+                                border: 2px solid #000; 
+                                page-break-inside: avoid;
+                                box-shadow: none;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="qr-container">
+                        <div class="qr-title">${title}</div>
+                        <img src="${qrCodeUrl}" alt="${title}" class="qr-image">
+                        <div class="qr-info">
+                            <p>Scan QR code ini untuk akses langsung ke halaman ${title.toLowerCase()}</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+        }
     </script>
 </x-admin-table>

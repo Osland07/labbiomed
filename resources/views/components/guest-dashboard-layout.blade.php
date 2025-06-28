@@ -64,9 +64,6 @@
                     <a href="{{ route('kunjungan.dashboard') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('kunjungan.dashboard') ? 'bg-white bg-opacity-20' : '' }}">
                         Dashboard
                     </a>
-                    <a href="{{ route('kunjungan.scan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('kunjungan.scan') ? 'bg-white bg-opacity-20' : '' }}">
-                        Scan QR
-                    </a>
                     @auth
                         <a href="{{ route('client.riwayat-kunjungan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('client.riwayat-kunjungan') ? 'bg-white bg-opacity-20' : '' }}">
                             Riwayat
@@ -99,9 +96,6 @@
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-300">
                     <a href="{{ route('kunjungan.dashboard') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('kunjungan.dashboard') ? 'bg-white bg-opacity-20' : '' }}">
                         Dashboard
-                    </a>
-                    <a href="{{ route('kunjungan.scan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('kunjungan.scan') ? 'bg-white bg-opacity-20' : '' }}">
-                        Scan QR
                     </a>
                     @auth
                         <a href="{{ route('client.riwayat-kunjungan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('client.riwayat-kunjungan') ? 'bg-white bg-opacity-20' : '' }}">
