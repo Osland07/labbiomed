@@ -61,14 +61,8 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('kunjungan.dashboard') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('kunjungan.dashboard') ? 'bg-white bg-opacity-20' : '' }}">
-                        Dashboard
-                    </a>
-                    <a href="{{ route('kunjungan.scan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('kunjungan.scan') ? 'bg-white bg-opacity-20' : '' }}">
-                        Scan QR
-                    </a>
                     @auth
-                        <a href="{{ route('client.riwayat-kunjungan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('client.riwayat-kunjungan') ? 'bg-white bg-opacity-20' : '' }}">
+                        <a href="{{ route('client.riwayat-pengajuan') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('client.riwayat-pengajuan') ? 'bg-white bg-opacity-20' : '' }}">
                             Riwayat
                         </a>
                         <a href="{{ route('profile.edit') }}" class="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors {{ request()->routeIs('profile.edit') ? 'bg-white bg-opacity-20' : '' }}">
@@ -97,14 +91,8 @@
             <!-- Mobile menu -->
             <div class="md:hidden hidden" id="mobile-menu">
                 <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-blue-300">
-                    <a href="{{ route('kunjungan.dashboard') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('kunjungan.dashboard') ? 'bg-white bg-opacity-20' : '' }}">
-                        Dashboard
-                    </a>
-                    <a href="{{ route('kunjungan.scan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('kunjungan.scan') ? 'bg-white bg-opacity-20' : '' }}">
-                        Scan QR
-                    </a>
                     @auth
-                        <a href="{{ route('client.riwayat-kunjungan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('client.riwayat-kunjungan') ? 'bg-white bg-opacity-20' : '' }}">
+                        <a href="{{ route('client.riwayat-pengajuan') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('client.riwayat-pengajuan') ? 'bg-white bg-opacity-20' : '' }}">
                             Riwayat
                         </a>
                         <a href="{{ route('profile.edit') }}" class="text-white hover:text-blue-200 block px-3 py-2 rounded-md text-base font-medium {{ request()->routeIs('profile.edit') ? 'bg-white bg-opacity-20' : '' }}">
@@ -115,7 +103,7 @@
                             Login
                         </a>
                     @endauth
-                    <a href="{{ route('beranda') }}" class="bg-white bg-opacity-20 text-white block px-3 py-2 rounded-md text-base font-medium">
+                    <a href="{{ route('beranda') }}" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white block px-3 py-2 rounded-md text-base font-medium">
                         Beranda
                     </a>
                 </div>

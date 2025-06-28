@@ -27,7 +27,9 @@
                                 </div>
                             </div>
                             <div class="space-y-2">
-                                <!-- QR code functionality removed -->
+                                <a href="{{ route('admin.kunjungan.index') }}" class="block w-full bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-center py-2 px-4 rounded-lg transition-all duration-200">
+                                    <i class="fas fa-list mr-2"></i>Data Kunjungan
+                                </a>
                             </div>
                         </div>
 

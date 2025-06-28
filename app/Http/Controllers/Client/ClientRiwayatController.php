@@ -58,11 +58,33 @@ class ClientRiwayatController extends Controller
         return view("client.riwayat.penggunaan.index", compact('laporans', 'search', 'perPage'));
     }
 
-    public function kunjungan()
+    public function kunjungan(Request $request)
     {
-        $kunjungans = \App\Models\Kunjungan::where('nama', auth()->user()->name)
-            ->orderBy('waktu_masuk', 'desc')
-            ->paginate(20);
-        return view('client.riwayat.kunjungan.index', compact('kunjungans'));
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'perPage' => 'nullable|integer|in:10,50,100',
+        ]);
+
+        $search = $request->input('search');
+        $perPage = (int) $request->input('perPage', 10);
+
+        $validPerPage = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
+
+        $query = \App\Models\Kunjungan::where('user_id', Auth::user()->id)
+            ->with('ruangan')
+            ->orderBy('waktu_masuk', 'desc');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('tujuan', 'like', "%{$search}%")
+                  ->orWhereHas('ruangan', function($rq) use ($search) {
+                      $rq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $kunjungans = $query->paginate($validPerPage);
+
+        return view('client.riwayat.kunjungan.index', compact('kunjungans', 'search', 'perPage'));
     }
 }

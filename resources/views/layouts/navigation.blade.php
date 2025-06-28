@@ -16,24 +16,6 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
-                    @can('dashboard-kunjungan')
-                    <x-nav-link :href="route('kunjungan.dashboard')" :active="request()->routeIs('kunjungan.dashboard')">
-                        {{ __('Kunjungan Lab') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    @can('scan-qr-kunjungan')
-                    <x-nav-link :href="route('kunjungan.scan')" :active="request()->routeIs('kunjungan.scan')">
-                        {{ __('Scan QR Code') }}
-                    </x-nav-link>
-                    @endcan
-                    
-                    @can('kunjungan-client')
-                    <x-nav-link :href="route('client.riwayat-kunjungan')" :active="request()->routeIs('client.riwayat-kunjungan')">
-                        {{ __('Riwayat Kunjungan') }}
-                    </x-nav-link>
-                    @endcan
-                    
                     @can('check-client')
                     <x-nav-link :href="route('client.check.index')" :active="request()->routeIs('client.check.*')">
                         {{ __('Cek Ketersediaan') }}
@@ -59,8 +41,20 @@
                     @endcan
                     
                     @can('history-client')
-                    <x-nav-link :href="route('client.riwayat-pengajuan')" :active="request()->routeIs('client.riwayat-*')">
-                        {{ __('Riwayat') }}
+                    <x-nav-link :href="route('client.riwayat-pengajuan')" :active="request()->routeIs('client.riwayat-pengajuan')">
+                        {{ __('Riwayat Pengajuan') }}
+                    </x-nav-link>
+                    @endcan
+                    
+                    @can('history-client')
+                    <x-nav-link :href="route('client.riwayat-penggunaan')" :active="request()->routeIs('client.riwayat-penggunaan')">
+                        {{ __('Riwayat Penggunaan') }}
+                    </x-nav-link>
+                    @endcan
+                    
+                    @can('history-client')
+                    <x-nav-link :href="route('client.riwayat-kunjungan')" :active="request()->routeIs('client.riwayat-kunjungan')">
+                        {{ __('Riwayat Kunjungan') }}
                     </x-nav-link>
                     @endcan
                     
@@ -127,21 +121,51 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            @can('dashboard-kunjungan')
-            <x-responsive-nav-link :href="route('kunjungan.dashboard')" :active="request()->routeIs('kunjungan.dashboard')">
-                {{ __('Kunjungan Lab') }}
+            @can('check-client')
+            <x-responsive-nav-link :href="route('client.check.index')" :active="request()->routeIs('client.check.*')">
+                {{ __('Cek Ketersediaan') }}
             </x-responsive-nav-link>
             @endcan
             
-            @can('scan-qr-kunjungan')
-            <x-responsive-nav-link :href="route('kunjungan.scan')" :active="request()->routeIs('kunjungan.scan')">
-                {{ __('Scan QR Code') }}
+            @can('pengajuan-peminjaman-client')
+            <x-responsive-nav-link :href="route('client.pengajuan-peminjaman.index')" :active="request()->routeIs('client.pengajuan-peminjaman.*')">
+                {{ __('Pengajuan Peminjaman') }}
             </x-responsive-nav-link>
             @endcan
             
-            @can('kunjungan-client')
+            @can('penggunaan-alat-client')
+            <x-responsive-nav-link :href="route('client.penggunaan-alat')" :active="request()->routeIs('client.penggunaan-alat')">
+                {{ __('Penggunaan Alat') }}
+            </x-responsive-nav-link>
+            @endcan
+            
+            @can('penggunaan-ruangan-client')
+            <x-responsive-nav-link :href="route('client.penggunaan-ruangan')" :active="request()->routeIs('client.penggunaan-ruangan')">
+                {{ __('Penggunaan Ruangan') }}
+            </x-responsive-nav-link>
+            @endcan
+            
+            @can('history-client')
+            <x-responsive-nav-link :href="route('client.riwayat-pengajuan')" :active="request()->routeIs('client.riwayat-pengajuan')">
+                {{ __('Riwayat Pengajuan') }}
+            </x-responsive-nav-link>
+            @endcan
+            
+            @can('history-client')
+            <x-responsive-nav-link :href="route('client.riwayat-penggunaan')" :active="request()->routeIs('client.riwayat-penggunaan')">
+                {{ __('Riwayat Penggunaan') }}
+            </x-responsive-nav-link>
+            @endcan
+            
+            @can('history-client')
             <x-responsive-nav-link :href="route('client.riwayat-kunjungan')" :active="request()->routeIs('client.riwayat-kunjungan')">
                 {{ __('Riwayat Kunjungan') }}
+            </x-responsive-nav-link>
+            @endcan
+            
+            @can('jadwal-dashboard')
+            <x-responsive-nav-link :href="route('jadwal')" :active="request()->routeIs('jadwal')">
+                {{ __('Jadwal') }}
             </x-responsive-nav-link>
             @endcan
         </div>

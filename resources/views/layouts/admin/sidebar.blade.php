@@ -149,19 +149,11 @@
                 @php
                     $dataKunjunganRoutes = [
                         'admin.kunjungan.index',
-                        'kunjungan.dashboard',
-                        'kunjungan.scan',
-                        'kunjungan.qr.checkin',
-                        'kunjungan.qr.checkout',
                     ];
                     $isDataKunjunganActive = in_array(Route::currentRouteName(), $dataKunjunganRoutes);
                 @endphp
 
-                @if (Auth::user()->can('view-kunjungan') ||
-                        Auth::user()->can('dashboard-kunjungan') ||
-                        Auth::user()->can('qr-checkin-kunjungan') ||
-                        Auth::user()->can('qr-checkout-kunjungan') ||
-                        Auth::user()->can('scan-qr-kunjungan'))
+                @if (Auth::user()->can('view-kunjungan'))
                     <li class="nav-item has-treeview {{ $isDataKunjunganActive ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link text-white {{ $isDataKunjunganActive ? 'active' : '' }}">
                             <i class="nav-icon fas fa-users"></i>
@@ -220,6 +212,7 @@
                         <ul class="nav nav-treeview">
                             <x-sidebar-link route="client.riwayat-pengajuan" label="Pengajuan" can="history-client" />
                             <x-sidebar-link route="client.riwayat-penggunaan" label="Penggunaan" can="history-client" />
+                            <x-sidebar-link route="client.riwayat-kunjungan" label="Kunjungan" can="history-client" />
                         </ul>
                     </li>
                 @endcan
@@ -227,16 +220,6 @@
                 @can('jadwal-dashboard')
                     <x-sidebar-link route="jadwal" icon="calendar" label="Jadwal" can="jadwal-dashboard" />
                 @endcan
-
-                @can('kunjungan-client')
-                    <x-sidebar-link route="client.riwayat-kunjungan" icon="history" label="Riwayat Kunjungan" can="kunjungan-client" />
-                @endcan
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{{ route('admin.kunjungan.index') }}">
-                        <i class="fas fa-fw fa-users"></i>
-                        <span>Kunjungan Lab</span>
-                    </a>
-                </li>
 
                 <li class="nav-item">
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" hidden>
