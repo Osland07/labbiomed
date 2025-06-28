@@ -89,10 +89,10 @@
                 </h6>
                 <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapseClient">
                     <i class="fas fa-chevron-down"></i>
-                    <span id="toggleText">Sembunyikan</span>
+                    <span id="toggleText">Tampilkan</span>
                 </button>
             </div>
-            <div class="collapse show" id="filterCollapseClient">
+            <div class="collapse" id="filterCollapseClient">
                 <div class="card-body" id="searchFilterBody">
                     <form method="GET" action="{{ route('client.riwayat-kunjungan') }}" class="row">
                         <div class="col-md-3 mb-3">
@@ -193,54 +193,81 @@
                     <div class="table-responsive">
                         <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                             <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Ruangan</th>
-                                    <th>Tujuan</th>
-                                    <th>Waktu Masuk</th>
-                                    <th>Waktu Keluar</th>
-                                    <th>Durasi</th>
-                                    <th>Status</th>
+                                <tr class="bg-primary text-white">
+                                    <th class="text-center" style="width: 8%">
+                                        <i class="fas fa-hashtag mr-1"></i>No
+                                    </th>
+                                    <th class="text-center" style="width: 15%">
+                                        <i class="fas fa-building mr-1"></i>Ruangan
+                                    </th>
+                                    <th class="text-center" style="width: 25%">
+                                        <i class="fas fa-bullseye mr-1"></i>Tujuan
+                                    </th>
+                                    <th class="text-center" style="width: 15%">
+                                        <i class="fas fa-sign-in-alt mr-1"></i>Waktu Masuk
+                                    </th>
+                                    <th class="text-center" style="width: 15%">
+                                        <i class="fas fa-sign-out-alt mr-1"></i>Waktu Keluar
+                                    </th>
+                                    <th class="text-center" style="width: 12%">
+                                        <i class="fas fa-clock mr-1"></i>Durasi
+                                    </th>
+                                    <th class="text-center" style="width: 10%">
+                                        <i class="fas fa-info-circle mr-1"></i>Status
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($kunjungans as $index => $kunjungan)
                                     <tr>
-                                        <td>{{ $kunjungans->firstItem() + $index }}</td>
-                                        <td>
+                                        <td class="text-center">{{ $kunjungans->firstItem() + $index }}</td>
+                                        <td class="text-center">
                                             <span class="font-weight-bold text-primary">{{ $kunjungan->ruangan->name }}</span>
                                         </td>
-                                        <td>{{ $kunjungan->tujuan }}</td>
-                                        <td>
-                                            <span class="text-success font-weight-bold">
-                                                {{ \Carbon\Carbon::parse($kunjungan->waktu_masuk)->format('d/m/Y H:i') }}
-                                            </span>
+                                        <td class="text-center">{{ $kunjungan->tujuan }}</td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($kunjungan->waktu_masuk)->format('d/m/Y') }}</small>
+                                                <strong>{{ \Carbon\Carbon::parse($kunjungan->waktu_masuk)->format('H:i') }}</strong>
+                                            </div>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             @if($kunjungan->waktu_keluar)
-                                                <span class="text-danger font-weight-bold">
-                                                    {{ \Carbon\Carbon::parse($kunjungan->waktu_keluar)->format('d/m/Y H:i') }}
-                                                </span>
+                                                <div class="d-flex flex-column align-items-center">
+                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($kunjungan->waktu_keluar)->format('d/m/Y') }}</small>
+                                                    <strong>{{ \Carbon\Carbon::parse($kunjungan->waktu_keluar)->format('H:i') }}</strong>
+                                                </div>
                                             @else
-                                                <span class="text-warning font-weight-bold">-</span>
+                                                <span class="badge badge-warning">
+                                                    <i class="fas fa-clock mr-1"></i>Masih di Lab
+                                                </span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             @if($kunjungan->waktu_keluar)
                                                 @php
                                                     $waktuMasuk = \Carbon\Carbon::parse($kunjungan->waktu_masuk);
                                                     $waktuKeluar = \Carbon\Carbon::parse($kunjungan->waktu_keluar);
                                                     $durasi = $waktuMasuk->diffInMinutes($waktuKeluar);
-                                                    $durasiText = $durasi >= 60 
-                                                        ? floor($durasi / 60) . ' jam ' . ($durasi % 60) . ' menit'
-                                                        : $durasi . ' menit';
+                                                    $hours = floor($durasi / 60);
+                                                    $minutes = $durasi % 60;
                                                 @endphp
-                                                <span class="badge badge-info">{{ $durasiText }}</span>
+                                                <span class="badge badge-info">
+                                                    {{ $hours }}j {{ $minutes }}m
+                                                </span>
                                             @else
-                                                <span class="badge badge-warning">Sedang Berlangsung</span>
+                                                @php
+                                                    $waktuMasuk = \Carbon\Carbon::parse($kunjungan->waktu_masuk);
+                                                    $durasi = $waktuMasuk->diffInMinutes(now());
+                                                    $hours = floor($durasi / 60);
+                                                    $minutes = $durasi % 60;
+                                                @endphp
+                                                <span class="badge badge-warning">
+                                                    {{ $hours }}j {{ $minutes }}m
+                                                </span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             @if($kunjungan->waktu_keluar)
                                                 <span class="badge badge-success">Selesai</span>
                                             @else
@@ -275,6 +302,48 @@
 
     @push('scripts')
     <style>
+        /* Table Header Styling */
+        #dataTable thead th {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border: none;
+            padding: 15px 8px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        #dataTable thead th:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        #dataTable thead th i {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        #dataTable thead th:hover i {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Table Body Styling */
+        #dataTable tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        #dataTable tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
         /* Smooth transition for search filter */
         #searchFilterBody {
             transition: all 0.3s ease-in-out;
