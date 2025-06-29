@@ -48,10 +48,11 @@ class RegisteredUserController extends Controller
             'nim' => $request->nim,
             'prodi' => $request->prodi,
             'no_hp' => $request->no_hp,
-            'status' => 'tidak aktif',
-            'role' => $mahasiswaRole->id,
+            'status' => 'aktif',
             'password' => Hash::make($request->password),
         ]);
+
+        $user->assignRole($mahasiswaRole);
 
         event(new Registered($user));
 

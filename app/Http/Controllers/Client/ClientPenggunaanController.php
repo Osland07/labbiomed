@@ -24,19 +24,20 @@ class ClientPenggunaanController extends Controller
     {
         $today = Carbon::today();
 
-        $allAccept = LaporanPeminjaman::where('user_id', Auth::user()->id)
-            ->where('status_validasi', 'Diterima')
+        $allSelesai = LaporanPeminjaman::where('user_id', Auth::user()->id)
+            ->where('status_validasi', LaporanPeminjaman::STATUS_SELESAI)
+            ->whereNotNull('surat')
             ->whereDate('tgl_pengembalian', '>=', $today)
             ->get();
 
-        $alatIds = collect($allAccept->pluck('alat_id'))
+        $alatIds = collect($allSelesai->pluck('alat_id'))
             ->flatten()
             ->filter()
             ->unique()
             ->values()
             ->toArray();
 
-        $alats = Alat::whereIn('id', $alatIds)->get();
+        $alats = Alat::with('ruangan')->whereIn('id', $alatIds)->get();
 
         return view("client.penggunaan-alat.index", compact('alats'));
     }
@@ -44,17 +45,28 @@ class ClientPenggunaanController extends Controller
     public function storeAlat(LaporanRequest $request)
     {
         $alatIds = $request->input('alat_id');
+
+        // Pastikan ini adalah array
         if (!is_array($alatIds)) {
-            $alatIds = [$alatIds];
+            $alatIds = explode(',', $alatIds);
         }
 
-        foreach ($alatIds as $alatId) {
-            $waktuMulai = Carbon::parse($request->input('waktu_mulai'));
-            $waktuSelesai = Carbon::parse($request->input('waktu_selesai'));
-            $tujuan = $request->input('tujuan_penggunaan');
+        // Validasi manual apakah semua alat ID valid
+        $alatValid = Alat::whereIn('id', $alatIds)->pluck('id')->toArray();
+        $alatInvalid = array_diff($alatIds, $alatValid);
+        if (count($alatInvalid)) {
+            return redirect()->back()->withErrors(['alat_id' => 'Beberapa alat tidak valid atau tidak tersedia.'])->withInput();
+        }
 
+        $laporans = [];
+        $userId = Auth::id();
+        $waktuMulai = Carbon::parse($request->input('waktu_mulai'));
+        $waktuSelesai = Carbon::parse($request->input('waktu_selesai'));
+        $tujuan = $request->input('tujuan_penggunaan');
+
+        foreach ($alatIds as $alatId) {
             // Cek jika laporan identik sudah ada
-            $existing = Laporan::where('user_id', Auth::id())
+            $existing = Laporan::where('user_id', $userId)
                 ->where('alat_id', $alatId)
                 ->where('waktu_mulai', $waktuMulai)
                 ->where('waktu_selesai', $waktuSelesai)
@@ -63,32 +75,41 @@ class ClientPenggunaanController extends Controller
                 ->first();
 
             if ($existing) {
-                continue;
+                continue; // skip jika sudah ada laporan serupa
             }
 
             $laporan = Laporan::create([
-                'user_id'           => Auth::id(),
-                'alat_id'           => $alatId,
-                'waktu_mulai'    => Carbon::parse($request->input('waktu_mulai')),
-                'waktu_selesai'  => Carbon::parse($request->input('waktu_selesai')),
-                'tujuan_penggunaan' => $request->input('tujuan_penggunaan'),
-                'status_peminjaman' => 'Menunggu',
-                'tipe'              => 'alat',
+                'user_id'             => $userId,
+                'alat_id'             => $alatId,
+                'waktu_mulai'         => $waktuMulai,
+                'waktu_selesai'       => $waktuSelesai,
+                'tujuan_penggunaan'   => $tujuan,
+                'status_peminjaman'   => 'Menunggu',
+                'status_pengembalian' => 'Belum Dikembalikan',
+                'tipe'                => 'alat',
             ]);
 
-            $alat = Alat::findOrFail($laporan->alat_id);
+            // Ubah status alat
+            $alat = Alat::findOrFail($alatId);
             $alat->status = 'Sedang Digunakan';
             $alat->save();
+
+            $laporans[] = $laporan;
         }
 
-
-        // Auto validate if enabled
+        // Auto Validate Jika Diaktifkan
         $autoValidate = AutoValidate::first();
-        if ($autoValidate && $autoValidate->penggunaan || $laporan->alat->auto_validate == '1') {
-            $laporan->status_peminjaman = 'Diterima';
-            $laporan->status_pengembalian = 'Belum Dikembalikan';
-            $laporan->updated_at = now();
-            $laporan->save();
+        foreach ($laporans as $laporan) {
+            if (($autoValidate && $autoValidate->penggunaan) || ($laporan->alat && $laporan->alat->auto_validate == '1')) {
+                $laporan->status_peminjaman = 'Diterima';
+                $laporan->status_pengembalian = 'Belum Dikembalikan';
+                $laporan->updated_at = now();
+                $laporan->save();
+            }
+        }
+
+        if (count($laporans) === 0) {
+            return redirect()->route('client.riwayat-penggunaan')->with('warning', 'Tidak ada alat yang berhasil diajukan (mungkin sudah digunakan sebelumnya).');
         }
 
         return redirect()->route('client.riwayat-penggunaan')->with('message', 'Penggunaan alat berhasil disimpan.');
@@ -138,29 +159,29 @@ class ClientPenggunaanController extends Controller
 
     public function kembalikanAlat($alatId)
     {
-        $alat = Alat::findOrFail($alatId);
-        $laporans = Laporan::where('alat_id', $alatId)
-            ->where('user_id', Auth::id())
-            ->where('status_pengembalian', '!=', 'Sudah Dikembalikan')
-            ->get();
+        $userId = Auth::id();
 
-        if ($alat && $laporans->count()) {
+        // Cari laporan peminjaman yang aktif dan belum dikembalikan
+        $laporan = Laporan::where('user_id', $userId)
+            ->where('alat_id', $alatId)
+            ->where('status_peminjaman', 'Diterima')
+            ->where('status_pengembalian', 'Belum Dikembalikan')
+            ->latest()
+            ->first();
+
+        if (!$laporan) {
+            return response()->json(['success' => false, 'message' => 'Laporan penggunaan tidak ditemukan atau sudah dikembalikan.']);
+        }
+
+        $laporan->tgl_pengembalian = now();
+        $laporan->save();
+
+        $alat = Alat::find($alatId);
+        if ($alat) {
             $alat->status = 'Tersedia';
             $alat->save();
-            foreach ($laporans as $laporan) {
-                $laporan->status_pengembalian = 'Sudah Dikembalikan';
-                $laporan->save();
-            }
-            return response()->json(['success' => true, 'message' => 'Alat berhasil dikembalikan.']);
         }
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal mengembalikan alat. Tidak ditemukan laporan aktif untuk alat ini.',
-            'debug' => [
-                'alat_id' => $alatId,
-                'user_id' => Auth::id(),
-                'laporans_count' => $laporans->count(),
-            ]
-        ], 400);
+
+        return response()->json(['success' => true, 'message' => 'Alat berhasil dikembalikan.']);
     }
 }

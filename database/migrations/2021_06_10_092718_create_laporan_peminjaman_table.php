@@ -27,6 +27,12 @@ return new class extends Migration
             $table->string('status_validasi')->nullable();
             $table->string('status_kegiatan')->nullable();
             $table->string('catatan')->nullable();
+            $table->foreignId('validated_by_laboran')->nullable();
+            $table->foreignId('validated_by_koordinator')->nullable();
+            $table->timestamp('validated_at_laboran')->nullable();
+            $table->timestamp('validated_at_koordinator')->nullable();
+            $table->string('catatan_laboran')->nullable();
+            $table->string('catatan_koordinator')->nullable();
             $table->timestamps();
         });
     }

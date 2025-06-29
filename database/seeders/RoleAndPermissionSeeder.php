@@ -31,8 +31,27 @@ class RoleAndPermissionSeeder extends Seeder
         }
 
         $roles = [
-            'Super Admin' => Permission::where('name', 'not like', '%-client')->pluck('name')->toArray(),
+            'Super Admin' => Permission::pluck('name')->toArray(),
+
             'Admin' => Permission::where('name', 'not like', '%-role')->where('name', 'not like', '%-client')->pluck('name')->toArray(),
+            'Laboran' => [
+                'view-alat', 'create-alat', 'edit-alat', 'delete-alat',
+                'view-bahan', 'create-bahan', 'edit-bahan', 'delete-bahan',
+                'view-category', 'create-category', 'edit-category', 'delete-category',
+                'view-ruangan', 'create-ruangan', 'edit-ruangan', 'delete-ruangan',
+                'view-transaksi', 'peminjaman-transaksi', 'penggunaan-transaksi', 'pengembalian-transaksi',
+                'view-laporan', 'peminjaman-laporan', 'penggunaan-laporan', 'kerusakan-laporan',
+                'view-kunjungan',
+            ],
+            'Koordinator Laboratorium' => [
+                'view-alat', 'create-alat', 'edit-alat', 'delete-alat',
+                'view-bahan', 'create-bahan', 'edit-bahan', 'delete-bahan',
+                'view-category', 'create-category', 'edit-category', 'delete-category',
+                'view-ruangan', 'create-ruangan', 'edit-ruangan', 'delete-ruangan',
+                'view-transaksi', 'peminjaman-transaksi', 'penggunaan-transaksi', 'pengembalian-transaksi',
+                'view-laporan', 'peminjaman-laporan', 'penggunaan-laporan', 'kerusakan-laporan',
+                'view-kunjungan',
+            ],
             'Dosen' => [
                 'view-bahan',
                 'create-bahan',
@@ -62,6 +81,14 @@ class RoleAndPermissionSeeder extends Seeder
         foreach ($roles as $roleName => $permissions) {
             $role = Role::firstOrCreate(['name' => $roleName]);
             $role->syncPermissions($permissions);
+        }
+
+        // Migrasi user dari role 'Koordinator' ke 'Koordinator Laboratorium'
+        if (Role::where('name', 'Koordinator')->exists() && Role::where('name', 'Koordinator Laboratorium')->exists()) {
+            foreach (\App\Models\User::role('Koordinator')->get() as $user) {
+                $user->removeRole('Koordinator');
+                $user->assignRole('Koordinator Laboratorium');
+            }
         }
     }
 }

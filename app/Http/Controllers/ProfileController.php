@@ -53,4 +53,10 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.edit')->with('message', 'Profile updated successfully');
     }
+
+    public function printIdCard(Request $request)
+    {
+        $user = $request->user();
+        return view('profile.id-card', compact('user'));
+    }
 }

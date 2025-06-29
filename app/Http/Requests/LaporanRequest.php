@@ -16,7 +16,6 @@ class LaporanRequest extends FormRequest
         return [
             'user_id' => 'nullable|exists:users,id',
             'dosen_id' => 'nullable|exists:users,id',
-            'alat_id' => 'nullable|exists:alats,id',
             'bahan_id' => 'nullable|exists:bahans,id',
             'ruangan_id' => 'nullable|exists:ruangans,id',
             'tujuan_penggunaan' => 'nullable|max:100',
@@ -38,7 +37,6 @@ class LaporanRequest extends FormRequest
             '*.max' => 'Maksimal 100 karakter.',
             'user_id.exists' => 'Anggota tidak valid.',
             'dosen_id.exists' => 'Dosen tidak valid.',
-            'alat_id.exists' => 'Alat tidak valid.',
             'bahan_id.exists' => 'Bahan tidak valid.',
             'ruangan_id.exists' => 'Ruangan tidak valid.',
             'surat.mimes' => 'File harus berformat PDF.',

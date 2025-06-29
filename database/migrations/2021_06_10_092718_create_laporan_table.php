@@ -22,10 +22,10 @@ return new class extends Migration
             $table->foreignId('ruangan_id')->nullable();
             $table->string('tujuan_penggunaan')->nullable();
             $table->string('catatan')->nullable();
-            $table->date('tgl_kerusakan')->nullable();
-            $table->date('tgl_pengembalian')->nullable();
-            $table->date('waktu_mulai')->nullable();
-            $table->date('waktu_selesai')->nullable();
+            $table->dateTime('tgl_kerusakan')->nullable();
+            $table->dateTime('tgl_pengembalian')->nullable();
+            $table->dateTime('waktu_mulai')->nullable();
+            $table->dateTime('waktu_selesai')->nullable();
             $table->string('status_peminjaman')->nullable();
             $table->string('status_penggunaan')->nullable();
             $table->string('status_pengembalian')->nullable();

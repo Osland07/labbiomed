@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\User;
 use App\Models\Alat;
+use App\Models\LaporanPeminjaman;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class LaporanPeminjamanFactory extends Factory
@@ -30,7 +31,13 @@ class LaporanPeminjamanFactory extends Factory
             'tgl_peminjaman' => $startDate->format('Y-m-d'),
             'tgl_pengembalian' => $endDate->format('Y-m-d'),
             'surat' => 'file.pdf',
-            'status_validasi' => $this->faker->randomElement(['Diterima', 'Menunggu', 'Ditolak']),
+            'status_validasi' => $this->faker->randomElement([
+                LaporanPeminjaman::STATUS_MENUNGGU_LABORAN,
+                LaporanPeminjaman::STATUS_MENUNGGU_KOORDINATOR,
+                LaporanPeminjaman::STATUS_DITERIMA,
+                LaporanPeminjaman::STATUS_DITOLAK,
+                LaporanPeminjaman::STATUS_SELESAI
+            ]),
             'status_kegiatan' => $this->faker->randomElement(['Sedang Berjalan', 'Selesai']),
             'catatan' => $this->faker->sentence(5),
         ];

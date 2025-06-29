@@ -18,18 +18,6 @@ class Ruangan extends Model
         'auto_validate' => 'boolean',
     ];
 
-    // Accessor untuk nama (alias dari name)
-    public function getNamaAttribute()
-    {
-        return $this->name;
-    }
-
-    // Mutator untuk nama (alias dari name)
-    public function setNamaAttribute($value)
-    {
-        $this->attributes['name'] = $value;
-    }
-
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -43,11 +31,6 @@ class Ruangan extends Model
     public function laporans()
     {
         return $this->hasMany(Laporan::class);
-    }
-
-    public function kunjungans()
-    {
-        return $this->hasMany(Kunjungan::class);
     }
 
     protected static function boot()

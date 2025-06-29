@@ -10,7 +10,6 @@ use App\Models\Ruangan;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
-use App\Models\AutoValidate;
 
 class ClientPengajuanController extends Controller
 {
@@ -59,12 +58,18 @@ class ClientPengajuanController extends Controller
 
         $validPerPage = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
-        $query = LaporanPeminjaman::where('user_id', Auth::user()->id)->where('status_validasi', 'Menunggu')->orderBy('updated_at', 'desc');
-
-        $query->orderByRaw("CASE WHEN status_validasi = 'Menunggu' THEN 0 ELSE 1 END");
+        $query = LaporanPeminjaman::where('user_id', Auth::user()->id)
+            ->whereIn('status_validasi', [
+                LaporanPeminjaman::STATUS_MENUNGGU_LABORAN,
+                LaporanPeminjaman::STATUS_MENUNGGU_KOORDINATOR,
+                LaporanPeminjaman::STATUS_DITERIMA,
+                LaporanPeminjaman::STATUS_DITOLAK,
+                LaporanPeminjaman::STATUS_SELESAI
+            ])
+            ->orderBy('updated_at', 'desc');
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->where('judul_penelitian', 'like', "%{$search}%");
         }
 
         $laporans = $query->paginate($validPerPage);
@@ -76,21 +81,21 @@ class ClientPengajuanController extends Controller
     {
         $laporan = LaporanPeminjaman::findOrFail($id);
 
+        // Hanya bisa upload surat jika status sudah diterima
+        if (!$laporan->canUploadSurat()) {
+            return redirect()->back()->with('error', 'Surat hanya dapat diupload setelah pengajuan diterima.');
+        }
+
         if ($request->hasFile('surat')) {
             $file = $request->file('surat');
             $filename = time() . '_' . $file->getClientOriginalName();
             $file->storeAs('public/surat', $filename);
             $laporan->surat = $filename;
-
-            // Auto validate if enabled
-            $autoValidate = AutoValidate::first();
-            if ($autoValidate && $autoValidate->peminjaman) {
-                $laporan->status_validasi = 'Diterima';
-            }
+            $laporan->status_validasi = LaporanPeminjaman::STATUS_SELESAI;
             $laporan->save();
         }
 
-        return redirect()->back()->with('message', 'Surat berhasil diupload.');
+        return redirect()->back()->with('message', 'Surat berhasil diupload. Transaksi selesai.');
     }
 
     public function store(Request $request)
@@ -133,7 +138,7 @@ class ClientPengajuanController extends Controller
             'tgl_peminjaman' => $request->tgl_peminjaman,
             'tgl_pengembalian' => $request->tgl_pengembalian,
             'alat_id' => $alatIds,
-            'status_validasi' => 'Menunggu',
+            'status_validasi' => LaporanPeminjaman::STATUS_MENUNGGU_LABORAN,
             'status_kegiatan' => 'Sedang Berjalan',
         ]);
 
@@ -147,12 +152,18 @@ class ClientPengajuanController extends Controller
             }
         }
 
-        return redirect()->route('client.pengajuan-peminjaman.upload')->with('message', 'Peminjaman berhasil diajukan.');
+        return redirect()->route('client.pengajuan-peminjaman.upload')->with('message', 'Peminjaman berhasil diajukan. Menunggu validasi laboran.');
     }
 
     public function generateFormulir($id)
     {
         $laporan = LaporanPeminjaman::findOrFail($id);
+        
+        // Hanya bisa generate surat jika sudah diterima
+        if (!$laporan->canGenerateSurat()) {
+            return redirect()->back()->with('error', 'Surat hanya dapat digenerate setelah pengajuan diterima.');
+        }
+
         $user = Auth::user();
 
         $bulanIndo = [
