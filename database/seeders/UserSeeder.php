@@ -15,68 +15,129 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Buat roles jika belum ada
-        $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
-        $dosenRole = Role::firstOrCreate(['name' => 'Dosen']);
-        $mahasiswaRole = Role::firstOrCreate(['name' => 'Mahasiswa']);
+        $roles = [
+            'Super Admin',
+            'Admin',
+            'Dosen',
+            'Mahasiswa',
+            'Koordinator Laboratorium',
+            'Laboran',
+        ];
 
-        // Daftar user
-        $users = [
+        foreach ($roles as $roleName) {
+            Role::firstOrCreate(['name' => $roleName]);
+        }
+
+        // Buat user default
+        $defaultUsers = [
             [
                 'name' => 'Super Administrator',
                 'email' => 'super@admin.com',
                 'status' => 'aktif',
-                'no_hp' => '081234567890',
+                'no_hp' => '08123456789',
                 'password' => Hash::make('password'),
-                'role' => $superAdminRole->id
+                'role' => 'Super Admin',
             ],
             [
                 'name' => 'Administrator',
                 'email' => 'admin@admin.com',
                 'status' => 'aktif',
-                'no_hp' => '081234567890',
+                'no_hp' => '08123456789',
                 'password' => Hash::make('password'),
-                'role' => $adminRole->id
+                'role' => 'Admin',
             ],
             [
                 'name' => 'Dosen',
                 'email' => 'dosen@dosen.com',
                 'status' => 'aktif',
-                'no_hp' => '081234567890',
+                'no_hp' => '08123456789',
                 'password' => Hash::make('password'),
-                'role' => $dosenRole->id
+                'role' => 'Dosen',
             ],
             [
                 'name' => 'Mahasiswa',
                 'email' => 'mahasiswa@mahasiswa.com',
                 'status' => 'aktif',
-                'no_hp' => '081234567890',
+                'no_hp' => '08123456789',
                 'password' => Hash::make('password'),
-                'role' => $mahasiswaRole->id
-            ]
+                'role' => 'Mahasiswa',
+            ],
         ];
 
-        // Insert user satu per satu dan assign role
-        foreach ($users as $userData) {
-            $role = $userData['role'];
-            unset($userData['role']); // buang field role sebelum insert
-
-            $user = User::create($userData);
-            $user->assignRole($role);
+        foreach ($defaultUsers as $data) {
+            $user = User::create([
+                'name'     => $data['name'],
+                'email'    => $data['email'],
+                'status'   => $data['status'],
+                'no_hp'    => $data['no_hp'],
+                'password' => $data['password'],
+            ]);
+            $user->assignRole($data['role']);
         }
 
-        User::factory()
-            ->afterCreating(function ($user) {
-                $user->assignRole('Dosen');
-            })
-            ->count(5)
-            ->create();
+        // Daftar dosen BM ITERA (tanpa Doni Bowo)
+        $lecturers = [
+            'Amir Faisal, S.T., M.Eng., Ph.D.',
+            'Nova Resfita, S.T., M.Sc.',
+            'Marsudi Siburian, S.Si., M.Biotech.',
+            'Muhammad Wildan Gifari, S.T., M.Sc., Ph.D.',
+            'Rudi Setiawan, S.T., M.T.',
+            'Africo Ramadhani, M.Pd',
+            'Endah, S.Pd., M.Biotech.',
+            'Muhammad Artha Jabatsudewa Maras, M.T.',
+            'Burhaan Shodiq, M.Or.',
+            'Dr. Aldi Herbanu, S.Si.',
+            'I Gde Eka Dirgayussa, M.Si.',
+            'Meita Mahardianti, S.Si., M.Biomed.',
+            'Muhamad Ihsan Hufadz, M.Pd.',
+            'Rafli Filano, S.Si., M.T.',
+            'Rosita Wati, S.Pd., M.Sc.',
+            'Sekar Asri Tresnaningtyas, S.Si., M.Biomed.',
+            'Retno Maharsi, M.Si.',
+            'Dwi Susanti, S.Pd., M.Sc.',
+            'Yusuf Maulana, S.T., M.Sc.',
+            'Nurul Maulidiyah, S.Si, M.S',
+            'Asy Syifa Labibah, M.Sc.',
+        ];
 
+        foreach ($lecturers as $index => $name) {
+            $email = 'dosen' . $index . '@itera.ac.id';
+            $user = User::create([
+                'name'     => $name,
+                'email'    => $email,
+                'status'   => 'aktif',
+                'no_hp'    => '08123456789',
+                'password' => Hash::make('password'),
+            ]);
+            $user->assignRole('Dosen');
+        }
+
+        // Doni Bowo Nugroho sebagai Koordinator Laboratorium
+        $doni = User::create([
+            'name'     => 'Doni Bowo Nugroho, S.Pd., M.Sc.',
+            'email'    => 'donibowo@itera.ac.id',
+            'status'   => 'aktif',
+            'no_hp'    => '08123456789',
+            'password' => Hash::make('password'),
+        ]);
+        $doni->assignRole('Koordinator Laboratorium');
+
+        // Laboran: Ading Atma Gamilang
+        $laboran = User::create([
+            'name'     => 'Ading Atma Gamilang',
+            'email'    => 'adingatma@itera.ac.id',
+            'status'   => 'aktif',
+            'no_hp'    => '08123456789',
+            'password' => Hash::make('password'),
+        ]);
+        $laboran->assignRole('Laboran');
+
+        // Tambahan dummy mahasiswa
         User::factory()
             ->afterCreating(function ($user) {
                 $user->assignRole('Mahasiswa');
             })
-            ->count(20)
+            ->count(5)
             ->create();
     }
 }
