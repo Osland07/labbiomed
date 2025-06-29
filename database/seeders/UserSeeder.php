@@ -17,7 +17,6 @@ class UserSeeder extends Seeder
         // Buat roles jika belum ada
         $roles = [
             'Super Admin',
-            'Admin',
             'Dosen',
             'Mahasiswa',
             'Koordinator Laboratorium',
@@ -37,14 +36,6 @@ class UserSeeder extends Seeder
                 'no_hp' => '08123456789',
                 'password' => Hash::make('password'),
                 'role' => 'Super Admin',
-            ],
-            [
-                'name' => 'Administrator',
-                'email' => 'admin@admin.com',
-                'status' => 'aktif',
-                'no_hp' => '08123456789',
-                'password' => Hash::make('password'),
-                'role' => 'Admin',
             ],
             [
                 'name' => 'Dosen',
