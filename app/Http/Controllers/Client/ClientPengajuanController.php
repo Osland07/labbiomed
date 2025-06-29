@@ -166,6 +166,12 @@ class ClientPengajuanController extends Controller
 
         $user = Auth::user();
 
+        // Ambil data koordinator laboratorium dari database
+        $koordinator = User::role('Koordinator Laboratorium')->first();
+        
+        // Ambil data laboran dari database
+        $laboran = User::role('Laboran')->first();
+
         $bulanIndo = [
             1 => 'Januari',
             2 => 'Februari',
@@ -227,6 +233,8 @@ class ClientPengajuanController extends Controller
             'judulPenelitian',
             'dosenPembimbing',
             'alatDipinjam',
+            'koordinator',
+            'laboran',
         ))->setPaper('A4', 'portrait');
 
         return $pdf->stream('Formulir-Peminjaman-Alat.pdf');

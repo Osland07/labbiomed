@@ -118,6 +118,7 @@ class UserSeeder extends Seeder
             'email'    => 'donibowo@itera.ac.id',
             'status'   => 'aktif',
             'no_hp'    => '08123456789',
+            'nim'      => '1992092420211411',
             'password' => Hash::make('password'),
         ]);
         $doni->assignRole('Koordinator Laboratorium');
@@ -128,6 +129,7 @@ class UserSeeder extends Seeder
             'email'    => 'adingatma@itera.ac.id',
             'status'   => 'aktif',
             'no_hp'    => '08123456789',
+            'nim'      => '1990010119900101',
             'password' => Hash::make('password'),
         ]);
         $laboran->assignRole('Laboran');
