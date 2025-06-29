@@ -185,7 +185,7 @@
                         </button>
                         
                         <a 
-                            href="{{ route('login') }}" 
+                             href="{{ route('kunjungan.checkout', $ruangan->id) }}"
                             class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-center"
                         >
                             <div class="flex items-center justify-center">
