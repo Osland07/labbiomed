@@ -51,12 +51,14 @@ class AdminLaporanController extends Controller
 
         $validPerPage = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
+        $query = LaporanPeminjaman::whereIn('status_validasi', ['Diterima', 'Ditolak', 'Selesai'])
+            ->orderBy('updated_at', 'desc');
+
         if ($search) {
-            $laporans = LaporanPeminjaman::whereIn('status_validasi', ['Diterima', 'Ditolak', 'Selesai'])->orderBy('updated_at', 'desc')->where('name', 'like', "%{$search}%")
-                ->paginate($validPerPage);
-        } else {
-            $laporans = LaporanPeminjaman::whereIn('status_validasi', ['Diterima', 'Ditolak', 'Selesai'])->orderBy('updated_at', 'desc')->paginate($validPerPage);
+            $query->where('judul_penelitian', 'like', "%{$search}%");
         }
+
+        $laporans = $query->paginate($validPerPage);
 
         return view("admin.laporan.peminjaman.index", compact('laporans', 'search', 'perPage'));
     }

@@ -87,13 +87,7 @@
                         @endif
                     </td>
                     <td>
-                        @if ($laporan->status_validasi == 'Diterima')
-                            <span class="badge badge-success">Diterima</span>
-                        @elseif ($laporan->status_validasi == 'Menunggu')
-                            <span class="badge badge-warning">Menunggu</span>
-                        @elseif ($laporan->status_validasi == 'Ditolak')
-                            <span class="badge badge-danger">Ditolak</span>
-                        @endif
+                        @include('components.status-validasi', ['laporan' => $laporan])
                     </td>
                     <td>
                         @if ($laporan->status_kegiatan == 'Sedang Berjalan')

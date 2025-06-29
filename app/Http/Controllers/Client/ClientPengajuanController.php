@@ -59,13 +59,17 @@ class ClientPengajuanController extends Controller
         $validPerPage = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
         $query = LaporanPeminjaman::where('user_id', Auth::user()->id)
-            ->whereIn('status_validasi', [
-                LaporanPeminjaman::STATUS_MENUNGGU_LABORAN,
-                LaporanPeminjaman::STATUS_MENUNGGU_KOORDINATOR,
-                LaporanPeminjaman::STATUS_DITERIMA,
-                LaporanPeminjaman::STATUS_DITOLAK,
-                LaporanPeminjaman::STATUS_SELESAI
-            ])
+            ->where(function($q) {
+                $q->whereIn('status_validasi', [
+                    LaporanPeminjaman::STATUS_MENUNGGU_LABORAN,
+                    LaporanPeminjaman::STATUS_MENUNGGU_KOORDINATOR,
+                    LaporanPeminjaman::STATUS_DITERIMA,
+                    LaporanPeminjaman::STATUS_DITOLAK
+                ])
+                ->orWhereNull('status_validasi')
+                ->orWhere('status_validasi', '');
+            })
+            ->whereNull('surat')
             ->orderBy('updated_at', 'desc');
 
         if ($search) {
@@ -95,7 +99,7 @@ class ClientPengajuanController extends Controller
             $laporan->save();
         }
 
-        return redirect()->back()->with('message', 'Surat berhasil diupload. Transaksi selesai.');
+        return redirect()->back()->with('message', 'Surat berhasil diupload. Data telah dipindahkan ke halaman Riwayat Pengajuan.');
     }
 
     public function store(Request $request)

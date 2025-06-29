@@ -7,6 +7,12 @@
         @include('components.search')
     </x-slot>
 
+    <!-- Informasi -->
+    <div class="alert alert-info mb-3">
+        <i class="fas fa-info-circle"></i>
+        <strong>Informasi:</strong> Silakan ajukan tanda tangan surat yang telah divalidasi ke fakultas dan unggah kembali melalui form dengan format pdf ukuran maks 2mb.
+    </div>
+
     <table class="table table-bordered table-striped text-center">
         <thead>
             <tr>
@@ -15,7 +21,7 @@
                 <th colspan="2">Peralatan</th>
                 <th rowspan="2">Durasi Kegiatan</th>
                 <th rowspan="2">Status Validasi</th>
-                <th rowspan="2">Template Surat</th>
+                <th rowspan="2">Surat Tervalidasi</th>
                 <th rowspan="2">Catatan</th>
                 <th rowspan="2">Aksi</th>
                 <th rowspan="2">Surat</th>
@@ -58,17 +64,7 @@
                         {{ $laporan->tgl_pengembalian ? \Carbon\Carbon::parse($laporan->tgl_pengembalian)->translatedFormat('d F Y') : '-' }}
                     </td>
                     <td>
-                        @if ($laporan->status_validasi == 'Menunggu Laboran')
-                            <span class="badge badge-warning">Menunggu Validasi Laboran</span>
-                        @elseif ($laporan->status_validasi == 'Menunggu Koordinator')
-                            <span class="badge badge-info">Menunggu Validasi Koordinator</span>
-                        @elseif ($laporan->status_validasi == 'Diterima')
-                            <span class="badge badge-success">Diterima - Surat Tersedia</span>
-                        @elseif ($laporan->status_validasi == 'Ditolak')
-                            <span class="badge badge-danger">Ditolak</span>
-                        @elseif ($laporan->status_validasi == 'Selesai')
-                            <span class="badge badge-success">Selesai</span>
-                        @endif
+                        @include('components.status-validasi', ['laporan' => $laporan])
                     </td>
                     <td>
                         @if ($laporan->canGenerateSurat())
