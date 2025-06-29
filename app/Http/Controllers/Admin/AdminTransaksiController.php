@@ -22,8 +22,8 @@ class AdminTransaksiController extends Controller
     public function __construct()
     {
         $this->middleware('permission:view-transaksi')->only(['transaksiPeminjaman', 'transaksiPenggunaan', 'transaksiPengembalian', 'validasiLaboran', 'validasiKoordinator']);
-        $this->middleware('permission:validasi-penggunaan')->only(['validasiPenggunaan']);
-        $this->middleware('permission:validasi-pengembalian')->only(['validasiPengembalian']);
+        $this->middleware('permission:penggunaan-transaksi')->only(['validasiPenggunaan']);
+        $this->middleware('permission:pengembalian-transaksi')->only(['validasiPengembalian']);
     }
 
     public function autoValidatePeminjaman(Request $request)
