@@ -25,18 +25,7 @@ class RuanganSeeder extends Seeder
             ]);
         }
 
-        // Ruangan 6–10 (GKU 2, Lantai 2, Kapasitas 100)
-        for ($i = 6; $i <= 10; $i++) {
-            Ruangan::create([
-                'name' => "Ruangan $i",
-                'kapasitas' => 100,
-                'gedung' => 'GKU 2',
-                'lantai' => 'Lantai 2',
-                'status' => 'Tersedia',
-                'keterangan' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, quia.',
-                'category_id' => $categoryId,
-            ]);
-        }
+       
     }
 
     private function getOrCreateCategory(string $name): int
