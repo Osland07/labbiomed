@@ -38,12 +38,18 @@
                         'admin.laporan.kerusakan',
                     ];
 
+                    $dataKunjunganRoutes = [
+                        'admin.kunjungan.index',
+                        'admin.kunjungan.generate-qr',
+                    ];
+
                     $dataPengajuanRoutes = ['client.pengajuan-peminjaman.index', 'client.pengajuan-peminjaman.upload'];
-                    $dataRiwayatRoutes = ['client.riwayat-pengajuan', 'client.riwayat-penggunaan'];
+                    $dataRiwayatRoutes = ['client.riwayat-pengajuan', 'client.riwayat-penggunaan', 'client.riwayat-kunjungan'];
 
                     $isDataMasterActive = in_array(Route::currentRouteName(), $dataMasterRoutes);
                     $isDataTransaksiActive = in_array(Route::currentRouteName(), $dataTransaksiRoutes);
                     $isDataLaporanActive = in_array(Route::currentRouteName(), $dataLaporanRoutes);
+                    $isDataKunjunganActive = in_array(Route::currentRouteName(), $dataKunjunganRoutes);
                     $isDataPengajuanActive = in_array(Route::currentRouteName(), $dataPengajuanRoutes);
                     $isDataRiwayatActive = in_array(Route::currentRouteName(), $dataRiwayatRoutes);
                 @endphp
@@ -145,14 +151,6 @@
                         </ul>
                     </li>
                 @endcan
-
-                @php
-                    $dataKunjunganRoutes = [
-                        'admin.kunjungan.index',
-                        'admin.kunjungan.generate-qr',
-                    ];
-                    $isDataKunjunganActive = in_array(Route::currentRouteName(), $dataKunjunganRoutes);
-                @endphp
 
                 @if (Auth::user()->can('view-kunjungan'))
                     <li class="nav-item has-treeview {{ $isDataKunjunganActive ? 'menu-open' : '' }}">

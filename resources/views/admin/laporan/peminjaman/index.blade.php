@@ -27,7 +27,7 @@
                 <th rowspan="2">Surat</th>
                 <th rowspan="2">Status Validasi</th>
                 <th rowspan="2">Status Kegiatan</th>
-                <th rowspan="2">Catatan Admin</th>
+                <th rowspan="2">Catatan Validator</th>
             </tr>
             <tr>
                 <th>Alat</th>
@@ -104,7 +104,17 @@
                             -
                         @endif
                     </td>
-                    <td>{{ $laporan->catatan ?? '-' }}</td>
+                    <td>
+                        @if ($laporan->catatan_laboran)
+                            <strong>Laboran:</strong> {{ $laporan->catatan_laboran }}<br>
+                        @endif
+                        @if ($laporan->catatan_koordinator)
+                            <strong>Koordinator:</strong> {{ $laporan->catatan_koordinator }}
+                        @endif
+                        @if (!$laporan->catatan_laboran && !$laporan->catatan_koordinator)
+                            -
+                        @endif
+                    </td>
                 </tr>
                 @if ($laporan->surat)
                     <div class="modal fade" id="pdfModal-{{ $laporan->id }}" tabindex="-1"

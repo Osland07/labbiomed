@@ -22,8 +22,8 @@
                                 <img width="250" class="img img-fluid"
                                     src="{{ asset('assets/profile/default.png') }}" alt="">
                             @endif
-                            <input type="file" class="mt-3 form-control @error('img') is-invalid @enderror" name="img"
-                                id="img" accept="image/*">
+                            <input type="file" class="mt-3 form-control @error('img') is-invalid @enderror"
+                                name="img" id="img" accept="image/*">
                             @error('img')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -119,7 +119,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end">
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{{ route('profile.id-card') }}" target="_blank" class="btn btn-success">
+                        <i class="fa fa-print me-2"></i>{{ __('Cetak ID Card') }}
+                    </a>
                     <button type="submit" class="btn btn-primary">{{ __('Simpan') }}</button>
                 </div>
             </form>

@@ -14,10 +14,9 @@
                 <th rowspan="2">Keperluan</th>
                 <th colspan="2">Peralatan</th>
                 <th rowspan="2">Durasi Kegiatan</th>
-                <th rowspan="2">Template Surat</th>
                 <th rowspan="2">Status Validasi</th>
-                <th rowspan="2">Status Kegiatan</th>
-                <th rowspan="2">Catatan Admin</th>
+                <th rowspan="2">Template Surat</th>
+                <th rowspan="2">Catatan</th>
                 <th rowspan="2">Aksi</th>
                 <th rowspan="2">Surat</th>
             </tr>
@@ -58,41 +57,53 @@
                         -
                         {{ $laporan->tgl_pengembalian ? \Carbon\Carbon::parse($laporan->tgl_pengembalian)->translatedFormat('d F Y') : '-' }}
                     </td>
-                    <td><a href="{{ route('client.pengajuan-peminjaman.generate-formulir', $laporan->id) }}"
-                            target="_blank" class="btn btn-xs btn-success"><i class="fa fa-download"></i> Download</a>
-                    </td>
                     <td>
-                        @if ($laporan->status_validasi == 'Diterima')
-                            <span class="badge badge-success">Diterima</span>
-                        @elseif ($laporan->status_validasi == 'Menunggu')
-                            <span class="badge badge-warning">Menunggu</span>
+                        @if ($laporan->status_validasi == 'Menunggu Laboran')
+                            <span class="badge badge-warning">Menunggu Validasi Laboran</span>
+                        @elseif ($laporan->status_validasi == 'Menunggu Koordinator')
+                            <span class="badge badge-info">Menunggu Validasi Koordinator</span>
+                        @elseif ($laporan->status_validasi == 'Diterima')
+                            <span class="badge badge-success">Diterima - Surat Tersedia</span>
                         @elseif ($laporan->status_validasi == 'Ditolak')
                             <span class="badge badge-danger">Ditolak</span>
-                        @endif
-                    </td>
-                    <td>
-                        @php
-                            $today = \Carbon\Carbon::today();
-                            $tglPengembalian = \Carbon\Carbon::parse($laporan->tgl_pengembalian);
-                        @endphp
-
-                        @if ($today->gt($tglPengembalian))
+                        @elseif ($laporan->status_validasi == 'Selesai')
                             <span class="badge badge-success">Selesai</span>
-                        @else
-                            <span class="badge badge-warning">Sedang Berjalan</span>
                         @endif
                     </td>
-                    <td>{{ $laporan->catatan ?? '-' }}</td>
                     <td>
-                        @if ($laporan->surat == null)
+                        @if ($laporan->canGenerateSurat())
+                            <a href="{{ route('client.pengajuan-peminjaman.generate-formulir', $laporan->id) }}"
+                                target="_blank" class="btn btn-xs btn-success">
+                                <i class="fa fa-download"></i> Download
+                            </a>
+                        @else
+                            <span class="text-muted">Surat belum tersedia</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if ($laporan->status_validasi == 'Ditolak')
+                            @if ($laporan->catatan_laboran)
+                                <strong>Laboran:</strong> {{ $laporan->catatan_laboran }}<br>
+                            @endif
+                            @if ($laporan->catatan_koordinator)
+                                <strong>Koordinator:</strong> {{ $laporan->catatan_koordinator }}
+                            @endif
+                        @else
+                            {{ $laporan->catatan ?? '-' }}
+                        @endif
+                    </td>
+                    <td>
+                        @if ($laporan->canUploadSurat())
                             @can('pengajuan-peminjaman-client')
                                 <button class="btn btn-primary btn-sm" data-bs-toggle="modal"
                                     data-bs-target="#uploadModal-{{ $laporan->id }}">
                                     <i class="fas fa-upload"></i> Upload
                                 </button>
                             @endcan
-                        @else
+                        @elseif ($laporan->surat)
                             <span class="badge badge-success">Sudah Upload</span>
+                        @else
+                            <span class="text-muted">Belum dapat upload</span>
                         @endif
                     </td>
                     <td>
@@ -132,36 +143,38 @@
                 @endif
 
                 {{-- Upload Modal (unggah surat) --}}
-                <tr>
-                    <td colspan="100">
-                        <div class="modal fade" id="uploadModal-{{ $laporan->id }}" tabindex="-1" role="dialog"
-                            aria-labelledby="uploadModalLabel-{{ $laporan->id }}" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <form action="{{ route('client.pengajuan-peminjaman.storeUpload', $laporan->id) }}"
-                                    method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="modal-content p-3">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Upload Surat</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Tutup"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label for="surat">Upload Surat Peminjaman yang sudah disetujui (PDF: maks. 2MB)</label>
-                                                <input type="file" name="surat" class="form-control" accept=".pdf"
-                                                    required>
+                @if ($laporan->canUploadSurat())
+                    <tr>
+                        <td colspan="100">
+                            <div class="modal fade" id="uploadModal-{{ $laporan->id }}" tabindex="-1" role="dialog"
+                                aria-labelledby="uploadModalLabel-{{ $laporan->id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <form action="{{ route('client.pengajuan-peminjaman.storeUpload', $laporan->id) }}"
+                                        method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-content p-3">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Upload Surat</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Tutup"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label for="surat">Upload Surat Peminjaman yang sudah ditandatangani (PDF: maks. 2MB)</label>
+                                                    <input type="file" name="surat" class="form-control" accept=".pdf"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer d-flex justify-content-end">
+                                                <button type="submit" class="btn btn-success">Upload</button>
                                             </div>
                                         </div>
-                                        <div class="modal-footer d-flex justify-content-end">
-                                            <button type="submit" class="btn btn-success">Upload</button>
-                                        </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                @endif
             @empty
                 <tr>
                     <td colspan="100" class="text-center">Data tidak ditemukan</td>

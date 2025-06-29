@@ -21,8 +21,6 @@ use App\Http\Controllers\Client\ClientRiwayatController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KunjunganController;
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -48,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/id-card', [ProfileController::class, 'printIdCard'])->name('profile.id-card');
 
     // CMS ADMINITRASTOR
     Route::name('admin.')->prefix('admin')->group(function () {
@@ -65,7 +64,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/transaksi/peminjaman', [AdminTransaksiController::class, 'transaksiPeminjaman'])->name('transaksi.peminjaman');
         Route::get('/transaksi/penggunaan', [AdminTransaksiController::class, 'transaksiPenggunaan'])->name('transaksi.penggunaan');
         Route::get('/transaksi/pengembalian', [AdminTransaksiController::class, 'transaksiPengembalian'])->name('transaksi.pengembalian');
-        Route::post('/transaksi/peminjaman/{id}', [AdminTransaksiController::class, 'validasiPeminjaman'])->name('validasi.peminjaman');
+        Route::post('/transaksi/peminjaman/laboran/{id}', [AdminTransaksiController::class, 'validasiLaboran'])->name('validasi.laboran');
+        Route::post('/transaksi/peminjaman/koordinator/{id}', [AdminTransaksiController::class, 'validasiKoordinator'])->name('validasi.koordinator');
         Route::post('/transaksi/penggunaan', [AdminTransaksiController::class, 'validasiPenggunaan'])->name('validasi.penggunaan');
         Route::post('/transaksi/pengembalian', [AdminTransaksiController::class, 'validasiPengembalian'])->name('validasi.pengembalian');
         Route::get('/laporan/peminjaman', [AdminLaporanController::class, 'laporanPeminjaman'])->name('laporan.peminjaman');

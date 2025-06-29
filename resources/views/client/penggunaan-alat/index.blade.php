@@ -76,7 +76,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" name="alat_id[]" id="alatIdInput">
+                        <div id="alatIdContainer"></div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tujuan Penggunaan<span
                                     class="text-danger">*</span></label>
@@ -144,7 +144,6 @@
     </div>
 
     <script>
-        // Data alat untuk JS
         const allAlats = @json($alats);
         const compactedAlat = {};
         allAlats.forEach(alat => {
@@ -158,7 +157,7 @@
         let modalAlatIds = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Flatpickr for modal inputs
+            // === Flatpickr Init ===
             flatpickr('#waktuMulaiInput', {
                 enableTime: true,
                 dateFormat: 'Y-m-d H:i',
@@ -168,6 +167,7 @@
                     document.getElementById('waktuSelesaiInput')._flatpickr.set('minDate', dateStr);
                 }
             });
+
             flatpickr('#waktuSelesaiInput', {
                 enableTime: true,
                 dateFormat: 'Y-m-d H:i',
@@ -175,16 +175,17 @@
                 minDate: 'today',
             });
 
-            // Handle modal show events
-            var modalPenggunaan = document.getElementById('modalPenggunaan');
+            // === Modal Penggunaan - Saat dibuka ===
+            const modalPenggunaan = document.getElementById('modalPenggunaan');
             modalPenggunaan.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var baseName = button.getAttribute('data-basename');
+                const button = event.relatedTarget;
+                const baseName = button.getAttribute('data-basename');
                 modalBaseName = baseName;
+
                 const group = compactedAlat[baseName] || [];
-                modalMaxQty = group.filter(a => a.status === 'Tersedia').length;
                 modalAlatIds = group.filter(a => a.status === 'Tersedia').map(a => a.id);
-                document.getElementById('alatIdInput').value = modalAlatIds.slice(0, 1)[0] || '';
+                modalMaxQty = modalAlatIds.length;
+
                 document.getElementById('qtyInput').value = 1;
                 document.getElementById('qtyInput').setAttribute('max', modalMaxQty);
                 document.getElementById('maxQtyText').textContent = modalMaxQty;
@@ -192,57 +193,73 @@
                 document.getElementById('waktuMulaiInput').value = '';
                 document.getElementById('waktuSelesaiInput').value = '';
                 document.getElementById('errorMessage').style.display = 'none';
+
+                // Kosongkan alat_id container
+                document.getElementById('alatIdContainer').innerHTML = '';
             });
 
-            // Handle qty input
+            // === Validasi Jumlah (qty)
             document.getElementById('qtyInput').addEventListener('input', function() {
                 let val = parseInt(this.value);
                 if (val > modalMaxQty) this.value = modalMaxQty;
                 if (val < 1) this.value = 1;
             });
 
-            // Form validation
+            // === Handle Submit Form Penggunaan
             document.getElementById('formPenggunaanAlat').addEventListener('submit', function(e) {
                 const tujuan = document.getElementById('tujuanPenggunaanInput').value.trim();
                 const mulai = document.getElementById('waktuMulaiInput').value;
                 const selesai = document.getElementById('waktuSelesaiInput').value;
                 const qty = parseInt(document.getElementById('qtyInput').value);
                 const errorDiv = document.getElementById('errorMessage');
+                const alatIdContainer = document.getElementById('alatIdContainer');
+
+                // Reset error
+                errorDiv.textContent = '';
+                errorDiv.style.display = 'none';
+
                 if (!tujuan || !mulai || !selesai || !qty) {
                     errorDiv.textContent = 'Semua field wajib diisi.';
                     errorDiv.style.display = 'block';
                     e.preventDefault();
                     return;
                 }
+
                 if (qty < 1 || qty > modalMaxQty) {
                     errorDiv.textContent = 'Jumlah tidak valid.';
                     errorDiv.style.display = 'block';
                     e.preventDefault();
                     return;
                 }
+
                 if (selesai < mulai) {
                     errorDiv.textContent = 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.';
                     errorDiv.style.display = 'block';
                     e.preventDefault();
                     return;
                 }
-                // Set alat_id[]
-                let alatIdInput = document.getElementById('alatIdInput');
-                alatIdInput.value = modalAlatIds.slice(0, qty).join(',');
+
+                // === Set input alat_id[] ke dalam form secara dinamis ===
+                alatIdContainer.innerHTML = '';
+                modalAlatIds.slice(0, qty).forEach(id => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'alat_id[]';
+                    input.value = id;
+                    alatIdContainer.appendChild(input);
+                });
             });
 
-            // Modal Detail
-            var modalDetail = document.getElementById('modalDetail');
-            modalDetail.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var baseName = button.getAttribute('data-basename');
+            // === Modal Detail
+            document.getElementById('modalDetail').addEventListener('show.bs.modal', function(event) {
+                const baseName = event.relatedTarget.getAttribute('data-basename');
                 const group = compactedAlat[baseName] || [];
                 let html =
                     `<div class="mb-3"><strong>Ringkasan:</strong><br>
-                    Total Alat: <span>${group.length}</span><br>
-                    Jumlah Baik: <span class="text-success">${group.filter(a => a.condition === 'Baik').length}</span><br>
-                    Jumlah Rusak: <span class="text-danger">${group.filter(a => a.condition === 'Rusak').length}</span><br>
-                    Jumlah Tersedia: <span class="text-primary">${group.filter(a => a.status === 'Tersedia').length}</span></div>`;
+                        Total Alat: <span>${group.length}</span><br>
+                        Jumlah Baik: <span class="text-success">${group.filter(a => a.condition === 'Baik').length}</span><br>
+                        Jumlah Rusak: <span class="text-danger">${group.filter(a => a.condition === 'Rusak').length}</span><br>
+                        Jumlah Tersedia: <span class="text-primary">${group.filter(a => a.status === 'Tersedia').length}</span></div>`;
                 html +=
                     `<div class="table-responsive"><table class="table table-bordered table-sm"><thead><tr><th>Nama Alat</th><th>Kondisi</th><th>Status</th><th>Lokasi</th></tr></thead><tbody>`;
                 group.forEach(alat => {
@@ -253,28 +270,27 @@
                 document.getElementById('detailContent').innerHTML = html;
             });
 
-            // Modal Kembalikan
-            var modalKembalikan = document.getElementById('modalKembalikan');
-            modalKembalikan.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var baseName = button.getAttribute('data-basename');
+            // === Modal Kembalikan Alat
+            document.getElementById('modalKembalikan').addEventListener('show.bs.modal', function(event) {
+                const baseName = event.relatedTarget.getAttribute('data-basename');
                 const group = compactedAlat[baseName] || [];
+
                 let html =
                     `<div class="mb-3"><strong>Ringkasan:</strong><br>
-                    Total Alat: <span>${group.length}</span><br>
-                    Jumlah Baik: <span class="text-success">${group.filter(a => a.condition === 'Baik').length}</span><br>
-                    Jumlah Rusak: <span class="text-danger">${group.filter(a => a.condition === 'Rusak').length}</span><br>
-                    Jumlah Tersedia: <span class="text-primary">${group.filter(a => a.status === 'Tersedia').length}</span></div>`;
+                        Total Alat: <span>${group.length}</span><br>
+                        Jumlah Baik: <span class="text-success">${group.filter(a => a.condition === 'Baik').length}</span><br>
+                        Jumlah Rusak: <span class="text-danger">${group.filter(a => a.condition === 'Rusak').length}</span><br>
+                        Jumlah Tersedia: <span class="text-primary">${group.filter(a => a.status === 'Tersedia').length}</span></div>`;
                 html +=
                     `<div class="table-responsive"><table class="table table-bordered table-sm"><thead><tr><th>Nama Alat</th><th>Kondisi</th><th>Status</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody>`;
                 group.forEach(alat => {
                     html +=
-                        `<tr><td>${alat.name}</td><td>${alat.condition}</td><td>${alat.status}</td><td>${alat.ruangan?.name || '-'}<\/td><td>`;
+                        `<tr><td>${alat.name}</td><td>${alat.condition}</td><td>${alat.status}</td><td>${alat.ruangan?.name || '-'}</td><td>`;
                     if (alat.status !== 'Tersedia') {
                         html +=
-                            `<button class='btn btn-sm btn-success btn-kembalikan-alat' data-alatid='${alat.id}'>Kembalikan<\/button>`;
+                            `<button class='btn btn-sm btn-success btn-kembalikan-alat' data-alatid='${alat.id}'>Kembalikan</button>`;
                     } else {
-                        html += `<span class='text-success'>Sudah Tersedia<\/span>`;
+                        html += `-`;
                     }
                     html += `</td></tr>`;
                 });
@@ -282,7 +298,7 @@
                 document.getElementById('kembalikanContent').innerHTML = html;
             });
 
-            // Event delegation for kembalikan button
+            // === Proses Kembalikan Alat (AJAX)
             document.getElementById('kembalikanContent').addEventListener('click', function(e) {
                 if (e.target.classList.contains('btn-kembalikan-alat')) {
                     const alatId = e.target.getAttribute('data-alatid');
@@ -291,7 +307,7 @@
                                 method: 'POST',
                                 headers: {
                                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        .getAttribute('content'),
+                                        .content,
                                     'Accept': 'application/json',
                                     'Content-Type': 'application/json',
                                 },
@@ -305,11 +321,12 @@
                                     alert(data.message || 'Gagal mengembalikan alat.');
                                 }
                             })
-                            .catch(() => alert('Terjadi kesalahan.'));
+                            .catch(() => alert('Terjadi kesalahan saat mengembalikan alat.'));
                     }
                 }
             });
         });
     </script>
+
 
 </x-admin-layout>

@@ -45,6 +45,7 @@
     </style>
 
     {{ $style ?? '' }}
+    @stack('styles')
 
 </head>
 
@@ -88,6 +89,7 @@
     </script>
 
     {{ $script ?? '' }}
+    @stack('scripts')
 
 </body>
 

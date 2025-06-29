@@ -24,7 +24,7 @@
                 <div class="col-md-2 mb-4">
                     <select name="type" class="form-select">
                         <option value="alat" {{ request('type', 'alat') == 'alat' ? 'selected' : '' }}>Alat</option>
-                        @if (auth()->user()->hasRole('Dosen'))
+                        @if (!auth()->user()->hasRole('Mahasiswa'))
                             <option value="bahan" {{ request('type') == 'bahan' ? 'selected' : '' }}>Bahan</option>
                         @endif
                         <option value="ruangan" {{ request('type') == 'ruangan' ? 'selected' : '' }}>Ruangan</option>
@@ -161,7 +161,7 @@
             </div>
         @endif
 
-        @if (auth()->user()->hasRole('Dosen'))
+        @if (!auth()->user()->hasRole('Mahasiswa'))
             @if (request('type') === 'bahan')
                 {{-- Bahan Section --}}
                 <h4 class="mt-5 mb-3">Bahan</h4>
