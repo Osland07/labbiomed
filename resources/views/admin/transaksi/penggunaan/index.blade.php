@@ -35,8 +35,8 @@
                 <th>{{ __('No') }}</th>
                 <th class="text-center">{{ __('Pengguna') }}</th>
                 <th>{{ __('Tujuan Penggunaan') }}</th>
-                <th>{{ __('Nama Alat/Bahan/Ruangan') }}</th>
-                <th>{{ __('Nomor Seri') }}</th>
+                <th>{{ __('Item yang Digunakan') }}</th>
+                <th>{{ __('Jumlah Item') }}</th>
                 <th>{{ __('Waktu Mulai') }}</th>
                 <th>{{ __('Estimasi Pengembalian') }}</th>
                 <th>{{ __('Status Validasi') }}</th>
@@ -46,22 +46,79 @@
         </thead>
         <tbody>
             @forelse ($laporans as $laporan)
+                @php
+                    $user = \App\Models\User::find($laporan->user_id);
+                    $items = explode(',', $laporan->items);
+                    $itemDetails = [];
+                    
+                    foreach ($items as $item) {
+                        if (strpos($item, 'Alat:') !== false) {
+                            $alatId = str_replace('Alat:', '', $item);
+                            $alat = \App\Models\Alat::find($alatId);
+                            if ($alat) {
+                                $itemDetails[] = "Alat: {$alat->name} ({$alat->serial_number})";
+                            }
+                        } elseif (strpos($item, 'Bahan:') !== false) {
+                            $bahanId = str_replace('Bahan:', '', $item);
+                            $bahan = \App\Models\Bahan::find($bahanId);
+                            if ($bahan) {
+                                $itemDetails[] = "Bahan: {$bahan->name} ({$bahan->serial_number})";
+                            }
+                        } elseif (strpos($item, 'Ruangan:') !== false) {
+                            $ruanganId = str_replace('Ruangan:', '', $item);
+                            $ruangan = \App\Models\Ruangan::find($ruanganId);
+                            if ($ruangan) {
+                                $itemDetails[] = "Ruangan: {$ruangan->name} ({$ruangan->serial_number})";
+                            }
+                        }
+                    }
+                @endphp
                 <tr>
                     <td>{{ $laporans->firstItem() + $loop->index }}</td>
                     <td class="text-center" style="max-width: 220px; word-wrap: break-word; white-space: normal;">
-                        <span>{{ $laporan->user->name ?? '-' }}</span>
-                        <br> {{ $laporan->user->nim ?? '-' }}<br>
-                        <a href="https://wa.me/+62{{ $laporan->user->no_hp ?? '-' }}">
-                            {{ $laporan->user->no_hp ?? '-' }}
+                        <span>{{ $user->name ?? '-' }}</span>
+                        <br> {{ $user->nim ?? '-' }}<br>
+                        <a href="https://wa.me/+62{{ $user->no_hp ?? '-' }}">
+                            {{ $user->no_hp ?? '-' }}
                             <i class="fa fa-whatsapp text-success"></i></a><br> <a
-                            href="mailto:{{ $laporan->user->email ?? '-' }}">{{ $laporan->user->email ?? '-' }} <i
+                            href="mailto:{{ $user->email ?? '-' }}">{{ $user->email ?? '-' }} <i
                                 class="fa fa-envelope text-primary"></i></a>
                     </td>
+                    <td>{{ $laporan->tujuan_penggunaan ?? '-' }}</td>
                     <td>
-                        {{ $laporan->alat->category->name ?? ($laporan->bahan->category->name ?? ($laporan->ruangan->category->name ?? '-')) }}
+                        @php
+                            // Group itemDetails by name, collect serials (tanpa prefix)
+                            $groupedItems = [];
+                            foreach ($itemDetails as $detail) {
+                                if (preg_match('/^(Alat|Bahan|Ruangan): ([^(]+) \(([^)]+)\)$/', $detail, $m)) {
+                                    $name = $m[2];
+                                    $serial = $m[3];
+                                    if (!isset($groupedItems[$name])) $groupedItems[$name] = [];
+                                    $groupedItems[$name][] = $serial;
+                                }
+                            }
+                        @endphp
+                        @foreach ($groupedItems as $name => $serials)
+                            <span class="tooltip-custom">
+                                {{ $name }}
+                                <span class="info-icon">&#8505;</span>
+                                <span class="tooltiptext">
+                                    <strong>Nomor Seri alat yang digunakan</strong>
+                                    <ul>
+                                        @foreach (array_slice($serials, 0, 5) as $serial)
+                                            <li>{{ $serial }}</li>
+                                        @endforeach
+                                        @if (count($serials) > 5)
+                                            <li><em>dan {{ count($serials) - 5 }} lainnya</em></li>
+                                        @endif
+                                    </ul>
+                                </span>
+                            </span>
+                            <br>
+                        @endforeach
                     </td>
-                    <td>{{ $laporan->alat->name ?? ($laporan->bahan->name ?? ($laporan->ruangan->name ?? '-')) }}</td>
-                    <td>{{ $laporan->alat->serial_number ?? ($laporan->bahan->serial_number ?? ($laporan->ruangan->serial_number ?? '-')) }}
+                    <td class="text-center">
+                        <span class="badge badge-info">{{ $laporan->total_items }} item</span>
                     </td>
                     <td>{{ $laporan->waktu_mulai ?? '-' }}</td>
                     <td>{{ $laporan->waktu_selesai ?? '-' }}</td>
@@ -81,8 +138,8 @@
                         @else
                             @can('penggunaan-transaksi')
                                 <button role="button" class="btn btn-xs m-1 btn-primary"
-                                    onclick="openValidasiModal({{ $laporan->id }})">
-                                    <i class="fas fa-check"></i> Validasi
+                                    onclick="openValidasiModal('{{ $laporan->user_id }}', '{{ $laporan->waktu_mulai }}', '{{ $laporan->waktu_selesai }}', '{{ $laporan->tujuan_penggunaan }}')">
+                                    <i class="fas fa-check"></i> Validasi {{ $laporan->total_items }} Item
                                 </button>
                             @endcan
                         @endif
@@ -99,11 +156,14 @@
 
     <!-- Modal Validasi Penggunaan -->
     <div class="modal fade formValidate" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <form id="formValidasiPenggunaan" action="{{ route('admin.validasi.penggunaan') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="laporan_id" id="laporan_id_modal">
+                <input type="hidden" name="user_id" id="user_id_modal">
+                <input type="hidden" name="waktu_mulai" id="waktu_mulai_modal">
+                <input type="hidden" name="waktu_selesai" id="waktu_selesai_modal">
+                <input type="hidden" name="tujuan_penggunaan" id="tujuan_penggunaan_modal">
                 <input type="hidden" name="status_peminjaman" id="status_peminjaman_modal">
                 <div class="modal-content p-3">
                     <div class="modal-body">
@@ -130,9 +190,12 @@
     </div>
 
     <script>
-        // Saat tombol validasi diklik, set laporan_id ke modal
-        function openValidasiModal(laporanId) {
-            document.getElementById('laporan_id_modal').value = laporanId;
+        // Saat tombol validasi diklik, set data ke modal
+        function openValidasiModal(userId, waktuMulai, waktuSelesai, tujuanPenggunaan) {
+            document.getElementById('user_id_modal').value = userId;
+            document.getElementById('waktu_mulai_modal').value = waktuMulai;
+            document.getElementById('waktu_selesai_modal').value = waktuSelesai;
+            document.getElementById('tujuan_penggunaan_modal').value = tujuanPenggunaan;
             document.getElementById('status_peminjaman_modal').value = ''; // reset
             $('#formValidasiPenggunaan')[0].reset(); // reset form
             $('.formValidate').modal('show');
@@ -144,5 +207,52 @@
             document.getElementById('formValidasiPenggunaan').submit();
         }
     </script>
+
+    <style>
+    .tooltip-custom {
+      position: relative;
+      display: inline-block;
+    }
+    .tooltip-custom .info-icon {
+      color: #3498db;
+      margin-left: 4px;
+      font-size: 1.1em;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+    .tooltiptext {
+      visibility: hidden;
+      min-width: 260px;
+      max-width: 350px;
+      background: #222;
+      color: #fff;
+      text-align: left;
+      border-radius: 10px;
+      padding: 16px 20px;
+      position: absolute;
+      z-index: 10;
+      bottom: 130%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 1em;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+      white-space: normal;
+    }
+    .tooltip-custom .info-icon:hover + .tooltiptext,
+    .tooltip-custom .tooltiptext:hover {
+      visibility: visible;
+      opacity: 1;
+    }
+    .tooltiptext ul {
+      margin: 0 0 0 18px;
+      padding: 0;
+    }
+    .tooltiptext li {
+      margin-bottom: 2px;
+      font-size: 0.98em;
+    }
+    </style>
 
 </x-admin-table>

@@ -16,6 +16,7 @@ use App\Notifications\PengembalianValidatedNotification;
 use App\Notifications\PeminjamanDitolakNotification;
 use App\Notifications\PeminjamanDisetujuiNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminTransaksiController extends Controller
 {
@@ -227,12 +228,31 @@ class AdminTransaksiController extends Controller
             }
         }
 
-        $query = Laporan::where('status_peminjaman', 'Menunggu');
+        // Query untuk mengelompokkan data berdasarkan user, waktu, dan tujuan
+        $query = Laporan::select([
+            'user_id',
+            'waktu_mulai',
+            'waktu_selesai', 
+            'tujuan_penggunaan',
+            'status_peminjaman',
+            'catatan',
+            \DB::raw('GROUP_CONCAT(DISTINCT CASE 
+                WHEN alat_id IS NOT NULL THEN CONCAT("Alat:", alat_id)
+                WHEN bahan_id IS NOT NULL THEN CONCAT("Bahan:", bahan_id) 
+                WHEN ruangan_id IS NOT NULL THEN CONCAT("Ruangan:", ruangan_id)
+                END SEPARATOR ",") as items'),
+            \DB::raw('COUNT(*) as total_items'),
+            \DB::raw('MIN(id) as first_id')
+        ])
+        ->where('status_peminjaman', 'Menunggu')
+        ->groupBy('user_id', 'waktu_mulai', 'waktu_selesai', 'tujuan_penggunaan', 'status_peminjaman', 'catatan');
 
         $query->orderByRaw("CASE WHEN status_peminjaman = 'Menunggu' THEN 0 ELSE 1 END");
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
         }
 
         $laporans = $query->paginate($validPerPage);
@@ -243,17 +263,25 @@ class AdminTransaksiController extends Controller
     public function validasiPenggunaan(Request $request)
     {
         $request->validate([
-            'laporan_id' => 'required|exists:laporans,id',
+            'user_id' => 'required|exists:users,id',
+            'waktu_mulai' => 'required|date',
+            'waktu_selesai' => 'required|date',
+            'tujuan_penggunaan' => 'required|string',
             'status_peminjaman' => 'required|in:Diterima,Ditolak',
             'catatan' => 'nullable|string|max:1000',
             'gambar_sebelum' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $laporan = Laporan::findOrFail($request->laporan_id);
+        // Ambil semua laporan yang sesuai dengan kriteria
+        $laporans = Laporan::where('user_id', $request->user_id)
+            ->where('waktu_mulai', $request->waktu_mulai)
+            ->where('waktu_selesai', $request->waktu_selesai)
+            ->where('tujuan_penggunaan', $request->tujuan_penggunaan)
+            ->where('status_peminjaman', 'Menunggu')
+            ->get();
 
-        if ($request->status_peminjaman === 'Diterima' && $request->hasFile('gambar_sebelum')) {
-            $imagePath = $request->file('gambar_sebelum')->store('gambar_sebelum', 'public');
-            $laporan->gambar_sebelum = $imagePath;
+        if ($laporans->isEmpty()) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan.');
         }
 
         if ($request->status_peminjaman === 'Ditolak') {
@@ -264,26 +292,40 @@ class AdminTransaksiController extends Controller
             ]);
         }
 
-        if ($request->status_peminjaman === 'Ditolak' && $laporan->alat !== null) {
-            $laporan->alat->status = 'Tersedia';
-            $laporan->alat->save();
+        // Proses setiap laporan
+        foreach ($laporans as $laporan) {
+            if ($request->status_peminjaman === 'Diterima' && $request->hasFile('gambar_sebelum')) {
+                $imagePath = $request->file('gambar_sebelum')->store('gambar_sebelum', 'public');
+                $laporan->gambar_sebelum = $imagePath;
+            }
+
+            if ($request->status_peminjaman === 'Ditolak') {
+                // Kembalikan status alat/ruangan jika ditolak
+                if ($laporan->alat !== null) {
+                    $laporan->alat->status = 'Tersedia';
+                    $laporan->alat->save();
+                }
+
+                if ($laporan->ruangan !== null) {
+                    $laporan->ruangan->status = 'Tersedia';
+                    $laporan->ruangan->save();
+                }
+            }
+
+            $laporan->status_peminjaman = $request->status_peminjaman;
+            $laporan->status_pengembalian = 'Belum Dikembalikan';
+            $laporan->catatan = $request->catatan;
+            $laporan->updated_at = now();
+            $laporan->save();
+
+            // Send email notification untuk setiap laporan
+            $laporan->user->notify(new PenggunaanValidatedNotification($laporan, $request->status_peminjaman, $request->catatan));
         }
 
-        if ($request->status_peminjaman === 'Ditolak' && $laporan->ruangan !== null) {
-            $laporan->ruangan->status = 'Tersedia';
-            $laporan->ruangan->save();
-        }
-
-        $laporan->status_peminjaman = $request->status_peminjaman;
-        $laporan->status_pengembalian = 'Belum Dikembalikan';
-        $laporan->catatan = $request->catatan;
-        $laporan->updated_at = now();
-        $laporan->save();
-
-        // Send email notification
-        $laporan->user->notify(new PenggunaanValidatedNotification($laporan, $request->status_peminjaman, $request->catatan));
-
-        return redirect()->back()->with('message', 'Validasi penggunaan berhasil dilakukan.');
+        $itemCount = $laporans->count();
+        $statusText = $request->status_peminjaman === 'Diterima' ? 'disetujui' : 'ditolak';
+        
+        return redirect()->back()->with('message', "Validasi penggunaan {$itemCount} item berhasil {$statusText}.");
     }
 
     public function transaksiPengembalian(Request $request)
