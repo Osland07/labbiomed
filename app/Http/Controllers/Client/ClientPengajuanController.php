@@ -141,11 +141,40 @@ class ClientPengajuanController extends Controller
 
         // daftar_alat is now a flat array of alat IDs
         $alatIds = json_decode($request->daftar_alat, true);
+        $alatIdsSorted = $alatIds;
+        sort($alatIdsSorted);
+        $alatIdsJson = json_encode($alatIdsSorted);
 
         // Jika dosen, pastikan dosen_pembimbing null
         $dosenPembimbing = null;
         if ($isMahasiswa) {
             $dosenPembimbing = $request->dosen_pembimbing;
+        }
+
+        // CEK DUPLIKASI DATA
+        $duplikat = LaporanPeminjaman::where('user_id', auth()->id())
+            ->where('judul_penelitian', $request->judul_penelitian)
+            ->where('tujuan_peminjaman', $request->tujuan_peminjaman)
+            ->where('tgl_peminjaman', $request->tgl_peminjaman)
+            ->where('tgl_pengembalian', $request->tgl_pengembalian)
+            ->where(function($q) {
+                $q->whereNotIn('status_validasi', [LaporanPeminjaman::STATUS_DITOLAK, LaporanPeminjaman::STATUS_SELESAI])
+                  ->orWhereNull('status_validasi');
+            })
+            ->get()
+            ->filter(function($item) use ($alatIdsJson) {
+                $itemAlat = $item->alat_id;
+                if (is_array($itemAlat)) {
+                    $itemAlatSorted = $itemAlat;
+                    sort($itemAlatSorted);
+                    return json_encode($itemAlatSorted) === $alatIdsJson;
+                }
+                return false;
+            })
+            ->first();
+
+        if ($duplikat) {
+            return redirect()->back()->withInput()->withErrors(['duplikasi' => 'Pengajuan dengan data yang sama sudah pernah diajukan dan masih dalam proses.']);
         }
 
         $laporan = LaporanPeminjaman::create([

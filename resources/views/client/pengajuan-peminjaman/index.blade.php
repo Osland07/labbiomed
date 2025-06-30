@@ -16,7 +16,11 @@
 
     @include('components.alert')
 
-
+    @if ($errors->has('duplikasi'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ $errors->first('duplikasi') }}</span>
+        </div>
+    @endif
 
     <form class="bg-white p-8 rounded shadow mb-5" method="POST"
         action="{{ route('client.pengajuan-peminjaman.store') }}">
