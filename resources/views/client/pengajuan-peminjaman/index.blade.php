@@ -73,13 +73,18 @@
                     <div>
                         <label class="block mb-1">Tanggal Selesai<span class="text-red-600">*</span></label>
                         <input type="date" name="tgl_pengembalian" x-model="tanggalPengembalian"
-                            :min="tanggalPeminjaman" :disabled="!tanggalPeminjaman"
+                            :min="tanggalPeminjaman"
+                            :max="maxTanggalPengembalian"
+                            :disabled="!tanggalPeminjaman"
                             class="w-full border border-gray-300 px-4 py-2 rounded" required
                             value="{{ old('tgl_pengembalian') }}">
-                        @error('tgl_pengembalian')
-                            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
-                        @enderror
+                        @if ($errors->has('tgl_pengembalian'))
+                            <div class="text-red-600 text-sm mt-1">{{ $errors->first('tgl_pengembalian') }}</div>
+                        @endif
                     </div>
+                </div>
+                <div class="text-gray-600 text-xs mt-2">
+                     Pengajuan hanya dapat dilakukan untuk jangka waktu maksimal 3 bulan sejak tanggal mulai yang ditentukan
                 </div>
             </div>
 
@@ -294,7 +299,32 @@
                     allowEmptyOption: true,
                     maxOptions: 100,
                 });
+            },
+
+            get maxTanggalPengembalian() {
+                if (!this.tanggalPeminjaman) return '';
+                const tgl = new Date(this.tanggalPeminjaman);
+                tgl.setMonth(tgl.getMonth() + 3);
+                // handle overflow (misal 31 Jan + 3 bulan = 31 April, jadi 1 Mei)
+                if (tgl.getDate() !== new Date(this.tanggalPeminjaman).getDate()) {
+                    tgl.setDate(0); // set ke hari terakhir bulan sebelumnya
+                }
+                return tgl.toISOString().split('T')[0];
             }
         }
     }
 </script>
+
+<template x-if="!tanggalPeminjaman">
+    <div class='text-yellow-700 bg-yellow-100 border border-yellow-300 rounded px-3 py-2 mt-2 text-sm'>
+        Silakan pilih tanggal mulai terlebih dahulu untuk mengatur tanggal selesai.
+    </div>
+</template>
+
+<template x-if="tanggalPeminjaman && tanggalPengembalian && tanggalPengembalian > maxTanggalPengembalian">
+    <div class='text-yellow-700 bg-yellow-100 border border-yellow-300 rounded px-3 py-2 mt-2 text-sm'>
+        Durasi Pengajuan maksimal 3 bulan dari tanggal mulai. Silakan pilih tanggal selesai yang sesuai.
+
+         Anda hanya dapat mengajukan peminjaman dengan durasi maksimal 3 bulan dari tanggal mulai. Jika ingin memperpanjang, silakan ajukan ulang setelah periode berakhir.
+    </div>
+</template>
