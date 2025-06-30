@@ -34,7 +34,7 @@ class AdminMonitoringController extends Controller
                         ->where('status_validasi', '!=', 'Ditolak');
                 });
         } else {
-            // Jika super admin, tampilkan semua mahasiswa
+            // Jika super admin, admin, atau koordinator, tampilkan semua mahasiswa
             $mahasiswaBimbingan = User::role('Mahasiswa');
         }
 
@@ -67,6 +67,7 @@ class AdminMonitoringController extends Controller
                 return redirect()->back()->with('error', 'Anda tidak berhak melihat aktivitas mahasiswa ini.');
             }
         }
+        // Super admin, admin, dan koordinator bisa melihat semua mahasiswa
 
         $filterAktivitas = $request->input('aktivitas', 'all');
         $filterTanggal = $request->input('tanggal', 'all');
@@ -125,7 +126,7 @@ class AdminMonitoringController extends Controller
                 ->get();
             $mahasiswaIds = $mahasiswaBimbingan->pluck('id')->toArray();
         } else {
-            // Jika super admin, tampilkan semua mahasiswa
+            // Jika super admin, admin, atau koordinator, tampilkan semua mahasiswa
             $mahasiswaBimbingan = User::role('Mahasiswa')->get();
             $mahasiswaIds = $mahasiswaBimbingan->pluck('id')->toArray();
         }
