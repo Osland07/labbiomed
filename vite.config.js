@@ -6,7 +6,7 @@ export default defineConfig({
         host: '0.0.0.0',        // agar bisa diakses dari perangkat lain
         port: 5173,             // port default Vite
         hmr: {
-            host: '192.168.18.40', // ganti pake IP lokal laptop
+            host: '192.168.137.177', // ganti pake IP lokal laptop
         },
     },
     plugins: [
