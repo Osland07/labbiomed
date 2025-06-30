@@ -16,18 +16,7 @@
 
     @include('components.alert')
 
-    @if ($errors->any())
-        <div class="mb-4">
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                <strong>Terjadi kesalahan:</strong>
-                <ul class="mt-2 list-disc list-inside text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        </div>
-    @endif
+
 
     <form class="bg-white p-8 rounded shadow mb-5" method="POST"
         action="{{ route('client.pengajuan-peminjaman.store') }}">
@@ -50,6 +39,9 @@
                     <option value="Tugas Mata Kuliah">Tugas Mata Kuliah</option>
                     <option value="lainnya">Lainnya</option>
                 </select>
+                @error('tujuan_peminjaman')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
 
                 <!-- Muncul hanya jika "Lainnya" dipilih -->
                 <input x-show="selectedKeperluan === 'lainnya'" x-model="customKeperluan" type="text"
@@ -70,6 +62,9 @@
                         <input type="date" name="tgl_peminjaman" x-model="tanggalPeminjaman" :min="hariIni"
                             class="w-full border border-gray-300 px-4 py-2 rounded" required
                             value="{{ old('tgl_peminjaman') }}">
+                        @error('tgl_peminjaman')
+                            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div>
                         <label class="block mb-1">Tanggal Selesai<span class="text-red-600">*</span></label>
@@ -77,6 +72,9 @@
                             :min="tanggalPeminjaman" :disabled="!tanggalPeminjaman"
                             class="w-full border border-gray-300 px-4 py-2 rounded" required
                             value="{{ old('tgl_pengembalian') }}">
+                        @error('tgl_pengembalian')
+                            <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -88,6 +86,9 @@
                 <input name="judul_penelitian" type="text" required
                     class="w-full border border-gray-300 px-4 py-2 rounded" placeholder="Judul Penelitian/Kegiatan"
                     value="{{ old('judul_penelitian') }}">
+                @error('judul_penelitian')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
             @if (!auth()->user()->hasRole('Dosen'))
@@ -100,6 +101,9 @@
                             <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
                         @endforeach
                     </select>
+                    @error('dosen_pembimbing')
+                        <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                    @enderror
                 </div>
             @endif
 
@@ -158,6 +162,9 @@
                     <p class="mt-2 text-sm">Belum ada alat yang dipilih</p>
                     <p class="text-xs">Silakan pilih alat di atas untuk menambahkannya ke daftar</p>
                 </div>
+                @error('daftar_alat')
+                    <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
             <!-- Hidden Inputs -->
@@ -167,8 +174,9 @@
             <!-- Submit -->
             <button type="submit"
                 @click.prevent="
+                    alatError = '';
                     if (flatAlatIds.length === 0) {
-                        alert('Silakan tambahkan minimal satu alat sebelum submit.');
+                        alatError = 'Silakan tambahkan minimal satu alat sebelum submit.';
                         return;
                     }
                     $el.form.daftar_anggota.value = JSON.stringify(daftarAnggota);
@@ -176,6 +184,7 @@
                     $el.form.submit();
                 "
                 class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">SUBMIT</button>
+            <div x-show="alatError" class="text-red-600 text-sm mt-2" x-text="alatError"></div>
         </div>
     </form>
 </x-admin-layout>
@@ -235,6 +244,7 @@
             hariIni: new Date().toISOString().split('T')[0],
             selectedKeperluan: selectedKeperluanInit,
             customKeperluan: customKeperluanInit,
+            alatError: '',
 
             get flatAlatIds() {
                 return this.daftarAlat.flatMap(item => item.ids);
