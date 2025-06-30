@@ -205,7 +205,7 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <x-sidebar-link route="client.pengajuan-peminjaman.index" label="Formulir Peminjaman"
+                            <x-sidebar-link route="client.pengajuan-peminjaman.index" label="Formulir Pengajuan"
                                 can="pengajuan-peminjaman-client" />
                             <x-sidebar-link route="client.pengajuan-peminjaman.upload" label="Upload Surat"
                                 can="pengajuan-peminjaman-client" />
