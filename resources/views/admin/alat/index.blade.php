@@ -13,7 +13,6 @@
                 <option value="Tersedia" {{ request('status') == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
                 <option value="Dipinjam" {{ request('status') == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
                 <option value="Rusak" {{ request('status') == 'Rusak' ? 'selected' : '' }}>Rusak</option>
-                <option value="Hilang" {{ request('status') == 'Hilang' ? 'selected' : '' }}>Hilang</option>
             </select>
 
             <input type="hidden" name="view" value="{{ request('view', 'compact') }}">
@@ -82,8 +81,14 @@
                         <td>
                             @if ($alat->status == 'Tersedia')
                                 <span class="badge bg-primary">{{ $alat->status }}</span>
+                            @elseif ($alat->status == 'Dipinjam' || $alat->status == 'Sedang Digunakan')
+                                <span class="badge bg-warning text-dark">{{ $alat->status }}</span>
+                            @elseif ($alat->status == 'Maintenance')
+                                <span class="badge bg-info text-dark">{{ $alat->status }}</span>
+                            @elseif ($alat->status == 'Rusak')
+                                <span class="badge bg-danger">{{ $alat->status }}</span>
                             @else
-                                <span class="badge bg-warning">{{ $alat->status }}</span>
+                                <span class="badge bg-secondary">{{ $alat->status }}</span>
                             @endif
                         </td>
                         <td>{{ $alat->ruangan->name ?? '-' }}</td>
@@ -155,21 +160,18 @@
                                                 $jumlah_baik = $group->where('condition', 'Baik')->count();
                                                 $jumlah_rusak = $group->where('condition', 'Rusak')->count();
                                                 $jumlah_tersedia = $group->where('status', 'Tersedia')->count();
+                                                $jumlah_maintenance = $group->where('status', 'Maintenance')->count();
+                                                $jumlah_digunakan = $group->whereIn('status', 'Sedang Digunakan')->count();
                                             @endphp
 
                                             <!-- Tambahkan ringkasan jumlah -->
-                                            <div class="mb-3">
-                                                <strong>Ringkasan:</strong>
-                                                <p class="m-0 p-0">Total Alat: <strong>{{ $total }}</strong></p>
-                                                <p class="m-0 p-0">Jumlah Baik: <span
-                                                        class="text-success"><strong>{{ $jumlah_baik }}</strong></span>
-                                                </p>
-                                                <p class="m-0 p-0">Jumlah Rusak: <span
-                                                        class="text-danger"><strong>{{ $jumlah_rusak }}</strong></span>
-                                                </p>
-                                                <p class="m-0 p-0">Jumlah Tersedia: <span
-                                                        class="text-primary"><strong>{{ $jumlah_tersedia }}</strong></span>
-                                                </p>
+                                            <div class="mb-3 text-center">
+                                                <span class="badge bg-info mx-1 mb-1" style="font-size:1em;"><i class="fas fa-box me-1"></i> Total: <b>{{ $total }}</b></span>
+                                                <span class="badge bg-success mx-1 mb-1"><i class="fas fa-check-circle me-1"></i> Baik: <b>{{ $jumlah_baik }}</b></span>
+                                                <span class="badge bg-danger mx-1 mb-1"><i class="fas fa-times-circle me-1"></i> Rusak: <b>{{ $jumlah_rusak }}</b></span>
+                                                <span class="badge bg-primary mx-1 mb-1"><i class="fas fa-box-open me-1"></i> Tersedia: <b>{{ $jumlah_tersedia }}</b></span>
+                                                <span class="badge bg-warning text-dark mx-1 mb-1"><i class="fas fa-user-clock me-1"></i> Digunakan: <b>{{ $jumlah_digunakan }}</b></span>
+                                                <span class="badge bg-secondary mx-1 mb-1"><i class="fas fa-tools me-1"></i> Maintenance: <b>{{ $jumlah_maintenance }}</b></span>
                                             </div>
 
                                             <table class="table table-bordered">
@@ -201,8 +203,20 @@
                                                                 @if ($item->status == 'Tersedia')
                                                                     <span class="badge bg-primary">{{ $item->status }}
                                                                     </span>
+                                                                @elseif ($item->status == 'Dipinjam' || $item->status == 'Sedang Digunakan')
+                                                                    <span class="badge bg-warning text-dark">{{ $item->status }}
+                                                                    </span>
+                                                                @elseif ($item->status == 'Maintenance')
+                                                                    <span class="badge bg-info text-dark">{{ $item->status }}
+                                                                    </span>
+                                                                @elseif ($item->status == 'Rusak')
+                                                                    <span class="badge bg-danger">{{ $item->status }}
+                                                                    </span>
+                                                                @elseif ($item->status == 'Hilang')
+                                                                    <span class="badge bg-dark">{{ $item->status }}
+                                                                    </span>
                                                                 @else
-                                                                    <span class="badge bg-warning">{{ $item->status }}
+                                                                    <span class="badge bg-secondary">{{ $item->status }}
                                                                     </span>
                                                                 @endif
                                                             </td>
