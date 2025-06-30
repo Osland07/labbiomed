@@ -52,15 +52,12 @@
                 {{-- password --}}
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-1" for="password">Password</label>
-                    <input id="password" name="password" type="password" required placeholder="Masukkan password kamu"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <x-password-input id="password" name="password" required placeholder="Masukkan password kamu" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 {{ (isset($errors) && $errors->has('password') ? 'border-red-500' : '') }}" oninvalid="this.setCustomValidity('Silakan isi password Anda!')" oninput="this.setCustomValidity('')" />
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 font-semibold mb-1" for="password_confirmation">Konfirmasi
                         Password</label>
-                    <input id="password_confirmation" name="password_confirmation" type="password" required
-                        placeholder="Ulangi password kamu"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+                    <x-password-input id="password_confirmation" name="password_confirmation" required placeholder="Ulangi password kamu" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 {{ (isset($errors) && $errors->has('password_confirmation') ? 'border-red-500' : '') }}" oninvalid="this.setCustomValidity('Silakan isi konfirmasi password Anda!')" oninput="this.setCustomValidity('')" />
                 </div>
                 <button type="submit"
                     class="w-full py-2 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold hover:from-blue-600 hover:to-indigo-600 transition">Daftar</button>

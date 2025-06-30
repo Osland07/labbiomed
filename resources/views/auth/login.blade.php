@@ -26,10 +26,13 @@
                 {{-- password --}}
                 <div class="mb-4">
                     <label class="block text-gray-700 font-semibold mb-1" for="password">Password</label>
-                    <input id="password" name="password" type="password" required placeholder="Masukkan password kamu"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 @error('password') border-red-500 @enderror"
-                        oninvalid="this.setCustomValidity('Silakan isi password Anda!')"
-                        oninput="this.setCustomValidity('')">
+                    <x-password-input id="password" name="password" required placeholder="Masukkan password kamu" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 {{ (
+                        isset(
+                            // @php directive for blade
+                            // $errors is always available in blade
+                            // but for safety, we check
+                            $errors) && $errors->has('password') ? 'border-red-500' : ''
+                    ) }}" oninvalid="this.setCustomValidity('Silakan isi password Anda!')" oninput="this.setCustomValidity('')" />
                     @error('password')
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
