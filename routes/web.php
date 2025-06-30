@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/kunjungan', [AdminKunjunganController::class, 'index'])->name('kunjungan.index')->middleware('permission:view-kunjungan');
         Route::get('/kunjungan/export', [AdminKunjunganController::class, 'export'])->name('kunjungan.export')->middleware('permission:view-kunjungan');
         Route::get('/kunjungan/generate-qr', [AdminKunjunganController::class, 'generateQR'])->name('kunjungan.generate-qr')->middleware('permission:view-kunjungan');
+        Route::post('/kunjungan/{id}/checkout', [AdminKunjunganController::class, 'checkoutManual'])->name('kunjungan.checkout');
         
         // Monitoring Routes
         Route::get('/monitoring', [AdminMonitoringController::class, 'index'])->name('monitoring.index');

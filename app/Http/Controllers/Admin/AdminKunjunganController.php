@@ -94,4 +94,15 @@ class AdminKunjunganController extends Controller
         $ruangans = Ruangan::orderBy('name')->get();
         return view('admin.kunjungan.generate-qr', compact('ruangans'));
     }
+
+    public function checkoutManual($id)
+    {
+        $kunjungan = Kunjungan::findOrFail($id);
+        if ($kunjungan->waktu_keluar) {
+            return back()->with('warning', 'Kunjungan sudah checkout.');
+        }
+        $kunjungan->waktu_keluar = now();
+        $kunjungan->save();
+        return back()->with('success', 'Checkout manual berhasil.');
+    }
 }

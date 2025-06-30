@@ -285,9 +285,12 @@
                                             <i class="fas fa-check-circle mr-1"></i>Selesai
                                         </span>
                                     @else
-                                        <span class="badge badge-warning">
-                                            <i class="fas fa-clock mr-1"></i>Aktif
-                                        </span>
+                                        <form method="POST" action="{{ route('admin.kunjungan.checkout', $k->id) }}" class="checkout-manual-form" style="display:inline;">
+                                            @csrf
+                                            <button type="button" class="btn btn-sm btn-danger mt-1 checkout-manual-btn" data-nama="{{ $k->nama }}">
+                                                <i class="fas fa-sign-out-alt"></i> Checkout Manual
+                                            </button>
+                                        </form>
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -521,4 +524,49 @@
             });
         });
     </script>
+
+    @push('scripts')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.checkout-manual-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                const form = btn.closest('form');
+                const nama = btn.getAttribute('data-nama');
+                Swal.fire({
+                    title: '<span style="color:#d33"><i class="fas fa-sign-out-alt"></i> Checkout Manual</span>',
+                    html: `<div style="font-size:1.1em">
+                              Anda akan melakukan <b>checkout manual</b> untuk:<br>
+                              <span style="font-size:1.2em; color:#3085d6; font-weight:bold;">${nama}</span>
+                           </div>
+                           <div class="mt-2" style="color:#888; font-size:0.95em;">
+                              Pastikan pengunjung benar-benar sudah keluar dari ruangan.
+                           </div>`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: '<i class="fas fa-check"></i> Ya, Checkout!',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'swal2-border-radius'
+                    },
+                    buttonsStyling: false,
+                    showClass: {
+                        popup: 'animate__animated animate__fadeInDown'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+    </script>
+    @endpush
 </x-admin-table>

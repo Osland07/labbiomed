@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <div class="text-gray-600 text-xs mt-2">
-                     Pengajuan hanya dapat dilakukan untuk jangka waktu maksimal 3 bulan sejak tanggal mulai yang ditentukan
+                     Anda dapat melakukan pengajuan dengan durasi maksimal  3 bulan sejak tanggal dimulainya kegiatan.
                 </div>
             </div>
 
@@ -315,16 +315,4 @@
     }
 </script>
 
-<template x-if="!tanggalPeminjaman">
-    <div class='text-yellow-700 bg-yellow-100 border border-yellow-300 rounded px-3 py-2 mt-2 text-sm'>
-        Silakan pilih tanggal mulai terlebih dahulu untuk mengatur tanggal selesai.
-    </div>
-</template>
 
-<template x-if="tanggalPeminjaman && tanggalPengembalian && tanggalPengembalian > maxTanggalPengembalian">
-    <div class='text-yellow-700 bg-yellow-100 border border-yellow-300 rounded px-3 py-2 mt-2 text-sm'>
-        Durasi Pengajuan maksimal 3 bulan dari tanggal mulai. Silakan pilih tanggal selesai yang sesuai.
-
-         Anda hanya dapat mengajukan peminjaman dengan durasi maksimal 3 bulan dari tanggal mulai. Jika ingin memperpanjang, silakan ajukan ulang setelah periode berakhir.
-    </div>
-</template>
