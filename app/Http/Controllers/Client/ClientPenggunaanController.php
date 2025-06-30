@@ -39,7 +39,15 @@ class ClientPenggunaanController extends Controller
 
         $alats = Alat::with('ruangan')->whereIn('id', $alatIds)->get();
 
-        return view("client.penggunaan-alat.index", compact('alats'));
+        // Ambil laporan alat aktif user (status Diterima, Belum Dikembalikan)
+        $laporanAlatAktif = \App\Models\Laporan::where('user_id', Auth::id())
+            ->whereNotNull('alat_id')
+            ->where('status_peminjaman', 'Diterima')
+            ->where('status_pengembalian', 'Belum Dikembalikan')
+            ->with(['alat', 'alat.ruangan'])
+            ->get();
+
+        return view("client.penggunaan-alat.index", compact('alats', 'laporanAlatAktif'));
     }
 
     public function storeAlat(LaporanRequest $request)
@@ -118,24 +126,52 @@ class ClientPenggunaanController extends Controller
     public function indexRuangan()
     {
         $ruangans = Ruangan::where('status', 'Tersedia')->get();
-        return view("client.penggunaan-ruangan.index", compact('ruangans'));
+        $now = now();
+        $jadwalBooking = 
+            \App\Models\Laporan::where('status_peminjaman', 'Diterima')
+            ->where('waktu_selesai', '>=', $now)
+            ->with(['user', 'ruangan'])
+            ->orderBy('waktu_mulai')
+            ->get();
+        return view("client.penggunaan-ruangan.index", compact('ruangans', 'jadwalBooking'));
     }
 
     public function storeRuangan(LaporanRequest $request)
     {
+        $ruanganId = $request->input('ruangan_id');
+        $waktuMulai = \Carbon\Carbon::parse($request->input('waktu_mulai'));
+        $waktuSelesai = \Carbon\Carbon::parse($request->input('waktu_selesai'));
+
+        // Validasi overlap booking
+        $overlap = \App\Models\Laporan::where('ruangan_id', $ruanganId)
+            ->whereIn('status_peminjaman', ['Menunggu', 'Diterima'])
+            ->where(function($query) use ($waktuMulai, $waktuSelesai) {
+                $query->where(function($q) use ($waktuMulai, $waktuSelesai) {
+                    $q->where('waktu_mulai', '<', $waktuSelesai)
+                      ->where('waktu_selesai', '>', $waktuMulai);
+                });
+            })
+            ->with('user')
+            ->first();
+
+        if ($overlap) {
+            $bookedBy = $overlap->user ? $overlap->user->name : 'User lain';
+            $bookedStart = \Carbon\Carbon::parse($overlap->waktu_mulai)->format('d-m-Y H:i');
+            $bookedEnd = \Carbon\Carbon::parse($overlap->waktu_selesai)->format('d-m-Y H:i');
+            return redirect()->back()->withInput()->withErrors([
+                'ruangan_id' => "Ruangan sudah dibooking oleh $bookedBy pada $bookedStart sampai $bookedEnd. Silakan pilih waktu lain."
+            ]);
+        }
+
         $laporan = Laporan::create([
             'user_id'           => Auth::id(),
-            'ruangan_id'        => $request->input('ruangan_id'),
-            'waktu_mulai'    => Carbon::parse($request->input('waktu_mulai')),
-            'waktu_selesai'  => Carbon::parse($request->input('waktu_selesai')),
+            'ruangan_id'        => $ruanganId,
+            'waktu_mulai'    => $waktuMulai,
+            'waktu_selesai'  => $waktuSelesai,
             'tujuan_penggunaan' => $request->input('tujuan_penggunaan'),
             'status_peminjaman' => 'Menunggu',
             'tipe'              => 'ruangan',
         ]);
-
-        $ruangan = Ruangan::findOrFail($laporan->ruangan_id);
-        $ruangan->status = 'Sedang Digunakan';
-        $ruangan->save();
 
         if ($request->hasFile('surat')) {
             $file = $request->file('surat');
@@ -183,5 +219,26 @@ class ClientPenggunaanController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Alat berhasil dikembalikan.']);
+    }
+
+    public function ajaxJadwalBookingRuangan($ruanganId)
+    {
+        $now = now();
+        $jadwalBooking = \App\Models\Laporan::where('ruangan_id', $ruanganId)
+            ->where('status_peminjaman', 'Diterima')
+            ->where('waktu_selesai', '>=', $now)
+            ->with('user')
+            ->orderBy('waktu_mulai')
+            ->get();
+        $data = $jadwalBooking->map(function($item) {
+            return [
+                'nama' => $item->user->name ?? '-',
+                'tujuan' => $item->tujuan_penggunaan ?? '-',
+                'waktu_mulai' => \Carbon\Carbon::parse($item->waktu_mulai)->format('d-m-Y H:i'),
+                'waktu_selesai' => \Carbon\Carbon::parse($item->waktu_selesai)->format('d-m-Y H:i'),
+                'status' => $item->status_peminjaman,
+            ];
+        });
+        return response()->json($data);
     }
 }

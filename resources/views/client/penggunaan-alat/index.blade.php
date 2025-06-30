@@ -143,10 +143,19 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalKembalikanLabel">Kembalikan Alat</h5>
+                    <h5 class="modal-title" id="modalKembalikanLabel">
+                        <i class="bi bi-arrow-counterclockwise text-primary me-2"></i> Kembalikan Alat
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="mb-4 p-3 bg-light rounded border d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill text-info fs-3 me-3"></i>
+                        <div>
+                            <div class="fw-bold mb-1">Proses Pengembalian Alat</div>
+                            <div class="text-muted small">Silakan kembalikan alat yang sudah selesai digunakan. Pastikan alat dalam kondisi baik dan sesuai dengan data di bawah. Klik tombol <span class='badge bg-success'>Kembalikan</span> pada alat yang ingin dikembalikan.</div>
+                        </div>
+                    </div>
                     <div id="kembalikanContent"></div>
                 </div>
             </div>
@@ -285,25 +294,30 @@
                 const baseName = event.relatedTarget.getAttribute('data-basename');
                 const group = compactedAlat[baseName] || [];
 
-                let html =
-                    `<div class="mb-3"><strong>Ringkasan:</strong><br>
-                        Total Alat: <span>${group.length}</span><br>
-                        Jumlah Baik: <span class="text-success">${group.filter(a => a.condition === 'Baik').length}</span><br>
-                        Jumlah Rusak: <span class="text-danger">${group.filter(a => a.condition === 'Rusak').length}</span><br>
-                        Jumlah Tersedia: <span class="text-primary">${group.filter(a => a.status === 'Tersedia').length}</span></div>`;
-                html +=
-                    `<div class="table-responsive"><table class="table table-bordered table-sm"><thead><tr><th>Nama Alat</th><th>Kondisi</th><th>Status</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody>`;
-                group.forEach(alat => {
-                    html +=
-                        `<tr><td>${alat.name}</td><td>${alat.condition}</td><td>${alat.status}</td><td>${alat.ruangan?.name || '-'}</td><td>`;
-                    if (alat.status !== 'Tersedia') {
-                        html +=
-                            `<button class='btn btn-sm btn-success btn-kembalikan-alat' data-alatid='${alat.id}'>Kembalikan</button>`;
-                    } else {
-                        html += `-`;
-                    }
-                    html += `</td></tr>`;
-                });
+                let html = '';
+                // Data laporan alat aktif dari blade
+                const laporanAlatAktif = @json($laporanAlatAktif);
+                html += `<div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead><tr><th>Nama Alat</th><th>Nomor Seri</th><th>Kondisi</th><th>Status</th><th>Tanggal Pinjam</th><th>Estimasi Kembali</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody>`;
+                if (laporanAlatAktif.length === 0) {
+                    html += `<tr><td colspan='8' class='text-center text-muted py-5'>
+                        <div class='mb-3'><i class='bi bi-patch-check-fill text-success' style='font-size:3rem;'></i></div>
+                        <div class='fw-bold'>Semua alat sudah dikembalikan!</div>
+                    </td></tr>`;
+                } else {
+                    laporanAlatAktif.forEach(laporan => {
+                        const alat = laporan.alat || {};
+                        // Badge kondisi
+                        let badgeKondisi = '';
+                        if (alat.condition === 'Baik') badgeKondisi = '<span class="badge bg-success">Baik</span>';
+                        else if (alat.condition === 'Rusak') badgeKondisi = '<span class="badge bg-danger">Rusak</span>';
+                        else badgeKondisi = `<span class='badge bg-secondary'>${alat.condition || '-'}</span>`;
+                        // Nomor seri hanya jika status Diterima
+                        let serialNumber = (laporan.status_peminjaman === 'Diterima') ? (alat.serial_number || '-') : '-';
+                        html += `<tr><td>${alat.name || '-'}</td><td>${serialNumber}</td><td>${badgeKondisi}</td><td>${alat.status || '-'}</td><td>${laporan.waktu_mulai || '-'}</td><td>${laporan.waktu_selesai || '-'}</td><td>${alat.ruangan?.name || '-'}</td><td>`;
+                        html += `<button class='btn btn-sm btn-success btn-kembalikan-alat' data-alatid='${alat.id}'>Kembalikan</button>`;
+                        html += `</td></tr>`;
+                    });
+                }
                 html += `</tbody></table></div>`;
                 document.getElementById('kembalikanContent').innerHTML = html;
             });
@@ -312,27 +326,53 @@
             document.getElementById('kembalikanContent').addEventListener('click', function(e) {
                 if (e.target.classList.contains('btn-kembalikan-alat')) {
                     const alatId = e.target.getAttribute('data-alatid');
-                    if (confirm('Yakin ingin mengembalikan alat ini?')) {
-                        fetch(`/client/penggunaan-alat/kembalikan/${alatId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                        .content,
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json',
-                                },
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success) {
-                                    alert('Alat berhasil dikembalikan!');
-                                    location.reload();
-                                } else {
-                                    alert(data.message || 'Gagal mengembalikan alat.');
-                                }
-                            })
-                            .catch(() => alert('Terjadi kesalahan saat mengembalikan alat.'));
-                    }
+                    Swal.fire({
+                        title: 'Konfirmasi',
+                        text: 'Yakin ingin mengembalikan alat ini?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Kembalikan',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/client/penggunaan-alat/kembalikan/${alatId}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil',
+                                            text: 'Alat berhasil dikembalikan!',
+                                            timer: 1500,
+                                            showConfirmButton: false
+                                        });
+                                        // Hapus baris alat dari tabel
+                                        const btn = e.target;
+                                        const row = btn.closest('tr');
+                                        row.parentNode.removeChild(row);
+                                        // Jika tidak ada baris alat tersisa (selain header), tampilkan pesan semua alat sudah dikembalikan
+                                        const tbody = document.querySelector('#kembalikanContent tbody');
+                                        if (tbody && tbody.children.length === 0) {
+                                            tbody.innerHTML = `<tr><td colspan='8' class='text-center text-muted py-5'>
+                                                <div class='mb-3'><i class='bi bi-patch-check-fill text-success' style='font-size:3rem;'></i></div>
+                                                <div class='fw-bold'>Semua alat sudah dikembalikan!</div>
+                                            </td></tr>`;
+                                        }
+                                    } else {
+                                        Swal.fire('Gagal', data.message || 'Gagal mengembalikan alat.', 'error');
+                                    }
+                                })
+                                .catch(() => Swal.fire('Error', 'Terjadi kesalahan saat mengembalikan alat.', 'error'));
+                        }
+                    });
                 }
             });
         });

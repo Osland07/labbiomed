@@ -107,6 +107,9 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
+
+    // AJAX endpoint untuk jadwal booking ruangan
+    Route::get('/ajax/jadwal-booking-ruangan/{ruangan}', [ClientPenggunaanController::class, 'ajaxJadwalBookingRuangan'])->name('ajax.jadwal-booking-ruangan');
 });
 
 require __DIR__ . '/auth.php';
