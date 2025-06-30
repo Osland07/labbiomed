@@ -1,20 +1,3 @@
-@extends('layouts.admin.app')
-
-@section('title', 'Monitoring Aktivitas Mahasiswa')
-
-@section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Monitoring Aktivitas Mahasiswa</h1>
-        <p class="text-gray-600">
-            @if(auth()->user()->hasRole('Dosen'))
-                Pantau aktivitas mahasiswa bimbingan Anda
-            @else
-                Pantau aktivitas semua mahasiswa
-            @endif
-        </p>
-    </div>
-
     <x-admin-table>
 
         <!-- Title -->
@@ -202,5 +185,3 @@
         </x-slot>
 
     </x-admin-table>
-</div>
-@endsection 
