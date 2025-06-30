@@ -104,38 +104,53 @@ class ClientPengajuanController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(
-            [
-                'jenis' => 'required|in:pribadi,kelompok',
-                'tujuan_peminjaman' => 'required|string',
-                'judul_penelitian' => 'required|string',
-                'dosen_pembimbing' => 'nullable|exists:users,id',
-                'tgl_peminjaman' => 'required|date',
-                'tgl_pengembalian' => 'required|date|after_or_equal:tgl_peminjaman',
-                'daftar_anggota' => 'nullable|string',
-                'daftar_alat' => 'required|string',
-            ],
-            [
-                'jenis.required' => 'Jenis peminjaman harus diisi.',
-                'tujuan_peminjaman.required' => 'Tujuan peminjaman harus diisi.',
-                'judul_penelitian.required' => 'Judul penelitian / Kegiatan harus diisi.',
-                'dosen_pembimbing.required' => 'Dosen pembimbing harus dipilih.',
-                'dosen_pembimbing.exists' => 'Dosen pembimbing tidak ditemukan.',
-                'tgl_peminjaman.required' => 'Tanggal peminjaman harus diisi.',
-                'tgl_peminjaman.date' => 'Tanggal peminjaman harus berupa tanggal.',
-                'tgl_pengembalian.required' => 'Tanggal pengembalian harus diisi.',
-                'tgl_pengembalian.date' => 'Tanggal pengembalian harus berupa tanggal.',
-                'tgl_pengembalian.after_or_equal' => 'Tanggal pengembalian harus setelah tanggal peminjaman.',
-                'daftar_alat.required' => 'Daftar alat harus diisi.',
-            ]
-        );
+        // Cek apakah user mahasiswa
+        $isMahasiswa = auth()->user()->hasRole('Mahasiswa');
+        $isDosen = auth()->user()->hasRole('Dosen');
+
+        $rules = [
+            'jenis' => 'required|in:pribadi,kelompok',
+            'tujuan_peminjaman' => 'required|string',
+            'judul_penelitian' => 'required|string',
+            'tgl_peminjaman' => 'required|date',
+            'tgl_pengembalian' => 'required|date|after_or_equal:tgl_peminjaman',
+            'daftar_anggota' => 'nullable|string',
+            'daftar_alat' => 'required|string',
+        ];
+        $messages = [
+            'jenis.required' => 'Jenis peminjaman harus diisi.',
+            'tujuan_peminjaman.required' => 'Keperluan peminjaman harus diisi.',
+            'judul_penelitian.required' => 'Judul penelitian / Kegiatan harus diisi.',
+            'tgl_peminjaman.required' => 'Tanggal peminjaman harus diisi.',
+            'tgl_peminjaman.date' => 'Tanggal peminjaman harus berupa tanggal.',
+            'tgl_pengembalian.required' => 'Tanggal pengembalian harus diisi.',
+            'tgl_pengembalian.date' => 'Tanggal pengembalian harus berupa tanggal.',
+            'tgl_pengembalian.after_or_equal' => 'Tanggal pengembalian harus setelah tanggal peminjaman.',
+            'daftar_alat.required' => 'Daftar alat harus diisi.',
+        ];
+        // Jika mahasiswa, dosen pembimbing wajib
+        if ($isMahasiswa) {
+            $rules['dosen_pembimbing'] = 'required|exists:users,id';
+            $messages['dosen_pembimbing.required'] = 'Dosen pembimbing harus dipilih.';
+            $messages['dosen_pembimbing.exists'] = 'Dosen pembimbing tidak ditemukan.';
+        } else {
+            $rules['dosen_pembimbing'] = 'nullable|exists:users,id';
+        }
+
+        $validated = $request->validate($rules, $messages);
 
         // daftar_alat is now a flat array of alat IDs
         $alatIds = json_decode($request->daftar_alat, true);
 
+        // Jika dosen, pastikan dosen_pembimbing null
+        $dosenPembimbing = null;
+        if ($isMahasiswa) {
+            $dosenPembimbing = $request->dosen_pembimbing;
+        }
+
         $laporan = LaporanPeminjaman::create([
             'user_id' => auth()->id(),
-            'dosen_id' => $request->dosen_pembimbing,
+            'dosen_id' => $dosenPembimbing,
             'jenis_peminjaman' => $request->jenis,
             'judul_penelitian' => $request->judul_penelitian,
             'tujuan_peminjaman' => $request->tujuan_peminjaman,
