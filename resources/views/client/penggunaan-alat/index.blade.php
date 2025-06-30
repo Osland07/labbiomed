@@ -17,12 +17,22 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @if ($alats->isEmpty())
-        <div class="text-danger mb-3">
-            <p class="mb-3">Tidak ada alat yang tersedia, silahkan ajukan peminjaman alat terlebih dahulu.</p>
-            <a href="{{ route('client.pengajuan-peminjaman.index') }}" class="btn btn-primary"><i
-                    class="fas fa-file-signature"></i> Ajukan Peminjaman Alat</a>
+    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh;">
+        <div class="mb-3">
+            <!-- Bootstrap icon or SVG -->
+            <svg width="64" height="64" fill="currentColor" class="bi bi-box-seam text-primary" viewBox="0 0 16 16">
+                <path d="M8.21.5a1 1 0 0 0-.42 0l-6 1.5A1 1 0 0 0 1 3v9.5a1 1 0 0 0 .79.97l6 1.5a1 1 0 0 0 .42 0l6-1.5A1 1 0 0 0 15 12.5V3a1 1 0 0 0-.79-.97l-6-1.5zM2.5 3.5 8 5l5.5-1.5M8 5v9.5M1 3l6 1.5M15 3l-6 1.5"/>
+            </svg>
         </div>
-    @endif
+        <h3 class="fw-bold text-secondary mb-2">Belum Ada Alat Tersedia</h3>
+        <p class="text-muted text-center mb-4" style="max-width: 400px;">
+            Anda belum memiliki alat yang dapat digunakan. Silakan ajukan peminjaman alat terlebih dahulu agar dapat menggunakan fitur ini.
+        </p>
+        <a href="{{ route('client.pengajuan-peminjaman.index') }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-lg me-2"></i>Ajukan Peminjaman Alat
+        </a>
+    </div>
+@endif
 
     <div id="alatGrid" class="row g-4">
         @php
