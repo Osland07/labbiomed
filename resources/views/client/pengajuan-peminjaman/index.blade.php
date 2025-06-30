@@ -1,6 +1,6 @@
 <x-admin-layout>
     <x-slot name="title">
-        Pengajuan Peminjaman
+        Pengajuan Penggunaan Alat Laboratorium
     </x-slot>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -94,7 +94,7 @@
             <div class="mb-6">
                 <label class="block font-semibold mb-2">Tambah Alat Yang Dipinjam<span
                         class="text-red-600">*</span></label>
-                <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-center gap-2 mb-4">
                     <select id="alatDropdown" x-model="selectedBaseName" class="w-1/2" required>
                         <option value="" disabled selected></option>
                     </select>
@@ -105,15 +105,46 @@
                         :disabled="!selectedBaseName || !selectedQty || selectedQty < 1 || selectedQty > (compactedAlat[
                             selectedBaseName]?.length || 0)">+</button>
                 </div>
-                <ul class="list-decimal pl-5 space-y-1">
-                    <template x-for="(item, index) in daftarAlat" :key="item.baseName">
-                        <li>
-                            <span x-text="item.baseName + ' (Qty: ' + item.ids.length + ')'"></span>
-                            <button type="button" @click="removeAlat(item.baseName)"
-                                class="text-red-600 ml-2">Hapus</button>
-                        </li>
-                    </template>
-                </ul>
+                
+                <!-- Tabel Alat yang Dipilih -->
+                <div x-show="daftarAlat.length > 0" class="mb-4">
+                    <div class="bg-gray-50 rounded-lg overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">No</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Nama Alat</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Jumlah</th>
+                                    <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                <template x-for="(item, index) in daftarAlat" :key="item.baseName">
+                                    <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                        <td class="px-4 py-3 text-sm text-gray-900" x-text="index + 1"></td>
+                                        <td class="px-4 py-3 text-sm font-medium text-gray-900" x-text="item.baseName"></td>
+                                        <td class="px-4 py-3 text-sm text-gray-900" x-text="item.ids.length"></td>
+                                        <td class="px-4 py-3 text-center">
+                                            <button type="button" @click="removeAlat(item.baseName)"
+                                                class="text-red-600 hover:text-red-800 text-sm font-medium">
+                                                Hapus
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Pesan jika belum ada alat -->
+                <div x-show="daftarAlat.length === 0" class="text-center py-8 text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="mt-2 text-sm">Belum ada alat yang dipilih</p>
+                    <p class="text-xs">Silakan pilih alat di atas untuk menambahkannya ke daftar</p>
+                </div>
             </div>
 
             <!-- Hidden Inputs -->
@@ -146,6 +177,38 @@
             compacted[baseName].push(alat);
         });
 
+        // Ambil daftar alat dari old input jika ada
+        let daftarAlatInit = [];
+        @if(old('daftar_alat'))
+            try {
+                const oldAlatIds = JSON.parse(@json(old('daftar_alat')));
+                // Group by baseName
+                let alatMap = {};
+                oldAlatIds.forEach(id => {
+                    const alat = allAlats.find(a => a.id === id);
+                    if (alat) {
+                        const baseName = alat.name.replace(/\s+#\d+$/, '');
+                        if (!alatMap[baseName]) alatMap[baseName] = [];
+                        alatMap[baseName].push(id);
+                    }
+                });
+                daftarAlatInit = Object.entries(alatMap).map(([baseName, ids]) => ({ baseName, ids }));
+            } catch (e) {}
+        @endif
+
+        // Ambil keperluan dari old input jika ada
+        let oldKeperluan = @json(old('tujuan_peminjaman'));
+        let selectedKeperluanInit = '';
+        let customKeperluanInit = '';
+        if (oldKeperluan) {
+            if (['Tugas Akhir', 'Tugas Mata Kuliah'].includes(oldKeperluan)) {
+                selectedKeperluanInit = oldKeperluan;
+            } else {
+                selectedKeperluanInit = 'lainnya';
+                customKeperluanInit = oldKeperluan;
+            }
+        }
+
         return {
             jenis: 'pribadi',
             anggota: '',
@@ -153,13 +216,19 @@
             selectedBaseName: '',
             selectedQty: 1,
             compactedAlat: compacted,
-            daftarAlat: [],
-            tanggalPeminjaman: '',
-            tanggalPengembalian: '',
+            daftarAlat: daftarAlatInit,
+            tanggalPeminjaman: @json(old('tgl_peminjaman') ?? ''),
+            tanggalPengembalian: @json(old('tgl_pengembalian') ?? ''),
             hariIni: new Date().toISOString().split('T')[0],
+            selectedKeperluan: selectedKeperluanInit,
+            customKeperluan: customKeperluanInit,
 
             get flatAlatIds() {
                 return this.daftarAlat.flatMap(item => item.ids);
+            },
+
+            getAlatById(id) {
+                return allAlats.find(alat => alat.id === id);
             },
 
             addAlat() {
