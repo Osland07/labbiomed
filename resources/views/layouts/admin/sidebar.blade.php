@@ -43,6 +43,12 @@
                         'admin.kunjungan.generate-qr',
                     ];
 
+                    $dataMonitoringRoutes = [
+                        'admin.monitoring.index',
+                        'admin.monitoring.detail',
+                        'admin.monitoring.laporan',
+                    ];
+
                     $dataPengajuanRoutes = ['client.pengajuan-peminjaman.index', 'client.pengajuan-peminjaman.upload'];
                     $dataRiwayatRoutes = ['client.riwayat-pengajuan', 'client.riwayat-penggunaan', 'client.riwayat-kunjungan'];
 
@@ -50,6 +56,7 @@
                     $isDataTransaksiActive = in_array(Route::currentRouteName(), $dataTransaksiRoutes);
                     $isDataLaporanActive = in_array(Route::currentRouteName(), $dataLaporanRoutes);
                     $isDataKunjunganActive = in_array(Route::currentRouteName(), $dataKunjunganRoutes);
+                    $isDataMonitoringActive = in_array(Route::currentRouteName(), $dataMonitoringRoutes);
                     $isDataPengajuanActive = in_array(Route::currentRouteName(), $dataPengajuanRoutes);
                     $isDataRiwayatActive = in_array(Route::currentRouteName(), $dataRiwayatRoutes);
                 @endphp
@@ -148,6 +155,22 @@
                                 can="penggunaan-laporan" />
                             <x-sidebar-link route="admin.laporan.kerusakan" label="Laporan Kerusakan"
                                 can="kerusakan-laporan" />
+                        </ul>
+                    </li>
+                @endcan
+
+                @can('monitoring-mahasiswa')
+                    <li class="nav-item has-treeview {{ $isDataMonitoringActive ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link text-white {{ $isDataMonitoringActive ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-chart-line"></i>
+                            <p>
+                                Monitoring
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <x-sidebar-link route="admin.monitoring.index" label="Aktivitas Mahasiswa" can="monitoring-mahasiswa" />
+                            <x-sidebar-link route="admin.monitoring.laporan" label="Laporan Aktivitas" can="monitoring-mahasiswa" />
                         </ul>
                     </li>
                 @endcan

@@ -263,7 +263,17 @@
                         <div class="info-label">Email</div>
                         <div class="info-value">{{ $user->email }}</div>
                     </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Judul Penelitian</div>
+                        <div class="info-value">
+                            {{ \App\Models\LaporanPeminjaman::where('user_id', $user->id)->latest()->first()->judul_penelitian ?? '-' }}
+                        </div>
+                    </div>
                 </div>
+            </div>
+            <div class="footer">
+                Berlaku sampai: {{ optional(\App\Models\LaporanPeminjaman::where('user_id', $user->id)->latest()->first())->tgl_pengembalian ? \Carbon\Carbon::parse(\App\Models\LaporanPeminjaman::where('user_id', $user->id)->latest()->first()->tgl_pengembalian)->format('d M Y') : '-' }}
             </div>
         </div>
     </div>

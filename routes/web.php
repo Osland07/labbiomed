@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminRuanganController;
 use App\Http\Controllers\Admin\AdminTransaksiController;
 use App\Http\Controllers\Admin\AdminLaporanController;
 use App\Http\Controllers\Admin\AdminKunjunganController;
+use App\Http\Controllers\Admin\AdminMonitoringController;
 use App\Http\Controllers\Client\ClientCekController;
 use App\Http\Controllers\Client\ClientPengajuanController;
 use App\Http\Controllers\Client\ClientPenggunaanController;
@@ -77,6 +78,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/kunjungan', [AdminKunjunganController::class, 'index'])->name('kunjungan.index')->middleware('permission:view-kunjungan');
         Route::get('/kunjungan/export', [AdminKunjunganController::class, 'export'])->name('kunjungan.export')->middleware('permission:view-kunjungan');
         Route::get('/kunjungan/generate-qr', [AdminKunjunganController::class, 'generateQR'])->name('kunjungan.generate-qr')->middleware('permission:view-kunjungan');
+        
+        // Monitoring Routes
+        Route::get('/monitoring', [AdminMonitoringController::class, 'index'])->name('monitoring.index');
+        Route::get('/monitoring/mahasiswa/{id}', [AdminMonitoringController::class, 'detailMahasiswa'])->name('monitoring.detail');
+        Route::get('/monitoring/laporan', [AdminMonitoringController::class, 'laporanAktivitas'])->name('monitoring.laporan');
     });
 
     // CMS CLIENT

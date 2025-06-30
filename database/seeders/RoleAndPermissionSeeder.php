@@ -22,6 +22,7 @@ class RoleAndPermissionSeeder extends Seeder
             'laporan' => ['view', 'peminjaman', 'penggunaan', 'kerusakan'],
             'kunjungan' => ['view', 'create', 'edit', 'delete'],
             'client' => ['check', 'pengajuan-peminjaman', 'penggunaan-alat', 'penggunaan-ruangan', 'history'],
+            'mahasiswa' => ['monitoring'],
         ];
 
         foreach ($entities as $entity => $actions) {
@@ -65,6 +66,7 @@ class RoleAndPermissionSeeder extends Seeder
                 'history-client',
                 'view-kunjungan',
                 'create-kunjungan',
+                'monitoring-mahasiswa',
             ],
             'Mahasiswa' => [
                 'check-client',
