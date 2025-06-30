@@ -275,7 +275,7 @@
                                         </div>
                                     @else
                                         <span class="badge badge-warning">
-                                            <i class="fas fa-clock mr-1"></i>Masih di Lab
+                                            <i class="fas fa-clock mr-1"></i>Sedang di Lab
                                         </span>
                                     @endif
                                 </td>

@@ -115,7 +115,7 @@
                                     </div>
                                     <div class="flex-1">
                                         <p class="text-sm font-medium text-gray-800">{{ $visit->ruangan->name }}</p>
-                                        <p class="text-xs text-gray-600">{{ $visit->waktu_masuk->format('d M Y H:i') }} - {{ $visit->waktu_keluar ? $visit->waktu_keluar->format('H:i') : 'Masih di lab' }}</p>
+                                        <p class="text-xs text-gray-600">{{ $visit->waktu_masuk->format('d M Y H:i') }} - {{ $visit->waktu_keluar ? $visit->waktu_keluar->format('H:i') : 'Sedang di lab' }}</p>
                                     </div>
                                     <span class="text-xs px-2 py-1 rounded-full {{ $visit->waktu_keluar ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                         {{ $visit->waktu_keluar ? 'Selesai' : 'Aktif' }}
