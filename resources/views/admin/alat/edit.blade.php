@@ -142,8 +142,8 @@
                         <select name="status" class="form-select @error('status') is-invalid @enderror">
                             <option value="Tersedia"
                                 {{ old('status', $alat->status) == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
-                            <option value="Dipinjam"
-                                {{ old('status', $alat->status) == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                            <option value="Maintenance"
+                                {{ old('status', $alat->status) == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>
