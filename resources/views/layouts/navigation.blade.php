@@ -40,6 +40,7 @@
                     </x-nav-link>
                     @endcan
                     
+                    @can('penggunaan-bahan-client')
                     @can('history-client')
                     <x-nav-link :href="route('client.riwayat-pengajuan')" :active="request()->routeIs('client.riwayat-pengajuan')">
                         {{ __('Riwayat Pengajuan') }}

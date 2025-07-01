@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\Bahan;
 use Illuminate\Http\Request;
 use App\Http\Requests\BahanRequest;
+use App\Models\BahanLog;
+use Illuminate\Support\Facades\Auth;
 
 class AdminBahanController extends Controller
 {
@@ -40,8 +42,9 @@ class AdminBahanController extends Controller
         }
 
         $stokRendah = Bahan::whereColumn('stock', '<=', 'min_stock')->get();
+        $allBahans = Bahan::all();
 
-        return view("admin.bahan.index", compact('bahans', 'stokRendah', 'categories', 'search', 'perPage'));
+        return view("admin.bahan.index", compact('bahans', 'stokRendah', 'categories', 'search', 'perPage', 'allBahans'));
     }
 
     public function store(BahanRequest $request)
@@ -79,5 +82,48 @@ class AdminBahanController extends Controller
     {
         Bahan::findOrFail($id)->forceDelete();
         return back()->with('message', 'Berhasil Hapus Data Bahan!');
+    }
+
+    public function bahanMasuk(Request $request)
+    {
+        $request->validate([
+            'bahan_id' => 'required|exists:bahans,id',
+            'jumlah' => 'required|numeric|min:0.01',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
+        $bahan = Bahan::findOrFail($request->bahan_id);
+        $bahan->stock += $request->jumlah;
+        $bahan->save();
+        BahanLog::create([
+            'bahan_id' => $bahan->id,
+            'user_id' => Auth::id(),
+            'tipe' => 'masuk',
+            'jumlah' => $request->jumlah,
+            'keterangan' => $request->keterangan,
+        ]);
+        return back()->with('message', 'Stok bahan berhasil ditambah.');
+    }
+
+    public function bahanKeluar(Request $request)
+    {
+        $request->validate([
+            'bahan_id' => 'required|exists:bahans,id',
+            'jumlah' => 'required|numeric|min:0.01',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
+        $bahan = Bahan::findOrFail($request->bahan_id);
+        if ($request->jumlah > $bahan->stock) {
+            return back()->withErrors(['jumlah' => 'Jumlah keluar melebihi stok tersedia.'])->withInput();
+        }
+        $bahan->stock -= $request->jumlah;
+        $bahan->save();
+        BahanLog::create([
+            'bahan_id' => $bahan->id,
+            'user_id' => Auth::id(),
+            'tipe' => 'keluar',
+            'jumlah' => $request->jumlah,
+            'keterangan' => $request->keterangan,
+        ]);
+        return back()->with('message', 'Stok bahan berhasil dikurangi.');
     }
 }

@@ -21,7 +21,7 @@ class RoleAndPermissionSeeder extends Seeder
             'transaksi' => ['view', 'peminjaman', 'penggunaan', 'pengembalian'],
             'laporan' => ['view', 'peminjaman', 'penggunaan', 'kerusakan'],
             'kunjungan' => ['view', 'create', 'edit', 'delete'],
-            'client' => ['check', 'pengajuan-peminjaman', 'penggunaan-alat', 'penggunaan-ruangan', 'history'],
+            'client' => ['check', 'pengajuan-peminjaman', 'penggunaan-alat', 'penggunaan-ruangan', 'penggunaan-bahan', 'history'],
             'mahasiswa' => ['monitoring'],
         ];
 
@@ -67,6 +67,7 @@ class RoleAndPermissionSeeder extends Seeder
                 'view-kunjungan',
                 'create-kunjungan',
                 'monitoring-mahasiswa',
+                'penggunaan-bahan-client',
             ],
             'Mahasiswa' => [
                 'check-client',
@@ -77,6 +78,7 @@ class RoleAndPermissionSeeder extends Seeder
                 'history-client',
                 'view-kunjungan',
                 'create-kunjungan',
+                'penggunaan-bahan-client',
             ],
         ];
 

@@ -19,8 +19,10 @@ use App\Http\Controllers\Client\ClientCekController;
 use App\Http\Controllers\Client\ClientPengajuanController;
 use App\Http\Controllers\Client\ClientPenggunaanController;
 use App\Http\Controllers\Client\ClientRiwayatController;
+use App\Http\Controllers\Client\ClientPenggunaanBahanController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KunjunganController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +86,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/monitoring', [AdminMonitoringController::class, 'index'])->name('monitoring.index');
         Route::get('/monitoring/mahasiswa/{id}', [AdminMonitoringController::class, 'detailMahasiswa'])->name('monitoring.detail');
         Route::get('/monitoring/laporan', [AdminMonitoringController::class, 'laporanAktivitas'])->name('monitoring.laporan');
+        Route::post('bahan/masuk', [AdminBahanController::class, 'bahanMasuk'])->name('bahan.masuk');
+        Route::post('bahan/keluar', [AdminBahanController::class, 'bahanKeluar'])->name('bahan.keluar');
     });
 
     // CMS CLIENT
@@ -104,6 +108,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/riwayat-penggunaan', [ClientRiwayatController::class, 'riwayatPenggunaan'])->name('riwayat-penggunaan');
         Route::get('/riwayat-kunjungan', [ClientRiwayatController::class, 'kunjungan'])->name('riwayat-kunjungan');
         Route::post('/penggunaan-alat/kembalikan/{id}', [ClientPenggunaanController::class, 'kembalikanAlat'])->name('penggunaan-alat.kembalikan');
+        Route::get('penggunaan-bahan', [ClientPenggunaanBahanController::class, 'index'])->name('penggunaan-bahan');
+        Route::get('penggunaan-bahan/create', [ClientPenggunaanBahanController::class, 'create'])->name('penggunaan-bahan.create');
+        Route::post('penggunaan-bahan', [ClientPenggunaanBahanController::class, 'store'])->name('penggunaan-bahan.store');
     });
 
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');
