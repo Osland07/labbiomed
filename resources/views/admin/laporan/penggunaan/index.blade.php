@@ -153,11 +153,12 @@
     @endif
 
     <!-- Table -->
+    <div class="table-responsive">
     <table id="" class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>{{ __('No') }}</th>
-                <th>{{ __('Pengguna') }}</th>
+                <th class="sticky-col">{{ __('Pengguna') }}</th>
                 <th>{{ __('Tujuan Penggunaan') }}</th>
                 <th>{{ __('Nama Alat/Bahan/Ruangan') }}</th>
                 <th>{{ __('Nomor Seri') }}</th>
@@ -174,7 +175,7 @@
             @forelse ($laporans as $laporan)
                 <tr>
                     <td>{{ $laporans->firstItem() + $loop->index }}</td>
-                    <td style="max-width: 220px; word-wrap: break-word; white-space: normal;">
+                    <td class="sticky-col" style="max-width: 220px; word-wrap: break-word; white-space: normal;">
                         <span>{{ $laporan->user->name ?? '-' }}</span>
                         / {{ $laporan->user->nim ?? '-' }} /
                         <a href="https://wa.me/+62{{ $laporan->user->no_hp ?? '-' }}">
@@ -220,8 +221,26 @@
             @endforelse
         </tbody>
     </table>
+    </div>
     {{ $laporans->appends(['perPage' => $perPage, 'search' => $search])->links() }}
 
-    
-
 </x-admin-table>
+
+<style>
+    /* Sticky column for Pengguna */
+    .sticky-col {
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 2;
+        border-right: 1px solid #dee2e6;
+    }
+    .table thead .sticky-col {
+        z-index: 3;
+    }
+    /* Optional: make table horizontally scrollable on mobile */
+    .table-responsive {
+        overflow-x: auto;
+        width: 100%;
+    }
+</style>
