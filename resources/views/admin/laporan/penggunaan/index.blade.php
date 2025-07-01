@@ -47,6 +47,111 @@
         @include('admin.laporan.penggunaan.export')
     </x-slot>
 
+    <!-- Filter Section (Collapse) -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-filter mr-2"></i>Filter & Pencarian
+            </h6>
+            <button class="btn btn-sm btn-outline-primary position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                <i class="fas fa-chevron-down"></i>
+                @php
+                    $filterCount = collect([
+                        request('search'), request('jenis'), request('filter'), request('filter2'), request('status'), request('date_from'), request('date_to')
+                    ])->filter()->count();
+                @endphp
+                @if($filterCount)
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $filterCount }}</span>
+                @endif
+            </button>
+        </div>
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body">
+                <form id="filterForm" method="GET" class="row g-2 align-items-end mb-0">
+                    <div class="col-md-3 mb-2">
+                        <label class="form-label">Pencarian</label>
+                        <input type="text" class="form-control" name="search" placeholder="Cari nama, alat, tujuan..." value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">Jenis</label>
+                        <select class="form-select" name="jenis" onchange="this.form.submit()">
+                            <option value="">Semua Jenis</option>
+                            <option value="alat" {{ request('jenis') == 'alat' ? 'selected' : '' }}>Alat</option>
+                            <option value="bahan" {{ request('jenis') == 'bahan' ? 'selected' : '' }}>Bahan</option>
+                            <option value="ruangan" {{ request('jenis') == 'ruangan' ? 'selected' : '' }}>Ruangan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">Pengguna</label>
+                        <select class="form-select" name="filter" onchange="this.form.submit()">
+                            <option value="">Semua Pengguna</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" {{ request('filter') == $user->id ? 'selected' : '' }}>
+                                    {{ $user->name }} - {{ $user->nim }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">Alat/Bahan/Ruangan</label>
+                        <select class="form-select" name="filter2">
+                            <option value="">Semua Item</option>
+                            @foreach ($items as $item)
+                                @php
+                                    $jenis = request('jenis');
+                                    $show = true;
+                                    if ($jenis == 'alat' && !isset($item['alat'])) $show = false;
+                                    if ($jenis == 'bahan' && !isset($item['bahan'])) $show = false;
+                                    if ($jenis == 'ruangan' && !isset($item['ruangan'])) $show = false;
+                                @endphp
+                                @if ($show)
+                                    <option value="{{ $item }}" {{ request('filter2') == $item ? 'selected' : '' }}>
+                                        {{ $item }}
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" name="status" onchange="this.form.submit()">
+                            <option value="">Semua</option>
+                            <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                            <option value="Menunggu" {{ request('status') == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
+                            <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                            <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">Dari Tanggal</label>
+                        <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <label class="form-label">Sampai Tanggal</label>
+                        <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+                    </div>
+                    <div class="col-md-1 mb-2">
+                        <label class="form-label">Tampilkan</label>
+                        <select class="form-select" name="perPage" onchange="this.form.submit()">
+                            <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10</option>
+                            <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" type="submit">Terapkan</button>
+                    </div>
+                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                        <a href="{{ route('admin.laporan.penggunaan') }}" class="btn btn-secondary w-100">Reset</a>
+                    </div>
+                    <div class="col-md-2 mb-2 d-flex align-items-end">
+                        @include('admin.laporan.penggunaan.export')
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Table -->
     <table id="" class="table table-bordered table-striped">
         <thead>
@@ -116,5 +221,7 @@
         </tbody>
     </table>
     {{ $laporans->appends(['perPage' => $perPage, 'search' => $search])->links() }}
+
+    
 
 </x-admin-table>
