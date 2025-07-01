@@ -7,44 +7,16 @@
 
     <!-- Search & Pagination -->
     <x-slot name="search">
-        @include('components.search')
+        <!-- Dihilangkan, search masuk ke filter utama -->
     </x-slot>
 
-    <!-- Button filter -->
-    <x-slot name="filter">
-        <div class="d-flex justify-items-center">
-            <form method="GET" class="me-2">
-                <select class="form-select" name="filter" onchange="this.form.submit()">
-                    <option value="">Filter by Pengguna</option>
-                    @foreach ($users as $user)
-                        <option value="{{ $user->id }}" {{ request('filter') == $user->id ? 'selected' : '' }}>
-                            {{ $user->name }} - {{ $user->nim }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-        </div>
-    </x-slot>
-
-    <!-- Button filter2 -->
-    <x-slot name="filter2">
-        <div class="d-flex justify-items-center">
-            <form method="GET">
-                <select class="form-select" name="filter2" onchange="this.form.submit()">
-                    <option value="">Filter by Alat/Bahan/Ruangan</option>
-                    @foreach ($items as $item)
-                        <option value="{{ $item }}" {{ request('filter2') == $item ? 'selected' : '' }}>
-                            {{ $item }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-        </div>
-    </x-slot>
+    <!-- Button filter & filter2 dihapus, semua filter di collapse saja -->
+    <x-slot name="filter"></x-slot>
+    <x-slot name="filter2"></x-slot>
 
     <!-- Button Export -->
     <x-slot name="export">
-        @include('admin.laporan.penggunaan.export')
+        <!-- Export di pojok dihapus, hanya di dalam filter -->
     </x-slot>
 
     <!-- Filter Section (Collapse) -->
@@ -53,37 +25,37 @@
             <h6 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-filter mr-2"></i>Filter & Pencarian
             </h6>
-            <button class="btn btn-sm btn-outline-primary position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+            @php
+                $filterCount = collect([
+                    request('search'), request('jenis'), request('filter'), request('filter2'), request('status'), request('date_from'), request('date_to')
+                ])->filter()->count();
+            @endphp
+            <button class="btn btn-sm btn-outline-primary position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="{{ $filterCount ? 'true' : 'false' }}">
                 <i class="fas fa-chevron-down"></i>
-                @php
-                    $filterCount = collect([
-                        request('search'), request('jenis'), request('filter'), request('filter2'), request('status'), request('date_from'), request('date_to')
-                    ])->filter()->count();
-                @endphp
                 @if($filterCount)
                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ $filterCount }}</span>
                 @endif
             </button>
         </div>
-        <div class="collapse" id="filterCollapse">
+        <div class="collapse {{ $filterCount ? 'show' : '' }}" id="filterCollapse">
             <div class="card-body">
-                <form id="filterForm" method="GET" class="row g-2 align-items-end mb-0">
-                    <div class="col-md-3 mb-2">
+                <form id="filterForm" method="GET" class="row row-cols-2 row-cols-md-2 row-cols-lg-4 g-2 align-items-end mb-0">
+                    <div class="col mb-2">
                         <label class="form-label">Pencarian</label>
                         <input type="text" class="form-control" name="search" placeholder="Cari nama, alat, tujuan..." value="{{ request('search') }}">
                     </div>
-                    <div class="col-md-2 mb-2">
+                    <div class="col mb-2">
                         <label class="form-label">Jenis</label>
-                        <select class="form-select" name="jenis" onchange="this.form.submit()">
+                        <select class="form-select" name="jenis">
                             <option value="">Semua Jenis</option>
                             <option value="alat" {{ request('jenis') == 'alat' ? 'selected' : '' }}>Alat</option>
                             <option value="bahan" {{ request('jenis') == 'bahan' ? 'selected' : '' }}>Bahan</option>
                             <option value="ruangan" {{ request('jenis') == 'ruangan' ? 'selected' : '' }}>Ruangan</option>
                         </select>
                     </div>
-                    <div class="col-md-2 mb-2">
+                    <div class="col mb-2">
                         <label class="form-label">Pengguna</label>
-                        <select class="form-select" name="filter" onchange="this.form.submit()">
+                        <select class="form-select" name="filter">
                             <option value="">Semua Pengguna</option>
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}" {{ request('filter') == $user->id ? 'selected' : '' }}>
@@ -92,7 +64,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2 mb-2">
+                    <div class="col mb-2">
                         <label class="form-label">Alat/Bahan/Ruangan</label>
                         <select class="form-select" name="filter2">
                             <option value="">Semua Item</option>
@@ -112,9 +84,9 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-1 mb-2">
+                    <div class="col mb-2">
                         <label class="form-label">Status</label>
-                        <select class="form-select" name="status" onchange="this.form.submit()">
+                        <select class="form-select" name="status">
                             <option value="">Semua</option>
                             <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
                             <option value="Menunggu" {{ request('status') == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
@@ -122,35 +94,63 @@
                             <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                         </select>
                     </div>
-                    <div class="col-md-2 mb-2">
-                        <label class="form-label">Dari Tanggal</label>
-                        <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+                    <div class="col mb-2">
+                        <div class="d-flex flex-row gap-2" style="width:100%;">
+                            <div style="width:50%;">
+                                <label class="form-label">Dari Tanggal</label>
+                                <input type="date" class="form-control" name="date_from" value="{{ request('date_from') }}">
+                            </div>
+                            <div style="width:50%;">
+                                <label class="form-label">Sampai Tanggal</label>
+                                <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-2 mb-2">
-                        <label class="form-label">Sampai Tanggal</label>
-                        <input type="date" class="form-control" name="date_to" value="{{ request('date_to') }}">
-                    </div>
-                    <div class="col-md-1 mb-2">
+                    <div class="col mb-2">
                         <label class="form-label">Tampilkan</label>
-                        <select class="form-select" name="perPage" onchange="this.form.submit()">
+                        <select class="form-select" name="perPage">
                             <option value="10" {{ request('perPage', 10) == 10 ? 'selected' : '' }}>10</option>
                             <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
                         </select>
                     </div>
-                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                    <div class="w-100"></div>
+                    <div class="col-12 mb-2 d-flex align-items-end">
                         <button class="btn btn-primary w-100" type="submit">Terapkan</button>
                     </div>
-                    <div class="col-md-1 mb-2 d-flex align-items-end">
+                    <div class="col-12 mb-2 d-flex align-items-end">
                         <a href="{{ route('admin.laporan.penggunaan') }}" class="btn btn-secondary w-100">Reset</a>
                     </div>
-                    <div class="col-md-2 mb-2 d-flex align-items-end">
+                    <div class="col-12 mb-2 d-flex align-items-end">
                         @include('admin.laporan.penggunaan.export')
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Ringkasan Filter Aktif -->
+    @php
+        $activeFilters = [];
+        if(request('search')) $activeFilters[] = 'Cari: "'.request('search').'"';
+        if(request('jenis')) $activeFilters[] = 'Jenis: '.ucfirst(request('jenis'));
+        if(request('filter')) {
+            $user = $users->where('id', request('filter'))->first();
+            if($user) $activeFilters[] = 'Pengguna: '.$user->name.' ('.$user->nim.')';
+        }
+        if(request('filter2')) $activeFilters[] = 'Item: '.request('filter2');
+        if(request('status')) $activeFilters[] = 'Status: '.request('status');
+        if(request('date_from')) $activeFilters[] = 'Dari: '.request('date_from');
+        if(request('date_to')) $activeFilters[] = 'Sampai: '.request('date_to');
+    @endphp
+    @if(count($activeFilters))
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Filter Aktif:</strong> {!! implode(', ', $activeFilters) !!}
+            </div>
+            <a href="{{ route('admin.laporan.penggunaan') }}" class="btn btn-sm btn-outline-secondary">Reset Filter</a>
+        </div>
+    @endif
 
     <!-- Table -->
     <table id="" class="table table-bordered table-striped">
