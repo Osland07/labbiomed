@@ -16,8 +16,8 @@ class TransaksiDummySeeder extends Seeder
 {
     public function run(): void
     {
-        $start = Carbon::now()->subDays(15);
-        $end = Carbon::now()->addDays(15);
+        $start = Carbon::now()->subDays(180);
+        $end = Carbon::now()->addDays(185);
         $dates = [];
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
             if ($date->isWeekday()) {
@@ -31,9 +31,12 @@ class TransaksiDummySeeder extends Seeder
         $bahans = Bahan::all();
         $ruangans = Ruangan::all();
 
+        // Hitung jumlah data per hari per fitur
+        $dataPerHari = 100; // jumlah data per hari per fitur
+
         foreach ($dates as $date) {
             // --- Peminjaman ---
-            for ($i = 0; $i < rand(3, 5); $i++) {
+            for ($i = 0; $i < $dataPerHari; $i++) {
                 $user = $mahasiswas->random();
                 $dosen = $dosens->random();
                 $alatIds = $alats->random(rand(1, min(3, $alats->count())))->pluck('id')->toArray();
@@ -62,7 +65,7 @@ class TransaksiDummySeeder extends Seeder
             }
 
             // --- Penggunaan ---
-            for ($i = 0; $i < rand(3, 5); $i++) {
+            for ($i = 0; $i < $dataPerHari; $i++) {
                 $user = $mahasiswas->random();
                 $dosen = $dosens->random();
                 $alat = $alats->random();
@@ -95,7 +98,7 @@ class TransaksiDummySeeder extends Seeder
             }
 
             // --- Kunjungan ---
-            for ($i = 0; $i < rand(3, 5); $i++) {
+            for ($i = 0; $i < $dataPerHari; $i++) {
                 $user = $mahasiswas->random();
                 $ruangan = $ruangans->random();
                 $startHour = rand(8, 15); // mulai antara 08:00 - 15:00
