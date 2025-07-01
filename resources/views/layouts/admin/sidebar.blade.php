@@ -86,12 +86,7 @@
                     </li>
                 @endif
 
-                @can('penggunaan-ruangan-client')
-                    <x-sidebar-link route="client.penggunaan-ruangan" icon="door-open" label="Penggunaan Ruangan" can="penggunaan-ruangan-client" />
-                @endcan
-                @can('penggunaan-bahan-client')
-                    <x-sidebar-link route="client.penggunaan-bahan" icon="flask" label="Penggunaan Bahan" can="penggunaan-bahan-client" />
-                @endcan
+
 
                 @can('view-transaksi')
                     <li class="nav-item has-treeview {{ $isDataTransaksiActive ? 'menu-open' : '' }}">
@@ -225,6 +220,15 @@
                         can="penggunaan-alat-client" />
                 @endcan
 
+                 @can('penggunaan-bahan-client')
+                    <x-sidebar-link route="client.penggunaan-bahan" icon="flask" label="Penggunaan Bahan" can="penggunaan-bahan-client" />
+                 @endcan
+
+                @can('penggunaan-ruangan-client')
+                    <x-sidebar-link route="client.penggunaan-ruangan" icon="door-open" label="Penggunaan Ruangan" can="penggunaan-ruangan-client" />
+                @endcan
+
+           
                 @can('history-client')
                     <li class="nav-item has-treeview {{ $isDataRiwayatActive ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link text-white {{ $isDataRiwayatActive ? 'active' : '' }}">
