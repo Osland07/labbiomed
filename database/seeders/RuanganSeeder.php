@@ -12,20 +12,44 @@ class RuanganSeeder extends Seeder
     {
         $categoryId = $this->getOrCreateCategory('Ruangan');
 
-        // Ruangan 1–5 (GKU 1, Lantai 1, Kapasitas 50)
-        for ($i = 1; $i <= 5; $i++) {
-            Ruangan::create([
-                'name' => "Ruangan $i",
-                'kapasitas' => 50,
-                'gedung' => 'GKU 1',
-                'lantai' => 'Lantai 1',
+        // Ruangan sesuai permintaan
+        $ruangans = [
+            [
+                'name' => 'Laboratorium Instrumentasi',
+                'kapasitas' => 30,
+                'gedung' => 'Labtek 5',
+                'lantai' => 'Lantai 4',
                 'status' => 'Tersedia',
-                'keterangan' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos, quia.',
-                'category_id' => $categoryId,
-            ]);
+                'keterangan' => 'Laboratorium untuk praktikum dan riset instrumentasi biomedis.'
+            ],
+            [
+                'name' => 'Laboratorium Biokompabilitas',
+                'kapasitas' => 25,
+                'gedung' => 'Labtek 5',
+                'lantai' => 'Lantai 4',
+                'status' => 'Tersedia',
+                'keterangan' => 'Laboratorium untuk pengujian biokompabilitas material dan alat.'
+            ],
+            [
+                'name' => 'Laboratorium Rekayasa Sel dan Jaringan',
+                'kapasitas' => 20,
+                'gedung' => 'Labtek 5',
+                'lantai' => 'Lantai 4',
+                'status' => 'Tersedia',
+                'keterangan' => 'Laboratorium untuk penelitian rekayasa sel dan jaringan.'
+            ],
+            [
+                'name' => 'Laboratorium Pencitraan Medis',
+                'kapasitas' => 20,
+                'gedung' => 'Labtek 5',
+                'lantai' => 'Lantai 4',
+                'status' => 'Tersedia',
+                'keterangan' => 'Laboratorium untuk praktikum dan riset pencitraan medis.'
+            ],
+        ];
+        foreach ($ruangans as $r) {
+            Ruangan::create(array_merge($r, ['category_id' => $categoryId]));
         }
-
-       
     }
 
     private function getOrCreateCategory(string $name): int
