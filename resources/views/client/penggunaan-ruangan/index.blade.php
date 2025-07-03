@@ -228,10 +228,21 @@
                         } else {
                             data.forEach(item => {
                                 let now = new Date();
-                                let mulai = new Date(item.waktu_mulai.split('-').reverse().join('-'));
-                                let selesai = new Date(item.waktu_selesai.split('-').reverse().join('-'));
+                                // Parse tanggal dengan format yang benar (d-m-Y H:i)
+                                let mulaiParts = item.waktu_mulai.split(' ');
+                                let selesaiParts = item.waktu_selesai.split(' ');
+                                
+                                let mulaiDate = mulaiParts[0].split('-');
+                                let selesaiDate = selesaiParts[0].split('-');
+                                
+                                // Format: d-m-Y H:i -> Y-m-d H:i
+                                let mulai = new Date(mulaiDate[2] + '-' + mulaiDate[1] + '-' + mulaiDate[0] + ' ' + mulaiParts[1]);
+                                let selesai = new Date(selesaiDate[2] + '-' + selesaiDate[1] + '-' + selesaiDate[0] + ' ' + selesaiParts[1]);
+                                
                                 let keterangan = '';
                                 let badge = '';
+                                
+                                
                                 if (now >= mulai && now <= selesai) {
                                     keterangan = 'Sedang Berlangsung';
                                     badge = '<span class="badge bg-success">Sedang Berlangsung</span>';
@@ -239,6 +250,7 @@
                                     keterangan = 'Akan Datang';
                                     badge = '<span class="badge bg-primary">Akan Datang</span>';
                                 }
+                                
                                 const row = `<tr>
                                     <td>${item.nama}</td>
                                     <td>${ruanganName}</td>
