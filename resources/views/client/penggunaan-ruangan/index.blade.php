@@ -85,12 +85,12 @@
                 <div class="col-md-6">
                     <label class="form-label">Waktu Mulai<span class="text-danger">*</span></label>
                     <input type="text" id="start_time" name="waktu_mulai" class="form-control" required
-                        placeholder="{{ now()->format('Y-m-d H:i') }}">
+                        placeholder="Pilih waktu mulai">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Waktu Selesai<span class="text-danger">*</span></label>
                     <input type="text" id="end_time" name="waktu_selesai" class="form-control" required
-                        placeholder="{{ now()->addHours(2)->format('Y-m-d H:i') }}">
+                        placeholder="Pilih waktu selesai">
                     <div id="errorMessage" class="invalid-feedback d-block" style="display:none;"></div>
                 </div>
             </div>
@@ -250,6 +250,7 @@
                     startTime = dateStr;
                     if (endPicker) {
                         endPicker.set('minDate', dateStr);
+                        // Don't auto-fill end time, just set the minimum date
                     }
                     validateTimes();
                 },
@@ -270,9 +271,18 @@
                 dateFormat: "Y-m-d H:i",
                 time_24hr: true,
                 minDate: "today",
+                allowInput: true, // Allow manual input
+                disableMobile: false, // Enable native mobile picker
                 onChange: function(selectedDates, dateStr) {
                     endTime = dateStr;
                     validateTimes();
+                },
+                onClose: function(selectedDates, dateStr) {
+                    // Only update if user actually selected a date
+                    if (dateStr && dateStr.trim() !== '') {
+                        endTime = dateStr;
+                        validateTimes();
+                    }
                 }
             });
             
@@ -285,6 +295,9 @@
                 }
                 validateTimes();
             });
+
+            // Ensure end time field is empty on page load
+            document.getElementById('end_time').value = '';
         });
 
         function validateTimes() {
