@@ -4,6 +4,23 @@
         Penggunaan Bahan
     </x-slot>
 
+    <!-- TomSelect CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <style>
+        .ts-wrapper.single .ts-control {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            font-size: 0.875rem;
+            min-height: 2.5rem;
+        }
+        .ts-wrapper.single .ts-control.focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+    </style>
+
     @include('components.alert')
 
     <!-- Form Ajukan Penggunaan Bahan -->
@@ -11,12 +28,15 @@
         @csrf
         <div class="mb-3">
             <label class="form-label fw-semibold">Bahan<span class="text-danger">*</span></label>
-            <select name="bahan_id" class="form-select" id="bahan_id_pengajuan" required onchange="updateJumlahInputPengajuan()">
+            <select name="bahan_id" class="form-select" id="bahan_id_pengajuan" required>
                 <option value="" disabled selected>Pilih Bahan</option>
                 @foreach ($bahans as $bahan)
-                    <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}">{{ $bahan->name }} (Stok: {{ $bahan->stock }} {{ $bahan->unit }})</option>
+                    <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}" data-stok="{{ $bahan->stock }}">
+                        {{ $bahan->name }} (Stok: {{ $bahan->stock }} {{ $bahan->unit }})
+                    </option>
                 @endforeach
             </select>
+            <div class="form-text text-primary" id="stok-info"></div>
         </div>
         <div class="mb-3">
             <label class="form-label fw-semibold">Jumlah<span class="text-danger">*</span></label>
@@ -86,18 +106,48 @@
 </x-admin-layout>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize TomSelect for bahan dropdown
+    new TomSelect('#bahan_id_pengajuan', {
+        placeholder: 'Cari bahan...',
+        allowEmptyOption: true,
+        maxOptions: 100,
+        onDropdownOpen: function() {
+            updateJumlahInputPengajuan();
+        },
+        onChange: function(value) {
+            updateJumlahInputPengajuan();
+        }
+    });
+});
+
 function updateJumlahInputPengajuan() {
     var select = document.getElementById('bahan_id_pengajuan');
-    var satuan = select.options[select.selectedIndex].getAttribute('data-satuan') || '';
-    var jumlahInput = document.getElementById('jumlah_pengajuan');
-    if (satuan.toLowerCase() === 'pcs' || satuan.toLowerCase() === 'unit') {
-        jumlahInput.step = 1;
-        jumlahInput.min = 1;
-        jumlahInput.value = Math.max(1, parseInt(jumlahInput.value) || 1);
+    var selectedOption = select.options[select.selectedIndex];
+    
+    if (selectedOption && selectedOption.value) {
+        var satuan = selectedOption.getAttribute('data-satuan') || '';
+        var stok = selectedOption.getAttribute('data-stok') || '';
+        var jumlahInput = document.getElementById('jumlah_pengajuan');
+        var stokInfo = document.getElementById('stok-info');
+        
+        // Update stok info
+        stokInfo.textContent = stok ? 'Stok tersedia: ' + stok + ' ' + satuan : '';
+        
+        // Update input validation based on unit
+        if (satuan.toLowerCase() === 'pcs' || satuan.toLowerCase() === 'unit') {
+            jumlahInput.step = 1;
+            jumlahInput.min = 1;
+            jumlahInput.max = parseInt(stok) || 1;
+            jumlahInput.value = Math.max(1, Math.min(parseInt(jumlahInput.value) || 1, parseInt(stok) || 1));
+        } else {
+            jumlahInput.step = 0.01;
+            jumlahInput.min = 0.01;
+            jumlahInput.max = parseFloat(stok) || 0.01;
+            jumlahInput.value = Math.max(0.01, Math.min(parseFloat(jumlahInput.value) || 0.01, parseFloat(stok) || 0.01));
+        }
     } else {
-        jumlahInput.step = 0.01;
-        jumlahInput.min = 0.01;
-        jumlahInput.value = Math.max(0.01, parseFloat(jumlahInput.value) || 0.01);
+        document.getElementById('stok-info').textContent = '';
     }
 }
 </script> 
