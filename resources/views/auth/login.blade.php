@@ -5,7 +5,7 @@
         <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
             <div class="flex flex-col items-center mb-6">
                 <img src="{{ asset('assets/logo.jpg') }}" alt="Logo" class="h-16 mb-2">
-                <h1 class="text-2xl font-bold text-gray-800">Sistem Informasi</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Selamat Datang!</h1>
                 <p class="text-gray-500 text-center text-sm">Sistem Informasi Laboratorium Biomedis</p>
             </div>
             <form method="POST" action="{{ route('login') }}">
