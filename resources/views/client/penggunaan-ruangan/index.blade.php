@@ -42,12 +42,12 @@
                 <div class="col-md-6">
                     <label class="form-label">Waktu Mulai<span class="text-danger">*</span></label>
                     <input type="text" id="start_time" name="waktu_mulai" class="form-control" required
-                        placeholder="2020-01-01 00:00">
+                        placeholder="{{ now()->format('Y-m-d H:i') }}">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Waktu Selesai<span class="text-danger">*</span></label>
                     <input type="text" id="end_time" name="waktu_selesai" class="form-control" required
-                        placeholder="2020-01-01 02:00" disabled>
+                        placeholder="{{ now()->addHours(2)->format('Y-m-d H:i') }}" disabled>
                     <div id="errorMessage" class="invalid-feedback d-block" style="display:none;"></div>
                 </div>
             </div>
@@ -142,6 +142,7 @@
                     if (endPicker) {
                         endPicker.set('minDate', dateStr);
                     }
+                    // Enable end time field only when start time is selected
                     document.getElementById('end_time').disabled = !dateStr;
                     validateTimes();
                 }
