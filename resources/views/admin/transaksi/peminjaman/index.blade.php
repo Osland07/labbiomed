@@ -17,7 +17,7 @@
         <thead>
             <tr>
                 <th rowspan="2" class="text-center">No</th>
-                <th rowspan="2" class="text-center">Peminjam</th>
+                <th rowspan="2" class="text-center">Pengaju</th>
                 <th rowspan="2" class="text-center">Judul Penelitian</th>
                 <th rowspan="2" class="text-center">Tujuan</th>
                 <th colspan="2" class="text-center">Peralatan</th>
