@@ -19,6 +19,19 @@
     <!-- Flatpickr Time Plugin -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/confirmDate/confirmDate.css">
+    
+    <style>
+        .form-control:disabled {
+            background-color: #e9ecef;
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+        .form-control:not(:disabled) {
+            background-color: #fff;
+            opacity: 1;
+            cursor: text;
+        }
+    </style>
 
     <form id="penggunaanRuanganForm" class="bg-white p-4 rounded shadow mb-4 pb-4" method="POST"
         action="{{ route('client.penggunaan-ruangan.store') }}" enctype="multipart/form-data">
@@ -143,7 +156,13 @@
                         endPicker.set('minDate', dateStr);
                     }
                     // Enable end time field only when start time is selected
-                    document.getElementById('end_time').disabled = !dateStr;
+                    const endTimeField = document.getElementById('end_time');
+                    endTimeField.disabled = !dateStr;
+                    if (dateStr) {
+                        endTimeField.classList.remove('disabled');
+                    } else {
+                        endTimeField.classList.add('disabled');
+                    }
                     validateTimes();
                 }
             });
@@ -158,6 +177,23 @@
                     validateTimes();
                 }
             });
+            
+            // Add event listener for manual input on start time
+            document.getElementById('start_time').addEventListener('input', function() {
+                const dateStr = this.value;
+                startTime = dateStr;
+                const endTimeField = document.getElementById('end_time');
+                endTimeField.disabled = !dateStr;
+                if (dateStr) {
+                    endTimeField.classList.remove('disabled');
+                    console.log('End time field enabled');
+                } else {
+                    endTimeField.classList.add('disabled');
+                    console.log('End time field disabled');
+                }
+                validateTimes();
+            });
+            
 
             // AJAX: Update jadwal booking saat ruangan dipilih
             const ruanganSelect = document.querySelector('select[name=ruangan_id]');
