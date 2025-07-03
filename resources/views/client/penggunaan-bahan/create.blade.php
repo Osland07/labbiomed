@@ -43,7 +43,7 @@
                             @enderror
                         </div>
                         <button type="submit" class="btn btn-primary">Ajukan</button>
-                        <a href="{{ route('client.penggunaan-bahan.index') }}" class="btn btn-secondary">Batal</a>
+                        <a href="{{ route('client.penggunaan-bahan') }}" class="btn btn-secondary">Batal</a>
                     </form>
                 </div>
             </div>

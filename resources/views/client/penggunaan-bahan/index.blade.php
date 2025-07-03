@@ -83,7 +83,7 @@
                                 <td>{{ $item->tujuan }}</td>
                                 <td>
                                     @if($item->status == 'pending')
-                                        <span class="badge bg-warning text-dark">Pending</span>
+                                        <span class="badge bg-warning text-dark">Menunggu</span>
                                     @elseif($item->status == 'approved')
                                         <span class="badge bg-success">Disetujui</span>
                                     @else

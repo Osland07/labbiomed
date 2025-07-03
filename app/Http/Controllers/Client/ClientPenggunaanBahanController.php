@@ -47,6 +47,6 @@ class ClientPenggunaanBahanController extends Controller
             'status' => 'pending',
             'keterangan' => $request->keterangan,
         ]);
-        return redirect()->route('client.penggunaan-bahan.index')->with('message', 'Pengajuan penggunaan bahan berhasil diajukan.');
+        return redirect()->route('client.penggunaan-bahan')->with('message', 'Pengajuan penggunaan bahan berhasil diajukan.');
     }
 } 
