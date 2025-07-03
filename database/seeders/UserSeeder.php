@@ -37,7 +37,26 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'Super Admin',
             ],
+            [
+                'name' => 'Dosen',
+                'email' => 'dosen@dosen.com',
+                'status' => 'aktif',
+                'no_hp' => '08123456789',
+                'password' => Hash::make('password'),
+                'role' => 'Dosen',
+            ],
+            [
+                'name' => 'Mahasiswa',
+                'email' => 'mahasiswa@mahasiswa.com',
+                'status' => 'aktif',
+                'no_hp' => '08123456789',
+                'password' => Hash::make('password'),
+                'role' => 'Mahasiswa',
+            ],
         ];
+
+
+
 
         foreach ($defaultUsers as $data) {
             $user = User::create([
