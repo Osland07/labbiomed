@@ -159,7 +159,7 @@ class ClientPenggunaanController extends Controller
             $bookedStart = \Carbon\Carbon::parse($overlap->waktu_mulai)->format('d-m-Y H:i');
             $bookedEnd = \Carbon\Carbon::parse($overlap->waktu_selesai)->format('d-m-Y H:i');
             return redirect()->back()->withInput()->withErrors([
-                'ruangan_id' => "Ruangan sudah dibooking oleh $bookedBy pada $bookedStart sampai $bookedEnd. Silakan pilih waktu lain."
+                'ruangan_id' => "Ruangan sudah dibooking oleh $bookedBy pada $bookedStart sampai $bookedEnd. Silakan pilih waktu berbeda."
             ]);
         }
 
