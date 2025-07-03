@@ -13,6 +13,9 @@
         <strong>Kunjungan:</strong> Lakukan kunjungan ke ruangan/lab tanpa harus membooking ruangan. Cocok untuk keperluan singkat, monitoring, atau tamu.
     </div>
 
+    <!-- TomSelect CSS & JS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <!-- Flatpickr CSS & JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -30,6 +33,18 @@
             background-color: #fff;
             opacity: 1;
             cursor: text;
+        }
+        
+        .ts-wrapper.single .ts-control {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            font-size: 0.875rem;
+            min-height: 2.5rem;
+        }
+        .ts-wrapper.single .ts-control.focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
         }
         
         /* Mobile-specific styles */
@@ -55,7 +70,7 @@
         <!-- Ruangan -->
         <div class="mb-3">
             <label class="form-label fw-semibold">Ruangan<span class="text-danger">*</span></label>
-            <select name="ruangan_id" class="form-select" required>
+            <select name="ruangan_id" class="form-select" id="ruangan_id_pengajuan" required>
                 <option value="" disabled selected>Pilih Ruangan</option>
                 @foreach ($ruangans as $ruangan)
                     <option value="{{ $ruangan->id }}">{{ $ruangan->name }}</option>
@@ -160,6 +175,66 @@
         let errorMessage = '';
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize TomSelect for ruangan dropdown
+            new TomSelect('#ruangan_id_pengajuan', {
+                placeholder: 'Cari ruangan...',
+                allowEmptyOption: true,
+                maxOptions: 100,
+                onChange: function(value) {
+                    // Update jadwal booking when ruangan is selected
+                    if (value) {
+                        const ruanganId = value;
+                        const ruanganName = this.options[value]?.text || '';
+                        document.getElementById('judul-jadwal-booking').innerHTML = `Jadwal Booking Ruangan "${ruanganName}"`;
+                        fetch(`/ajax/jadwal-booking-ruangan/${ruanganId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const tbody = document.getElementById('jadwal-booking-body');
+                                tbody.innerHTML = '';
+                                if (data.length === 0) {
+                                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Belum ada booking aktif untuk ruangan ini.</td></tr>';
+                                } else {
+                                    data.forEach(item => {
+                                        let now = new Date();
+                                        // Parse tanggal dengan format yang benar (d-m-Y H:i)
+                                        let mulaiParts = item.waktu_mulai.split(' ');
+                                        let selesaiParts = item.waktu_selesai.split(' ');
+                                        
+                                        let mulaiDate = mulaiParts[0].split('-');
+                                        let selesaiDate = selesaiParts[0].split('-');
+                                        
+                                        // Format: d-m-Y H:i -> Y-m-d H:i
+                                        let mulai = new Date(mulaiDate[2] + '-' + mulaiDate[1] + '-' + mulaiDate[0] + ' ' + mulaiParts[1]);
+                                        let selesai = new Date(selesaiDate[2] + '-' + selesaiDate[1] + '-' + selesaiDate[0] + ' ' + selesaiParts[1]);
+                                        
+                                        let keterangan = '';
+                                        let badge = '';
+                                        
+                                        
+                                        if (now >= mulai && now <= selesai) {
+                                            keterangan = 'Sedang Berlangsung';
+                                            badge = '<span class="badge bg-success">Sedang Berlangsung</span>';
+                                        } else if (mulai > now) {
+                                            keterangan = 'Akan Datang';
+                                            badge = '<span class="badge bg-primary">Akan Datang</span>';
+                                        }
+                                        
+                                        const row = `<tr>
+                                            <td>${item.nama}</td>
+                                            <td>${ruanganName}</td>
+                                            <td>${item.tujuan}</td>
+                                            <td>${item.waktu_mulai}</td>
+                                            <td>${item.waktu_selesai}</td>
+                                            <td>${badge}</td>
+                                        </tr>`;
+                                        tbody.innerHTML += row;
+                                    });
+                                }
+                            });
+                    }
+                }
+            });
+
             // Check if device is mobile
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
@@ -209,60 +284,6 @@
                     endPicker.set('minDate', dateStr);
                 }
                 validateTimes();
-            });
-            
-
-            // AJAX: Update jadwal booking saat ruangan dipilih
-            const ruanganSelect = document.querySelector('select[name=ruangan_id]');
-            ruanganSelect.addEventListener('change', function() {
-                const ruanganId = this.value;
-                const ruanganName = this.options[this.selectedIndex].text;
-                document.getElementById('judul-jadwal-booking').innerHTML = `Jadwal Booking Ruangan "${ruanganName}"`;
-                fetch(`/ajax/jadwal-booking-ruangan/${ruanganId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const tbody = document.getElementById('jadwal-booking-body');
-                        tbody.innerHTML = '';
-                        if (data.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="6" class="text-center">Belum ada booking aktif untuk ruangan ini.</td></tr>';
-                        } else {
-                            data.forEach(item => {
-                                let now = new Date();
-                                // Parse tanggal dengan format yang benar (d-m-Y H:i)
-                                let mulaiParts = item.waktu_mulai.split(' ');
-                                let selesaiParts = item.waktu_selesai.split(' ');
-                                
-                                let mulaiDate = mulaiParts[0].split('-');
-                                let selesaiDate = selesaiParts[0].split('-');
-                                
-                                // Format: d-m-Y H:i -> Y-m-d H:i
-                                let mulai = new Date(mulaiDate[2] + '-' + mulaiDate[1] + '-' + mulaiDate[0] + ' ' + mulaiParts[1]);
-                                let selesai = new Date(selesaiDate[2] + '-' + selesaiDate[1] + '-' + selesaiDate[0] + ' ' + selesaiParts[1]);
-                                
-                                let keterangan = '';
-                                let badge = '';
-                                
-                                
-                                if (now >= mulai && now <= selesai) {
-                                    keterangan = 'Sedang Berlangsung';
-                                    badge = '<span class="badge bg-success">Sedang Berlangsung</span>';
-                                } else if (mulai > now) {
-                                    keterangan = 'Akan Datang';
-                                    badge = '<span class="badge bg-primary">Akan Datang</span>';
-                                }
-                                
-                                const row = `<tr>
-                                    <td>${item.nama}</td>
-                                    <td>${ruanganName}</td>
-                                    <td>${item.tujuan}</td>
-                                    <td>${item.waktu_mulai}</td>
-                                    <td>${item.waktu_selesai}</td>
-                                    <td>${badge}</td>
-                                </tr>`;
-                                tbody.innerHTML += row;
-                            });
-                        }
-                    });
             });
         });
 
