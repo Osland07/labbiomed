@@ -114,7 +114,7 @@
                                 <li class="nav-item ps-4 {{ Request::routeIs('admin.transaksi.peminjaman') ? 'aktif' : '' }}">
                                     <a href="{{ route('admin.transaksi.peminjaman') }}" class="nav-link text-white">
                                         <p>
-                                            Validasi Peminjaman
+                                            Validasi Pengajuan
                                             @if ($jumlahValidasiPeminjaman > 0)
                                                 <span class="badge badge-danger">{{ $jumlahValidasiPeminjaman }}</span>
                                             @endif

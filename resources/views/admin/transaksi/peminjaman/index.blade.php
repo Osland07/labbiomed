@@ -2,7 +2,7 @@
 
     <!-- Title -->
     <x-slot name="title">
-        Transaksi Peminjaman
+        Validasi Pengajuan
     </x-slot>
 
     @include('components.alert')
