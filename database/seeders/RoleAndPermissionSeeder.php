@@ -54,10 +54,6 @@ class RoleAndPermissionSeeder extends Seeder
                 'view-kunjungan',
             ],
             'Dosen' => [
-                'view-bahan',
-                'create-bahan',
-                'edit-bahan',
-                'delete-bahan',
                 'check-client',
                 'pengajuan-peminjaman-client',
                 'penggunaan-alat-client',
