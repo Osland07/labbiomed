@@ -31,6 +31,21 @@
             opacity: 1;
             cursor: text;
         }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .form-control:disabled {
+                background-color: #f8f9fa;
+                opacity: 0.5;
+                border-color: #dee2e6;
+            }
+            .form-control:not(:disabled) {
+                background-color: #fff;
+                opacity: 1;
+                border-color: #80bdff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+        }
     </style>
 
     <form id="penggunaanRuanganForm" class="bg-white p-4 rounded shadow mb-4 pb-4" method="POST"
@@ -145,11 +160,17 @@
         let errorMessage = '';
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if device is mobile
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
             const startPicker = flatpickr("#start_time", {
                 enableTime: true,
                 dateFormat: "Y-m-d H:i",
                 time_24hr: true,
                 minDate: "today",
+                // Mobile-specific settings
+                disableMobile: false, // Enable native mobile picker
+                allowInput: true, // Allow manual input
                 onChange: function(selectedDates, dateStr) {
                     startTime = dateStr;
                     if (endPicker) {
@@ -157,13 +178,43 @@
                     }
                     // Enable end time field only when start time is selected
                     const endTimeField = document.getElementById('end_time');
-                    endTimeField.disabled = !dateStr;
-                    if (dateStr) {
+                    if (dateStr && dateStr.trim() !== '') {
+                        endTimeField.disabled = false;
                         endTimeField.classList.remove('disabled');
+                        console.log('End time field enabled via flatpickr');
+                        
+                        // Force enable for mobile devices
+                        if (isMobile) {
+                            setTimeout(() => {
+                                endTimeField.disabled = false;
+                                endTimeField.classList.remove('disabled');
+                                console.log('End time field force enabled for mobile');
+                            }, 500);
+                        }
                     } else {
+                        endTimeField.disabled = true;
                         endTimeField.classList.add('disabled');
+                        console.log('End time field disabled via flatpickr');
                     }
                     validateTimes();
+                },
+                onClose: function(selectedDates, dateStr) {
+                    // Additional check when flatpickr closes
+                    if (dateStr && dateStr.trim() !== '') {
+                        const endTimeField = document.getElementById('end_time');
+                        endTimeField.disabled = false;
+                        endTimeField.classList.remove('disabled');
+                        console.log('End time field enabled on close');
+                        
+                        // Force enable for mobile devices
+                        if (isMobile) {
+                            setTimeout(() => {
+                                endTimeField.disabled = false;
+                                endTimeField.classList.remove('disabled');
+                                console.log('End time field force enabled on close for mobile');
+                            }, 300);
+                        }
+                    }
                 }
             });
 
@@ -183,16 +234,79 @@
                 const dateStr = this.value;
                 startTime = dateStr;
                 const endTimeField = document.getElementById('end_time');
-                endTimeField.disabled = !dateStr;
-                if (dateStr) {
+                if (dateStr && dateStr.trim() !== '') {
+                    endTimeField.disabled = false;
                     endTimeField.classList.remove('disabled');
-                    console.log('End time field enabled');
+                    console.log('End time field enabled via input');
                 } else {
+                    endTimeField.disabled = true;
                     endTimeField.classList.add('disabled');
-                    console.log('End time field disabled');
+                    console.log('End time field disabled via input');
                 }
                 validateTimes();
             });
+            
+            // Add event listener for blur event
+            document.getElementById('start_time').addEventListener('blur', function() {
+                const dateStr = this.value;
+                if (dateStr && dateStr.trim() !== '') {
+                    const endTimeField = document.getElementById('end_time');
+                    endTimeField.disabled = false;
+                    endTimeField.classList.remove('disabled');
+                    console.log('End time field enabled on blur');
+                }
+            });
+            
+            // Force enable end time field after a short delay when start time is selected
+            document.getElementById('start_time').addEventListener('change', function() {
+                setTimeout(() => {
+                    const dateStr = this.value;
+                    if (dateStr && dateStr.trim() !== '') {
+                        const endTimeField = document.getElementById('end_time');
+                        endTimeField.disabled = false;
+                        endTimeField.classList.remove('disabled');
+                        console.log('End time field enabled on change with delay');
+                        
+                        // Additional force enable for mobile
+                        if (isMobile) {
+                            setTimeout(() => {
+                                endTimeField.disabled = false;
+                                endTimeField.classList.remove('disabled');
+                                console.log('End time field force enabled for mobile on change');
+                            }, 200);
+                        }
+                    }
+                }, 100);
+            });
+            
+            // Mobile-specific event listeners
+            if (isMobile) {
+                // Touch events for mobile
+                document.getElementById('start_time').addEventListener('touchend', function() {
+                    setTimeout(() => {
+                        const dateStr = this.value;
+                        if (dateStr && dateStr.trim() !== '') {
+                            const endTimeField = document.getElementById('end_time');
+                            endTimeField.disabled = false;
+                            endTimeField.classList.remove('disabled');
+                            console.log('End time field enabled via touch event');
+                        }
+                    }, 1000);
+                });
+                
+                // Focus events for mobile
+                document.getElementById('start_time').addEventListener('focusout', function() {
+                    setTimeout(() => {
+                        const dateStr = this.value;
+                        if (dateStr && dateStr.trim() !== '') {
+                            const endTimeField = document.getElementById('end_time');
+                            endTimeField.disabled = false;
+                            endTimeField.classList.remove('disabled');
+                            console.log('End time field enabled via focusout');
+                        }
+                    }, 500);
+                });
+            }
             
 
             // AJAX: Update jadwal booking saat ruangan dipilih
