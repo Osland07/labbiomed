@@ -75,7 +75,7 @@
                 <div class="col-md-6">
                     <label class="form-label">Waktu Selesai<span class="text-danger">*</span></label>
                     <input type="text" id="end_time" name="waktu_selesai" class="form-control" required
-                        placeholder="{{ now()->addHours(2)->format('Y-m-d H:i') }}" disabled>
+                        placeholder="{{ now()->addHours(2)->format('Y-m-d H:i') }}">
                     <div id="errorMessage" class="invalid-feedback d-block" style="display:none;"></div>
                 </div>
             </div>
@@ -176,44 +176,16 @@
                     if (endPicker) {
                         endPicker.set('minDate', dateStr);
                     }
-                    // Enable end time field only when start time is selected
-                    const endTimeField = document.getElementById('end_time');
-                    if (dateStr && dateStr.trim() !== '') {
-                        endTimeField.disabled = false;
-                        endTimeField.classList.remove('disabled');
-                        console.log('End time field enabled via flatpickr');
-                        
-                        // Force enable for mobile devices
-                        if (isMobile) {
-                            setTimeout(() => {
-                                endTimeField.disabled = false;
-                                endTimeField.classList.remove('disabled');
-                                console.log('End time field force enabled for mobile');
-                            }, 500);
-                        }
-                    } else {
-                        endTimeField.disabled = true;
-                        endTimeField.classList.add('disabled');
-                        console.log('End time field disabled via flatpickr');
-                    }
                     validateTimes();
                 },
                 onClose: function(selectedDates, dateStr) {
-                    // Additional check when flatpickr closes
+                    // Update min date for end picker when start time is selected
                     if (dateStr && dateStr.trim() !== '') {
-                        const endTimeField = document.getElementById('end_time');
-                        endTimeField.disabled = false;
-                        endTimeField.classList.remove('disabled');
-                        console.log('End time field enabled on close');
-                        
-                        // Force enable for mobile devices
-                        if (isMobile) {
-                            setTimeout(() => {
-                                endTimeField.disabled = false;
-                                endTimeField.classList.remove('disabled');
-                                console.log('End time field force enabled on close for mobile');
-                            }, 300);
+                        startTime = dateStr;
+                        if (endPicker) {
+                            endPicker.set('minDate', dateStr);
                         }
+                        validateTimes();
                     }
                 }
             });
@@ -229,84 +201,15 @@
                 }
             });
             
-            // Add event listener for manual input on start time
+            // Simple event listener for manual input
             document.getElementById('start_time').addEventListener('input', function() {
                 const dateStr = this.value;
                 startTime = dateStr;
-                const endTimeField = document.getElementById('end_time');
-                if (dateStr && dateStr.trim() !== '') {
-                    endTimeField.disabled = false;
-                    endTimeField.classList.remove('disabled');
-                    console.log('End time field enabled via input');
-                } else {
-                    endTimeField.disabled = true;
-                    endTimeField.classList.add('disabled');
-                    console.log('End time field disabled via input');
+                if (endPicker && dateStr && dateStr.trim() !== '') {
+                    endPicker.set('minDate', dateStr);
                 }
                 validateTimes();
             });
-            
-            // Add event listener for blur event
-            document.getElementById('start_time').addEventListener('blur', function() {
-                const dateStr = this.value;
-                if (dateStr && dateStr.trim() !== '') {
-                    const endTimeField = document.getElementById('end_time');
-                    endTimeField.disabled = false;
-                    endTimeField.classList.remove('disabled');
-                    console.log('End time field enabled on blur');
-                }
-            });
-            
-            // Force enable end time field after a short delay when start time is selected
-            document.getElementById('start_time').addEventListener('change', function() {
-                setTimeout(() => {
-                    const dateStr = this.value;
-                    if (dateStr && dateStr.trim() !== '') {
-                        const endTimeField = document.getElementById('end_time');
-                        endTimeField.disabled = false;
-                        endTimeField.classList.remove('disabled');
-                        console.log('End time field enabled on change with delay');
-                        
-                        // Additional force enable for mobile
-                        if (isMobile) {
-                            setTimeout(() => {
-                                endTimeField.disabled = false;
-                                endTimeField.classList.remove('disabled');
-                                console.log('End time field force enabled for mobile on change');
-                            }, 200);
-                        }
-                    }
-                }, 100);
-            });
-            
-            // Mobile-specific event listeners
-            if (isMobile) {
-                // Touch events for mobile
-                document.getElementById('start_time').addEventListener('touchend', function() {
-                    setTimeout(() => {
-                        const dateStr = this.value;
-                        if (dateStr && dateStr.trim() !== '') {
-                            const endTimeField = document.getElementById('end_time');
-                            endTimeField.disabled = false;
-                            endTimeField.classList.remove('disabled');
-                            console.log('End time field enabled via touch event');
-                        }
-                    }, 1000);
-                });
-                
-                // Focus events for mobile
-                document.getElementById('start_time').addEventListener('focusout', function() {
-                    setTimeout(() => {
-                        const dateStr = this.value;
-                        if (dateStr && dateStr.trim() !== '') {
-                            const endTimeField = document.getElementById('end_time');
-                            endTimeField.disabled = false;
-                            endTimeField.classList.remove('disabled');
-                            console.log('End time field enabled via focusout');
-                        }
-                    }, 500);
-                });
-            }
             
 
             // AJAX: Update jadwal booking saat ruangan dipilih
@@ -364,6 +267,24 @@
                 errorDiv.style.display = 'none';
             }
         }
+        
+        // Add form validation before submit
+        document.getElementById('penggunaanRuanganForm').addEventListener('submit', function(e) {
+            const startTimeValue = document.getElementById('start_time').value;
+            const endTimeValue = document.getElementById('end_time').value;
+            
+            if (!startTimeValue || !endTimeValue) {
+                e.preventDefault();
+                alert('Mohon isi waktu mulai dan waktu selesai');
+                return false;
+            }
+            
+            if (endTimeValue < startTimeValue) {
+                e.preventDefault();
+                alert('Waktu selesai tidak boleh lebih awal dari waktu mulai');
+                return false;
+            }
+        });
     </script>
 
 </x-admin-layout>
