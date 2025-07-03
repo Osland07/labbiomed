@@ -14,7 +14,19 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                 data-accordion="false">
-                <x-sidebar-link route="admin.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @if (Auth::user()->hasRole('Admin'))
+                    <x-sidebar-link route="admin.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @elseif (Auth::user()->hasRole('Mahasiswa'))
+                    <x-sidebar-link route="mahasiswa.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @elseif (Auth::user()->hasRole('Dosen'))
+                    <x-sidebar-link route="dosen.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @elseif (Auth::user()->hasRole('Laboran'))
+                    <x-sidebar-link route="laboran.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @elseif (Auth::user()->hasRole('Koordinator Laboratorium'))
+                    <x-sidebar-link route="koorlab.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @else
+                    <x-sidebar-link route="admin.dashboard" icon="tachometer-alt" label="Dashboard" />
+                @endif
 
                 @php
                     $dataMasterRoutes = [

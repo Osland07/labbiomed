@@ -20,8 +20,13 @@ use App\Http\Controllers\Client\ClientPengajuanController;
 use App\Http\Controllers\Client\ClientPenggunaanController;
 use App\Http\Controllers\Client\ClientRiwayatController;
 use App\Http\Controllers\Client\ClientPenggunaanBahanController;
+use App\Http\Controllers\Client\ClientDashboardController;
+use App\Http\Controllers\Dosen\DosenDashboardController;
+use App\Http\Controllers\Laboran\LaboranDashboardController;
+use App\Http\Controllers\Koorlab\KoorlabDashboardController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KunjunganController;
+use App\Http\Controllers\Mahasiswa\MahasiswaDashboardController;
 
 
 /*
@@ -45,11 +50,11 @@ Route::post('/kunjungan/checkout/{ruangan_id}', [KunjunganController::class, 'st
 Route::get('/kunjungan/checkin-success/{ruangan_id}', [KunjunganController::class, 'checkinSuccess'])->name('kunjungan.checkin.success');
 Route::get('/kunjungan/checkout-success/{ruangan_id}', [KunjunganController::class, 'checkoutSuccess'])->name('kunjungan.checkout.success');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/profile/id-card', [ProfileController::class, 'printIdCard'])->name('profile.id-card');
+    Route::middleware('auth')->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard')->middleware('redirect.based.on.role');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::get('/profile/id-card', [ProfileController::class, 'printIdCard'])->name('profile.id-card');
 
     // CMS ADMINITRASTOR
     Route::name('admin.')->prefix('admin')->group(function () {
@@ -93,7 +98,7 @@ Route::middleware('auth')->group(function () {
     // CMS CLIENT
     Route::name('client.')->prefix('client')->group(function () {
         Route::get('/', [HomeController::class, 'index'])->name('beranda');
-        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [ClientDashboardController::class, 'index'])->name('dashboard');
         Route::resource('check', ClientCekController::class)->only(['index']);
         Route::get('/pengajuan-peminjaman', [ClientPengajuanController::class, 'index'])->name('pengajuan-peminjaman.index');
         Route::get('/upload-surat', [ClientPengajuanController::class, 'upload'])->name('pengajuan-peminjaman.upload');
@@ -111,6 +116,23 @@ Route::middleware('auth')->group(function () {
         Route::get('penggunaan-bahan', [ClientPenggunaanBahanController::class, 'index'])->name('penggunaan-bahan');
         Route::get('penggunaan-bahan/create', [ClientPenggunaanBahanController::class, 'create'])->name('penggunaan-bahan.create');
         Route::post('penggunaan-bahan', [ClientPenggunaanBahanController::class, 'store'])->name('penggunaan-bahan.store');
+    });
+
+    // Dashboard berdasarkan role
+    Route::name('dosen.')->prefix('dosen')->group(function () {
+        Route::get('/dashboard', [DosenDashboardController::class, 'index'])->name('dashboard');
+    });
+
+    Route::name('laboran.')->prefix('laboran')->group(function () {
+        Route::get('/dashboard', [LaboranDashboardController::class, 'index'])->name('dashboard');
+    });
+
+    Route::name('koorlab.')->prefix('koorlab')->group(function () {
+        Route::get('/dashboard', [KoorlabDashboardController::class, 'index'])->name('dashboard');
+    });
+
+    Route::name('mahasiswa.')->prefix('mahasiswa')->group(function () {
+        Route::get('/dashboard', [MahasiswaDashboardController::class, 'index'])->name('dashboard');
     });
 
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal');

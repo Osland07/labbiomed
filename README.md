@@ -1,66 +1,79 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# LabBiomed - Sistem Manajemen Laboratorium
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Daftar Fitur Utama
 
-## About Laravel
+1. **Manajemen Kunjungan**
+   - Check-in/Check-out QR Code (untuk tamu, mahasiswa, dosen, laboran, koordinator)
+   - Riwayat kunjungan
+   - Statistik kunjungan
+   - Export laporan kunjungan
+2. **Manajemen Pengguna**
+   - Manajemen user (Super Admin, Dosen, Mahasiswa, Koordinator Laboratorium, Laboran)
+   - Manajemen role & permission
+3. **Manajemen Alat & Bahan**
+   - Data alat & bahan
+   - Penggunaan alat & bahan
+   - Peminjaman alat
+   - Pengembalian alat
+   - Laporan kerusakan alat
+   - Stok bahan masuk & keluar
+4. **Manajemen Ruangan**
+   - Data ruangan
+   - Booking/penggunaan ruangan
+   - Monitoring penggunaan ruangan
+5. **Transaksi & Validasi**
+   - Pengajuan peminjaman alat
+   - Validasi laboran & koordinator
+   - Upload & validasi surat
+   - Pengembalian alat
+   - Validasi pengembalian
+6. **Laporan & Monitoring**
+   - Laporan peminjaman, penggunaan, kerusakan (export Excel)
+   - Monitoring aktivitas mahasiswa (kunjungan, peminjaman, penggunaan alat)
+   - Statistik aktivitas
+7. **Autentikasi & Profil**
+   - Login, register, reset password
+   - Edit profil, cetak ID card
+   - Manajemen password
+8. **Fitur Client**
+   - Cek alat/bahan/ruangan tersedia
+   - Riwayat pengajuan, penggunaan, kunjungan
+   - Penggunaan bahan
+   - Jadwal booking ruangan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Role Pengguna
+- Super Admin
+- Koordinator Laboratorium
+- Laboran
+- Dosen
+- Mahasiswa
+- Tamu/Umum
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Template Pengujian Blackbox
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| No | Role | Skenario Pengujian | Test Case | Hasil yang Diharapkan |
+|----|------|--------------------|-----------|----------------------|
+| 1  | Koordinator | Login | Koordinator memasukkan username dan password yang valid | Sistem menampilkan halaman dashboard Koordinator |
+| 2  | Koordinator | Login gagal | Login dengan password salah | Pesan error ditampilkan |
+| 3  | Mahasiswa | Check-in Kunjungan | Mahasiswa scan QR dan isi form check-in | Data kunjungan tercatat, diarahkan ke halaman sukses |
+| 4  | Mahasiswa | Check-out Kunjungan | Mahasiswa scan QR check-out | Data kunjungan diupdate, durasi tampil |
+| 5  | Mahasiswa | Pengajuan Peminjaman Alat | Mahasiswa mengisi form pengajuan alat | Pengajuan tercatat, status menunggu validasi |
+| 6  | Laboran | Validasi Peminjaman | Laboran memvalidasi pengajuan alat | Status pengajuan berubah sesuai aksi |
+| 7  | Koordinator | Validasi Peminjaman | Koordinator memvalidasi pengajuan alat | Status pengajuan berubah sesuai aksi |
+| 8  | Mahasiswa | Upload Surat | Mahasiswa upload surat validasi | Surat tersimpan, status pengajuan update |
+| 9  | Mahasiswa | Penggunaan Alat | Mahasiswa mengajukan penggunaan alat | Penggunaan tercatat, status menunggu validasi |
+| 10 | Laboran | Validasi Penggunaan | Laboran memvalidasi penggunaan alat | Status penggunaan berubah sesuai aksi |
+| 11 | Mahasiswa | Pengembalian Alat | Mahasiswa mengembalikan alat | Status pengembalian update, bisa upload foto |
+| 12 | Laboran | Validasi Pengembalian | Laboran memvalidasi pengembalian alat | Status pengembalian update |
+| 13 | Mahasiswa | Penggunaan Bahan | Mahasiswa mengajukan penggunaan bahan | Penggunaan bahan tercatat |
+| 14 | Admin | Manajemen User | Admin menambah/mengedit/menghapus user | Data user terupdate sesuai aksi |
+| 15 | Admin | Manajemen Role | Admin menambah/mengedit/menghapus role | Data role terupdate sesuai aksi |
+| 16 | Admin | Manajemen Alat/Bahan/Ruangan | Admin CRUD alat, bahan, ruangan | Data alat/bahan/ruangan terupdate |
+| 17 | Mahasiswa | Riwayat | Mahasiswa melihat riwayat kunjungan/pengajuan/penggunaan | Data riwayat tampil sesuai user |
+| 18 | Semua | Reset Password | User melakukan reset password | Email reset dikirim, password bisa diubah |
+| 19 | Semua | Edit Profil | User mengubah data profil | Data profil terupdate |
+| 20 | Semua | Logout | User logout dari sistem | Kembali ke halaman login |
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+> **Catatan:**
+> - Silakan tambahkan skenario lain sesuai kebutuhan pengujian.
+> - Pastikan setiap fitur diuji untuk role yang relevan.

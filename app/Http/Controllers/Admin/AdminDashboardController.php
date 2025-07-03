@@ -18,6 +18,6 @@ class AdminDashboardController extends Controller
         $penggunaan = Laporan::where('kondisi_setelah', 'Baik')->count();
         $kerusakan = Laporan::where('kondisi_setelah', 'Rusak')->count();
 
-        return view('admin.dashboard', compact('users', 'roles', 'pengajuan', 'penggunaan', 'kerusakan'));
+        return view('admin.dashboard.admin', compact('users', 'roles', 'pengajuan', 'penggunaan', 'kerusakan'));
     }
 }
