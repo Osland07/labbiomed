@@ -85,8 +85,12 @@ class KunjunganController extends Controller
         
         Kunjungan::create($data);
         
-        return redirect()->route('kunjungan.checkin.success', $ruangan->id)
-            ->with('success', 'Check-in berhasil! Selamat datang di ' . $ruangan->name);
+        return view('kunjungan.success', [
+            'icon' => 'success',
+            'title' => 'Berhasil',
+            'message' => 'Jangan lupa melakukan <b>checkout</b> jika ingin meninggalkan ruangan.<br>Harap mengikuti aturan <b>SOP</b> yang berlaku di laboratorium.',
+            'redirect' => Auth::check() ? url('/dashboard') : url('/kunjungan/checkout/' . $ruangan->id),
+        ]);
     }
 
     // Tampilkan form check-out
@@ -157,8 +161,12 @@ class KunjunganController extends Controller
             ? floor($durasi / 60) . ' jam ' . ($durasi % 60) . ' menit'
             : $durasi . ' menit';
         
-        return redirect()->route('kunjungan.checkout.success', $ruangan->id)
-            ->with('success', 'Check-out berhasil! Terima kasih telah mengunjungi ' . $ruangan->name . '. Durasi kunjungan: ' . $durasiText);
+        return view('kunjungan.success', [
+            'icon' => 'success',
+            'title' => 'Checkout berhasil',
+            'message' => 'Terima kasih sudah berkunjung ke <b>Laboratorium Teknik Biomedis ITERA</b>.<br><span class="block mt-2">Durasi kunjungan Anda: <b>' . $durasiText . '</b></span>',
+            'redirect' => url('/'),
+        ]);
     }
 
     // Halaman sukses check-in

@@ -245,6 +245,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.getElementById('checkinForm').addEventListener('submit', function(e) {
             const submitBtn = document.getElementById('submitBtn');
@@ -257,16 +258,47 @@
             loadingSpinner.classList.remove('hidden');
         });
 
-        // Auto-hide notifications after 5 seconds
-        setTimeout(function() {
-            const notifications = document.querySelectorAll('.fixed.top-4.right-4');
-            notifications.forEach(function(notification) {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(function() {
-                    notification.remove();
-                }, 300);
-            });
-        }, 5000);
+        // SweetAlert2 for session messages
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Jangan lupa melakukan checkout jika ingin meninggalkan ruangan. Harap mengikuti aturan SOP yang berlaku di laboratorium.',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                }).then(() => {
+                    @if(isset($user) && $user)
+                        window.location.href = '/dashboard';
+                    @else
+                        window.location.href = '/kunjungan/checkout/{{ $ruangan->id }}';
+                    @endif
+                });
+            @endif
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: '{{ session('error') }}',
+                    confirmButtonText: 'OK',
+                });
+            @endif
+            @if(session('warning'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: '{{ session('warning') }}',
+                    confirmButtonText: 'OK',
+                });
+            @endif
+            @if(session('info'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: '{{ session('info') }}',
+                    confirmButtonText: 'OK',
+                });
+            @endif
+        });
     </script>
 </x-guest-layout>

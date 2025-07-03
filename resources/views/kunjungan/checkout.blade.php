@@ -220,6 +220,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             const submitBtn = document.getElementById('submitBtn');
@@ -232,16 +233,43 @@
             loadingSpinner.classList.remove('hidden');
         });
 
-        // Auto-hide notifications after 5 seconds
-        setTimeout(function() {
-            const notifications = document.querySelectorAll('.fixed.top-4.right-4');
-            notifications.forEach(function(notification) {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(function() {
-                    notification.remove();
-                }, 300);
-            });
-        }, 5000);
+        // SweetAlert2 for session messages
+        document.addEventListener('DOMContentLoaded', function() {
+            @if(session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Checkout berhasil',
+                    text: 'Terima kasih sudah berkunjung ke Laboratorium Teknik Biomedis ITERA.',
+                    confirmButtonText: 'OK',
+                    allowOutsideClick: false,
+                }).then(() => {
+                    window.location.href = '/'; // Redirect ke halaman utama atau bisa diganti sesuai kebutuhan
+                });
+            @endif
+            @if(session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: '{{ session('error') }}',
+                    confirmButtonText: 'OK',
+                });
+            @endif
+            @if(session('warning'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: '{{ session('warning') }}',
+                    confirmButtonText: 'OK',
+                });
+            @endif
+            @if(session('info'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: '{{ session('info') }}',
+                    confirmButtonText: 'OK',
+                });
+            @endif
+        });
     </script>
 </x-guest-layout>
