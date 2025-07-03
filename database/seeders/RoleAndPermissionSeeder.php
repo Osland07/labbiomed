@@ -36,6 +36,7 @@ class RoleAndPermissionSeeder extends Seeder
 
             'Admin' => Permission::where('name', 'not like', '%-role')->where('name', 'not like', '%-client')->pluck('name')->toArray(),
             'Laboran' => [
+                'jadwal-dashboard',
                 'view-alat', 'create-alat', 'edit-alat', 'delete-alat',
                 'view-bahan', 'create-bahan', 'edit-bahan', 'delete-bahan',
                 'view-category', 'create-category', 'edit-category', 'delete-category',
@@ -45,6 +46,7 @@ class RoleAndPermissionSeeder extends Seeder
                 'view-kunjungan',
             ],
             'Koordinator Laboratorium' => [
+                'jadwal-dashboard',
                 'view-alat', 'create-alat', 'edit-alat', 'delete-alat',
                 'view-bahan', 'create-bahan', 'edit-bahan', 'delete-bahan',
                 'view-category', 'create-category', 'edit-category', 'delete-category',
