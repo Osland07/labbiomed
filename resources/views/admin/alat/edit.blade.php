@@ -130,6 +130,8 @@
                                 {{ old('condition', $alat->condition) == 'Baik' ? 'selected' : '' }}>Baik</option>
                             <option value="Rusak"
                                 {{ old('condition', $alat->condition) == 'Rusak' ? 'selected' : '' }}>Rusak</option>
+                            <option value="Maintenance"
+                                {{ old('condition', $alat->condition) == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
                         </select>
                         @error('condition')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -144,6 +146,8 @@
                                 {{ old('status', $alat->status) == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
                             <option value="Maintenance"
                                 {{ old('status', $alat->status) == 'Maintenance' ? 'selected' : '' }}>Maintenance</option>
+                            <option value="Rusak"
+                                {{ old('status', $alat->status) == 'Rusak' ? 'selected' : '' }}>Rusak</option>
                         </select>
                         @error('status')
                             <div class="invalid-feedback">{{ $message }}</div>

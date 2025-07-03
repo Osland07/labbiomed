@@ -93,6 +93,7 @@ Route::get('/kunjungan/checkout-success/{ruangan_id}', [KunjunganController::cla
         Route::get('/monitoring/laporan', [AdminMonitoringController::class, 'laporanAktivitas'])->name('monitoring.laporan');
         Route::post('bahan/masuk', [AdminBahanController::class, 'bahanMasuk'])->name('bahan.masuk');
         Route::post('bahan/keluar', [AdminBahanController::class, 'bahanKeluar'])->name('bahan.keluar');
+        Route::post('/laporan/kerusakan/{laporan}/replace', [AdminLaporanController::class, 'konfirmasiPenggantianKerusakan'])->name('laporan.kerusakan.replace');
     });
 
     // CMS CLIENT

@@ -123,20 +123,102 @@ class AdminLaporanController extends Controller
         $request->validate([
             'search' => 'nullable|string|max:255',
             'perPage' => 'nullable|integer|in:10,50,100',
+            'filter_user' => 'nullable|integer',
+            'filter_item' => 'nullable|string|max:255',
+            'filter_status' => 'nullable|in:all,belum,sudah',
         ]);
 
         $search = $request->input('search');
         $perPage = (int) $request->input('perPage', 10);
+        $filterUser = $request->input('filter_user');
+        $filterItem = $request->input('filter_item');
+        $filterStatus = $request->input('filter_status', 'all');
 
         $validPerPage = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
-        if ($search) {
-            $laporans = Laporan::whereIn('status_peminjaman', ['Diterima', 'Ditolak'])->orderBy('updated_at', 'desc')->where('kondisi_setelah', 'Rusak')->where('name', 'like', "%{$search}%")
-                ->paginate($validPerPage);
-        } else {
-            $laporans = Laporan::whereIn('status_peminjaman', ['Diterima', 'Ditolak'])->orderBy('updated_at', 'desc')->where('kondisi_setelah', 'Rusak')->paginate($validPerPage);
-        }
+        $laporans = Laporan::whereIn('status_peminjaman', ['Diterima', 'Ditolak'])
+            ->where('kondisi_setelah', 'Rusak')
+            ->orderBy('updated_at', 'desc')
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            })
+            ->when($filterUser, function ($query) use ($filterUser) {
+                $query->where('user_id', $filterUser);
+            })
+            ->when($filterItem, function ($query) use ($filterItem) {
+                $query->where(function ($q) use ($filterItem) {
+                    $q->whereHas('alat', fn($a) => $a->where('name', 'like', "%{$filterItem}%"))
+                        ->orWhereHas('bahan', fn($b) => $b->where('name', 'like', "%{$filterItem}%"))
+                        ->orWhereHas('ruangan', fn($r) => $r->where('name', 'like', "%{$filterItem}%"));
+                });
+            })
+            ->when($filterStatus !== 'all', function ($query) use ($filterStatus) {
+                if ($filterStatus === 'belum') {
+                    $query->where('is_replaced', false);
+                } elseif ($filterStatus === 'sudah') {
+                    $query->where('is_replaced', true);
+                }
+            })
+            ->paginate($validPerPage);
 
-        return view("admin.laporan.kerusakan.index", compact('laporans', 'search', 'perPage'));
+        $users = Laporan::whereIn('status_peminjaman', ['Diterima', 'Ditolak'])
+            ->where('kondisi_setelah', 'Rusak')
+            ->with('user')
+            ->get()
+            ->map(fn($laporan) => optional($laporan->user))
+            ->filter(fn($user) => $user && $user->id)
+            ->unique('id')
+            ->sortBy('name')
+            ->values();
+        $items = Laporan::whereIn('status_peminjaman', ['Diterima', 'Ditolak'])
+            ->where('kondisi_setelah', 'Rusak')
+            ->when($filterUser, function ($query) use ($filterUser) {
+                $query->where('user_id', $filterUser);
+            })
+            ->with(['alat', 'bahan', 'ruangan'])
+            ->get()
+            ->map(function ($laporan) {
+                return optional($laporan->alat)->name
+                    ?? optional($laporan->bahan)->name
+                    ?? optional($laporan->ruangan)->name;
+            })
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+        $statusOptions = [
+            'all' => 'Semua',
+            'belum' => 'Belum Diganti',
+            'sudah' => 'Sudah Diganti',
+        ];
+        return view("admin.laporan.kerusakan.index", compact('laporans', 'search', 'perPage', 'users', 'items', 'filterUser', 'filterItem', 'filterStatus', 'statusOptions'));
+    }
+
+    public function konfirmasiPenggantianKerusakan(Request $request, $laporanId)
+    {
+        $laporan = \App\Models\Laporan::findOrFail($laporanId);
+        if ($laporan->is_replaced) {
+            return back()->with('message', 'Laporan sudah dikonfirmasi penggantiannya.');
+        }
+        $laporan->is_replaced = true;
+        $laporan->replaced_at = now();
+        $laporan->replaced_by = auth()->id();
+        if ($request->has('replace_note')) {
+            $laporan->replace_note = $request->replace_note;
+        }
+        if ($request->hasFile('replace_image')) {
+            $path = $request->file('replace_image')->store('replace_image', 'public');
+            $laporan->replace_image = $path;
+        }
+        $laporan->save();
+        // Update status alat jika ada
+        if ($laporan->alat) {
+            $laporan->alat->status = 'Tersedia';
+            $laporan->alat->condition = 'Baik';
+            $laporan->alat->save();
+        }
+        return back()->with('message', 'Konfirmasi penggantian/perbaikan berhasil.');
     }
 }

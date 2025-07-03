@@ -88,6 +88,29 @@
     </script>
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('message'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: @json(session('message')),
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: @json(session('error')),
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+        });
+    </script>
+
     {{ $script ?? '' }}
     @stack('scripts')
 

@@ -23,6 +23,11 @@ class LaporanKerusakanExport implements FromCollection, WithHeadings
                 'Nomor Seri' => $item->alat->serial_number ?? $item->bahan->serial_number ?? $item->ruangan->serial_number ?? '-',
                 'Tanggal Kerusakan' => $item->tgl_kerusakan ?? '-',
                 'Deskripsi Kerusakan' => $item->deskripsi_kerusakan ?? '-',
+                'Status Penggantian' => $item->is_replaced ? 'Sudah Diganti' : 'Belum Diganti',
+                'Tanggal Penggantian' => $item->replaced_at ? date('d-m-Y H:i', strtotime($item->replaced_at)) : '-',
+                'Validator' => $item->replaced_by ? optional(\App\Models\User::find($item->replaced_by))->name : '-',
+                'Catatan Penggantian' => $item->replace_note ?? '-',
+                'Bukti Penggantian' => $item->replace_image ? asset('storage/' . $item->replace_image) : '-',
             ];
         }
 
@@ -42,6 +47,11 @@ class LaporanKerusakanExport implements FromCollection, WithHeadings
                 'Nomor Seri',
                 'Tanggal Kerusakan',
                 'Deskripsi Kerusakan',
+                'Status Penggantian',
+                'Tanggal Penggantian',
+                'Validator',
+                'Catatan Penggantian',
+                'Bukti Penggantian',
             ],
         ];
     }

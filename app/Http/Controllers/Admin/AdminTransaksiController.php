@@ -385,7 +385,13 @@ class AdminTransaksiController extends Controller
         $laporan->updated_at = now();
 
         if ($laporan->alat !== null) {
-            $laporan->alat->status = 'Tersedia';
+            if ($request->kondisi_setelah === 'Rusak') {
+                $laporan->alat->status = 'Rusak';
+                $laporan->alat->condition = 'Rusak';
+            } else {
+                $laporan->alat->status = 'Tersedia';
+                $laporan->alat->condition = 'Baik';
+            }
             $laporan->alat->save();
         }
 

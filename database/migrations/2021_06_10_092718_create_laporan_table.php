@@ -35,6 +35,12 @@ return new class extends Migration
             $table->string('gambar_sebelum')->nullable();
             $table->string('gambar_setelah')->nullable();
             $table->string('surat')->nullable();
+            $table->boolean('is_replaced')->default(false);
+            $table->timestamp('replaced_at')->nullable();
+            $table->unsignedBigInteger('replaced_by')->nullable();
+            $table->text('replace_note')->nullable();
+            $table->string('replace_image')->nullable();
+            $table->foreign('replaced_by')->references('id')->on('users')->nullOnDelete();
             $table->timestamps();
         });
     }

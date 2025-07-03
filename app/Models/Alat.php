@@ -17,6 +17,11 @@ class Alat extends Model
         'auto_validate' => 'boolean',
     ];
 
+    public const STATUS_MAINTENANCE = 'Maintenance';
+    public const STATUS_RUSAK = 'Rusak';
+    public const STATUS_TERSEDIA = 'Tersedia';
+    public const STATUS_DIPINJAM = 'Dipinjam';
+
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
