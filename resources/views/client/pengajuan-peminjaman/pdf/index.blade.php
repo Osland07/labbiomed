@@ -193,7 +193,7 @@
                         <td>{{ $alat['jumlah'] ?? '-' }}</td>
                         <td>{{ $alat['kondisi_sebelum'] ?? '-' }}</td>
                         <td></td>
-                        <td>{{ $alat['tgl_pengembalian'] ?? '-' }}</td>
+                        <td></td>
                         <td></td>
                     </tr>
                 @endforeach
