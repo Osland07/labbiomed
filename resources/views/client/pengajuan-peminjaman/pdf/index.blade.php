@@ -204,19 +204,26 @@
     <div style="page-break-before: always;"></div>
 
     <div class="signature-2">
-        <table class="no-border" style="width: 100%; margin-top: 20px;">
-            <tr>
-                <td width="50%"><br><br>Laboran<br><br><br><br><br>{{ $laboran->name ?? 'Ading Atma Gamilang' }}<br>{{ $laboran->nim ? 'NIP: ' . $laboran->nim : 'NIP' }}</td>
-                <td width="50%">{{ $tanggalHariIni }}<br><br>Koordinator Laboratorium<br>Program Studi Teknik
-                    Biomedis<br><br><br><br>{{ $koordinator->name ?? 'Doni Bowo Nugroho, S.Pd., M.Sc' }}<br>{{ $koordinator->nim ? 'NRK. ' . $koordinator->nim : 'NRK' }}</td>
-            </tr>
-        </table>
-        <br><br>
-        <p>Menyetujui,</p>
-        <p>Koordinator Laboratorium Fakultas Teknologi Industri</p>
-        <br><br><br>
-        <p><strong>Dr. Kardo Rajagukguk, S.Pd., M.Eng.</strong><br>NIP 198909272019031014</p>
-    </div>
+    <table class="no-border" style="width: 100%; margin-top: 20px; text-align: center;">
+        <tr>
+            <td width="50%" style="text-align: center; vertical-align: top;">
+                <br><br>Laboran Teknik Biomedis<br><br><br><br><br>
+                <img src="{{ public_path('assets/ttd/ttd-laboran.png') }}" alt="Tanda Tangan Laboran" style="width: 150px; height: auto;">
+                <br>{{ $laboran->name ?? 'Ading Atma Gamilang' }}<br>{{ $laboran->nim ? 'NIP: ' . $laboran->nim : 'NIP' }}
+            </td>
+            <td width="50%" style="text-align: center; vertical-align: top;">
+                {{ $tanggalHariIni }}<br><br>Koordinator Laboratorium<br>Program Studi Teknik Biomedis<br><br><br><br>
+                <img src="{{ public_path('assets/ttd/ttd-koordinator.png') }}" alt="Tanda Tangan Koordinator" style="width: 150px; height: auto;">
+                <br>{{ $koordinator->name ?? 'Doni Bowo Nugroho, S.Pd., M.Sc' }}<br>{{ $koordinator->nim ? 'NRK. ' . $koordinator->nim : 'NRK' }}
+            </td>
+        </tr>
+    </table>
+    <br><br>
+    <p style="text-align: center;">Menyetujui,</p>
+    <p style="text-align: center;">Koordinator Laboratorium Fakultas Teknologi Industri</p>
+    <br><br><br>
+    <p style="text-align: center;"><strong>Dr. Kardo Rajagukguk, S.Pd., M.Eng.</strong><br>NIP 198909272019031014</p>
+</div>
 
 </body>
 
