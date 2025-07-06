@@ -207,12 +207,12 @@
     <table class="no-border" style="width: 100%; margin-top: 20px; text-align: center;">
         <tr>
             <td width="50%" style="text-align: center; vertical-align: top;">
-                <br><br>Laboran Teknik Biomedis<br><br><br><br><br>
+                <br><br>Laboran Teknik Biomedis<br><br>
                 <img src="{{ public_path('assets/ttd/ttd-laboran.png') }}" alt="Tanda Tangan Laboran" style="width: 150px; height: auto;">
                 <br>{{ $laboran->name ?? 'Ading Atma Gamilang' }}<br>{{ $laboran->nim ? 'NIP: ' . $laboran->nim : 'NIP' }}
             </td>
             <td width="50%" style="text-align: center; vertical-align: top;">
-                {{ $tanggalHariIni }}<br><br>Koordinator Laboratorium<br>Program Studi Teknik Biomedis<br><br><br><br>
+                {{ $tanggalHariIni }}<br><br>Koordinator Laboratorium<br>Program Studi Teknik Biomedis<br>
                 <img src="{{ public_path('assets/ttd/ttd-koordinator.png') }}" alt="Tanda Tangan Koordinator" style="width: 150px; height: auto;">
                 <br>{{ $koordinator->name ?? 'Doni Bowo Nugroho, S.Pd., M.Sc' }}<br>{{ $koordinator->nim ? 'NRK. ' . $koordinator->nim : 'NRK' }}
             </td>
