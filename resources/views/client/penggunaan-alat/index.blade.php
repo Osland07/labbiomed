@@ -60,8 +60,7 @@
                         </p>
                         <div class="mt-auto">
                             <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal"
-                                data-bs-target="#modalPenggunaan" data-basename="{{ $baseName }}">Ajukan
-                                Penggunaan</button>
+                                data-bs-target="#modalPenggunaan" data-basename="{{ $baseName }}">Gunakan Alat</button>
                             <button class="btn btn-secondary w-100 mb-2" data-bs-toggle="modal"
                                 data-bs-target="#modalDetail" data-basename="{{ $baseName }}">Detail</button>
                             <button class="btn btn-success w-100" data-bs-toggle="modal"
