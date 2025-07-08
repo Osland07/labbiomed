@@ -32,7 +32,7 @@
                 <option value="" disabled selected>Pilih Bahan</option>
                 @foreach ($bahans as $bahan)
                     <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}" data-stok="{{ $bahan->stock }}">
-                        {{ $bahan->name }} (Stok: {{ $bahan->stock }} {{ $bahan->unit }})
+                        {{ $bahan->name }} (Stok: {{ (float)$bahan->stock }} {{ $bahan->unit }})
                     </option>
                 @endforeach
             </select>
@@ -40,7 +40,7 @@
         </div>
         <div class="mb-3">
             <label class="form-label fw-semibold">Jumlah<span class="text-danger">*</span></label>
-            <input type="number" name="jumlah" class="form-control" id="jumlah_pengajuan" min="1" required placeholder="Jumlah penggunaan">
+            <input type="number" name="jumlah" class="form-control" id="jumlah_pengajuan" min="0.01" step="0.01" required placeholder="Jumlah penggunaan">
         </div>
         <div class="mb-3">
             <label class="form-label fw-semibold">Tujuan Penggunaan<span class="text-danger">*</span></label>

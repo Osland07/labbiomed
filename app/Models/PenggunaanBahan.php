@@ -13,6 +13,10 @@ class PenggunaanBahan extends Model
     protected $fillable = [
         'user_id', 'bahan_id', 'jumlah', 'tujuan', 'status', 'keterangan'
     ];
+    
+    protected $casts = [
+        'jumlah' => 'decimal:2',
+    ];
 
     public function user()
     {

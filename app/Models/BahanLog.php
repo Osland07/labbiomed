@@ -12,6 +12,10 @@ class BahanLog extends Model
     protected $fillable = [
         'bahan_id', 'user_id', 'tipe', 'jumlah', 'keterangan'
     ];
+    
+    protected $casts = [
+        'jumlah' => 'decimal:2',
+    ];
 
     public function bahan()
     {

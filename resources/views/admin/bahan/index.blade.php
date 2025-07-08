@@ -65,7 +65,7 @@
                 <select name="bahan_id" id="bahan_id_masuk" class="form-select select2" required onchange="updateSatuanMasuk(); updateStokMasuk();">
                   <option value="" data-satuan="" data-stok="">-- Pilih Bahan --</option>
                   @foreach($allBahans as $bahan)
-                    <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}" data-stok="{{ $bahan->stock }}">{{ $bahan->name }} (Stok: {{ $bahan->stock }} {{ $bahan->unit }})</option>
+                    <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}" data-stok="{{ $bahan->stock }}">{{ $bahan->name }} (Stok: {{ (float)$bahan->stock }} {{ $bahan->unit }})</option>
                   @endforeach
                 </select>
                 <div class="form-text text-primary" id="stok-masuk-info"></div>
@@ -104,7 +104,7 @@
                 <select name="bahan_id" id="bahan_id_keluar" class="form-select select2" required onchange="updateSatuanKeluar(); updateStokKeluar();">
                   <option value="" data-satuan="" data-stok="">-- Pilih Bahan --</option>
                   @foreach($allBahans as $bahan)
-                    <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}" data-stok="{{ $bahan->stock }}">{{ $bahan->name }} (Stok: {{ $bahan->stock }} {{ $bahan->unit }})</option>
+                    <option value="{{ $bahan->id }}" data-satuan="{{ $bahan->unit }}" data-stok="{{ $bahan->stock }}">{{ $bahan->name }} (Stok: {{ (float)$bahan->stock }} {{ $bahan->unit }})</option>
                   @endforeach
                 </select>
                 <div class="form-text text-primary" id="stok-keluar-info"></div>
@@ -148,8 +148,8 @@
                     <td>{{ $bahan->name ?? '-' }}</td>
                     <td>{{ $bahan->category->name ?? '-' }}</td>
                     <td>
-                        <p class="p-0 m-0">{{ $bahan->stock ?? '0' }} {{ $bahan->unit ?? '-' }}</p>
-                        <p class="text-muted small p-0 m-0">Min Stok: {{ $bahan->min_stock ?? '0' }}
+                        <p class="p-0 m-0">{{ (float)$bahan->stock ?? '0' }} {{ $bahan->unit ?? '-' }}</p>
+                        <p class="text-muted small p-0 m-0">Min Stok: {{ (float)$bahan->min_stock ?? '0' }}
                             {{ $bahan->unit ?? '-' }}</p>
                     </td>
                     <td>
@@ -214,7 +214,16 @@
                                         <span class="badge bg-danger">Keluar</span>
                                     @endif
                                 </td>
-                                <td>{{ $log->jumlah }}</td>
+                                <td>
+                                    @php
+                                        $jumlah = (float)$log->jumlah;
+                                        if ($jumlah == (int)$jumlah) {
+                                            echo (int)$jumlah;
+                                        } else {
+                                            echo number_format($jumlah, 2);
+                                        }
+                                    @endphp
+                                </td>
                                 <td>{{ $log->bahan->unit ?? '-' }}</td>
                                 <td>{{ $log->keterangan ?? '-' }}</td>
                                 <td>{{ $log->user->name ?? '-' }}</td>

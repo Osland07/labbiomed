@@ -12,6 +12,11 @@ class Bahan extends Model
     protected $table = 'bahans';
     protected $primaryKey = 'id';
     protected $fillable = ['name', 'serial_number', 'desc', 'img', 'unit', 'stock', 'min_stock', 'date_received', 'date_expired', 'location', 'category_id'];
+    
+    protected $casts = [
+        'stock' => 'decimal:2',
+        'min_stock' => 'decimal:2',
+    ];
 
     public function category()
     {

@@ -20,8 +20,8 @@ return new class extends Migration
             $table->text('desc')->nullable();
             $table->string('img')->nullable();
             $table->string('unit')->nullable();
-            $table->integer('stock')->nullable();
-            $table->integer('min_stock')->nullable();
+            $table->decimal('stock', 10, 2)->nullable();
+            $table->decimal('min_stock', 10, 2)->nullable();
             $table->date('date_received')->nullable();
             $table->date('date_expired')->nullable();
             $table->string('location')->nullable();

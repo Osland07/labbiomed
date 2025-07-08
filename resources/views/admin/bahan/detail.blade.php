@@ -58,11 +58,11 @@
                                 <table class="table table-sm table-borderless mb-0">
                                     <tr>
                                         <td width="35%"><strong>Stok Saat Ini</strong></td>
-                                        <td>: {{ $bahan->stock }} {{ $bahan->unit }}</td>
+                                        <td>: {{ (float)$bahan->stock }} {{ $bahan->unit }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Stok Minimal</strong></td>
-                                        <td>: {{ $bahan->min_stock }} {{ $bahan->unit }}</td>
+                                        <td>: {{ (float)$bahan->min_stock }} {{ $bahan->unit }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Status Stok</strong></td>

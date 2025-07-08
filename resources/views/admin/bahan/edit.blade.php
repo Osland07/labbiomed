@@ -84,8 +84,8 @@
 
                     <div class="mb-3 col-md-4">
                         <label class="form-label">{{ __('Stok') }}<span class="text-danger">*</span></label>
-                        <input type="number" name="stock" min="0"
-                            class="form-control @error('stock') is-invalid @enderror" placeholder="100"
+                        <input type="number" name="stock" min="0.01" step="0.01"
+                            class="form-control @error('stock') is-invalid @enderror" placeholder="100.00"
                             value="{{ old('stock', $bahan->stock) }}" required>
                         @error('stock')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -94,8 +94,8 @@
 
                     <div class="mb-3 col-md-4">
                         <label class="form-label">{{ __('Stok Minimal') }}<span class="text-danger">*</span></label>
-                        <input type="number" name="min_stock" min="0"
-                            class="form-control @error('min_stock') is-invalid @enderror" placeholder="10"
+                        <input type="number" name="min_stock" min="0.01" step="0.01"
+                            class="form-control @error('min_stock') is-invalid @enderror" placeholder="10.00"
                             value="{{ old('min_stock', $bahan->min_stock) }}" required>
                         @error('min_stock')
                             <div class="invalid-feedback">{{ $message }}</div>

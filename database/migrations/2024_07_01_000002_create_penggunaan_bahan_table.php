@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('bahan_id')->constrained('bahans')->onDelete('cascade');
-            $table->integer('jumlah');
+            $table->decimal('jumlah', 10, 2);
             $table->string('tujuan')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('keterangan')->nullable();

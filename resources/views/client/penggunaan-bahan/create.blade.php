@@ -13,7 +13,7 @@
                                 <option value="">-- Pilih Bahan --</option>
                                 @foreach($bahans as $bahan)
                                     <option value="{{ $bahan->id }}" {{ old('bahan_id') == $bahan->id ? 'selected' : '' }}>
-                                        {{ $bahan->name }} (Stok: {{ $bahan->stock }} {{ $bahan->unit }})
+                                        {{ $bahan->name }} (Stok: {{ (float)$bahan->stock }} {{ $bahan->unit }})
                                     </option>
                                 @endforeach
                             </select>
@@ -23,7 +23,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="jumlah" class="form-label">Jumlah<span class="text-danger">*</span></label>
-                            <input type="number" name="jumlah" id="jumlah" class="form-control @error('jumlah') is-invalid @enderror" min="1" value="{{ old('jumlah') }}" required>
+                            <input type="number" name="jumlah" id="jumlah" class="form-control @error('jumlah') is-invalid @enderror" min="0.01" step="0.01" value="{{ old('jumlah') }}" required>
                             @error('jumlah')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
