@@ -163,7 +163,7 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <x-sidebar-link route="admin.laporan.peminjaman" label="Laporan Peminjaman"
+                            <x-sidebar-link route="admin.laporan.peminjaman" label="Laporan Pengajuan"
                                 can="peminjaman-laporan" />
                             <x-sidebar-link route="admin.laporan.penggunaan" label="Laporan Penggunaan"
                                 can="penggunaan-laporan" />
