@@ -137,7 +137,7 @@
                         @else
                             @can('penggunaan-transaksi')
                                 <button role="button" class="btn btn-xs m-1 btn-primary"
-                                    onclick="openValidasiModal('{{ $laporan->user_id }}', '{{ $laporan->waktu_mulai }}', '{{ $laporan->waktu_selesai }}', '{{ $laporan->tujuan_penggunaan }}', `{{ implode(', ', array_keys($groupedItems)) }}`)">
+                                    onclick="openValidasiModal('{{ $user->name }}', '{{ $laporan->waktu_mulai }}', '{{ $laporan->waktu_selesai }}', '{{ $laporan->tujuan_penggunaan }}', `{{ implode(', ', array_keys($groupedItems)) }}`)">
                                     <i class="fas fa-check"></i> Validasi {{ $laporan->total_items }} Item
                                 </button>
                             @endcan
