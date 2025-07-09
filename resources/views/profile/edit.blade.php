@@ -108,30 +108,10 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label">{{ __('Password Lama') }}</label>
-                                    <input type="password" class="form-control @error('current_password') is-invalid @enderror"
-                                        placeholder="Password lama" name="current_password" id="current_password">
-                                    @error('current_password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">{{ __('Password Baru') }}</label>
+                                    <label class="form-label">{{ __('Password (Opsional) ') }}</label>
                                     <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        placeholder="Password baru" name="password" id="password">
+                                        placeholder="password" name="password" id="password">
                                     @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">{{ __('Konfirmasi Password Baru') }}</label>
-                                    <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                                        placeholder="Konfirmasi password baru" name="password_confirmation" id="password_confirmation">
-                                    @error('password_confirmation')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>

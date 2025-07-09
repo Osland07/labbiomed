@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -17,31 +16,18 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        $rules = [
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'img' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'no_hp' => ['nullable', 'string', 'max:255'],
             'nim' => ['nullable', 'string', 'max:20'],
             'prodi' => ['nullable', 'string', 'max:255'],
             'angkatan' => ['nullable', 'string', 'max:4'],
-        ];
-        // Jika ingin ganti password, validasi tambahan
-        if ($request->filled('password')) {
-            $rules['current_password'] = ['required'];
-            $rules['password'] = ['required', 'string', 'min:8', 'confirmed'];
-        }
-        $request->validate($rules);
+        ]);
 
         $user = $request->user();
-
-        // Jika ingin ganti password, cek current_password
-        if ($request->filled('password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
-                return back()->withErrors(['current_password' => 'Password lama salah.'])->withInput();
-            }
-            $user->password = bcrypt($request->password);
-        }
 
         $user->name = $request->name;
         $user->email = $request->email;
@@ -49,6 +35,11 @@ class ProfileController extends Controller
         $user->nim = $request->nim;
         $user->prodi = $request->prodi;
         $user->angkatan = $request->angkatan;
+
+        // Update password hanya jika diisi
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
 
         // img
         if ($request->hasFile('img')) {
