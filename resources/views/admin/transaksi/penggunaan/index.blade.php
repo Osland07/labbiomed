@@ -137,7 +137,7 @@
                         @else
                             @can('penggunaan-transaksi')
                                 <button role="button" class="btn btn-xs m-1 btn-primary"
-                                    onclick="openValidasiModal('{{ $user->name }}', '{{ $laporan->waktu_mulai }}', '{{ $laporan->waktu_selesai }}', '{{ $laporan->tujuan_penggunaan }}', `{{ implode(', ', array_keys($groupedItems)) }}`)">
+                                    onclick="openValidasiModal('{{ $user->id }}', '{{ $user->name }}', '{{ $laporan->waktu_mulai }}', '{{ $laporan->waktu_selesai }}', '{{ $laporan->tujuan_penggunaan }}', `{{ implode(', ', array_keys($groupedItems)) }}`)">
                                     <i class="fas fa-check"></i> Validasi {{ $laporan->total_items }} Item
                                 </button>
                             @endcan
@@ -230,7 +230,7 @@
 
     <script>
         // Saat tombol validasi diklik, set data ke modal dan ringkasan
-        function openValidasiModal(userId, waktuMulai, waktuSelesai, tujuanPenggunaan, items) {
+        function openValidasiModal(userId, userName, waktuMulai, waktuSelesai, tujuanPenggunaan, items) {
             document.getElementById('user_id_modal').value = userId;
             document.getElementById('waktu_mulai_modal').value = waktuMulai;
             document.getElementById('waktu_selesai_modal').value = waktuSelesai;
@@ -245,7 +245,7 @@
                 if (isNaN(d)) return waktu;
                 return `${d.getDate().toString().padStart(2,'0')} ${bulan[d.getMonth()]} ${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
             }
-            document.getElementById('ringkasan_user_penggunaan').textContent = userId;
+            document.getElementById('ringkasan_user_penggunaan').textContent = userName;
             document.getElementById('ringkasan_waktu_penggunaan').innerHTML = `<span class='me-2'><strong>Waktu Mulai:</strong> ${formatWaktu(waktuMulai)}</span><br><span><strong>Waktu Selesai:</strong> ${formatWaktu(waktuSelesai)}</span>`;
             document.getElementById('ringkasan_tujuan_penggunaan').textContent = tujuanPenggunaan;
             document.getElementById('ringkasan_item_penggunaan').textContent = items || '-';
