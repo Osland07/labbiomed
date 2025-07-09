@@ -187,10 +187,10 @@
                             <div class="w-100">
                                 <div class="row">
                                     <div class="col-md-6 mb-2">
-                                        <strong>User:</strong> <span id="ringkasan_user_penggunaan">-</span>
+                                        <strong>Pengguna:</strong> <span id="ringkasan_user_penggunaan">-</span>
                                     </div>
                                     <div class="col-md-6 mb-2">
-                                        <strong>Waktu:</strong> <span id="ringkasan_waktu_penggunaan">-</span>
+                                        <strong></strong> <span id="ringkasan_waktu_penggunaan">-</span>
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <strong>Tujuan:</strong> <span id="ringkasan_tujuan_penggunaan">-</span>
@@ -246,7 +246,7 @@
                 return `${d.getDate().toString().padStart(2,'0')} ${bulan[d.getMonth()]} ${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
             }
             document.getElementById('ringkasan_user_penggunaan').textContent = userId;
-            document.getElementById('ringkasan_waktu_penggunaan').innerHTML = `<span class='me-2'><strong>Mulai:</strong> ${formatWaktu(waktuMulai)}</span><br><span><strong>Selesai:</strong> ${formatWaktu(waktuSelesai)}</span>`;
+            document.getElementById('ringkasan_waktu_penggunaan').innerHTML = `<span class='me-2'><strong>Waktu Mulai:</strong> ${formatWaktu(waktuMulai)}</span><br><span><strong>Waktu Selesai:</strong> ${formatWaktu(waktuSelesai)}</span>`;
             document.getElementById('ringkasan_tujuan_penggunaan').textContent = tujuanPenggunaan;
             document.getElementById('ringkasan_item_penggunaan').textContent = items || '-';
             document.getElementById('previewGambarSebelum').innerHTML = '';
