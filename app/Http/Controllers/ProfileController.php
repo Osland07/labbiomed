@@ -20,7 +20,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'img' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password' => ['nullable', 'string', 'min:8'], // tanpa 'confirmed'
             'no_hp' => ['nullable', 'string', 'max:255'],
             'nim' => ['nullable', 'string', 'max:20'],
             'prodi' => ['nullable', 'string', 'max:255'],
