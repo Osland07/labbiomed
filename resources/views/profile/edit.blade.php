@@ -107,10 +107,15 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="mb-3 position-relative">
                                     <label class="form-label">{{ __('Password (Opsional) ') }}</label>
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                        placeholder="password" name="password" id="password">
+                                    <div class="input-group">
+                                        <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                            placeholder="password" name="password" id="password">
+                                        <button type="button" class="btn btn-outline-secondary" id="togglePassword" tabindex="-1">
+                                            <i class="fa fa-eye" id="togglePasswordIcon"></i>
+                                        </button>
+                                    </div>
                                     @error('password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -130,3 +135,18 @@
     </div>
 
 </x-admin-layout>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    const toggleIcon = document.getElementById('togglePasswordIcon');
+    if (toggleBtn && passwordInput && toggleIcon) {
+        toggleBtn.addEventListener('click', function () {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            toggleIcon.classList.toggle('fa-eye');
+            toggleIcon.classList.toggle('fa-eye-slash');
+        });
+    }
+});
+</script>
