@@ -191,7 +191,7 @@
                     <td>{{ $laporan->waktu_mulai ?? '-' }}</td>
                     <td>{{ $laporan->waktu_selesai ?? '-' }}</td>
                     <td>{{ $laporan->durasi_penggunaan ?? '-' }}</td>
-                    <td>{{ $laporan->tgl_pengembalian ?? '-' }}</td>
+                    <td>{{ $laporan->tgl_pengembalian ?? 'Sedang Digunakan' }}</td>
                     <td>
                         @if ($laporan->status_peminjaman == 'Diterima')
                             <span class="badge bg-success">{{ $laporan->status_peminjaman ?? '-' }}</span>
