@@ -16,8 +16,8 @@ class TransaksiDummySeeder extends Seeder
 {
     public function run(): void
     {
-        $start = Carbon::now()->subDays(5);
-        $end = Carbon::now()->addDays(5);
+        $start = Carbon::now()->subDays(10);
+        $end = Carbon::now()->addDays(10);
         $dates = [];
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
             if ($date->isWeekday()) {
@@ -32,7 +32,7 @@ class TransaksiDummySeeder extends Seeder
         $ruangans = Ruangan::all();
 
         // Hitung jumlah data per hari per fitur
-        $dataPerHari = 10; // jumlah data per hari per fitur
+        $dataPerHari = 30; // jumlah data per hari per fitur
 
         foreach ($dates as $date) {
             // --- Peminjaman ---
