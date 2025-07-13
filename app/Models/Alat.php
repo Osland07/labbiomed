@@ -11,7 +11,7 @@ class Alat extends Model
 
     protected $table = 'alats';
     protected $primaryKey = 'id';
-    protected $fillable = ['name', 'serial_number', 'auto_validate', 'desc', 'img', 'condition', 'status', 'location', 'detail_location', 'category_id'];
+    protected $fillable = ['name', 'serial_number', 'auto_validate', 'desc', 'img', 'condition', 'status', 'location', 'detail_location', 'date_received', 'source', 'category_id'];
 
     protected $casts = [
         'auto_validate' => 'boolean',

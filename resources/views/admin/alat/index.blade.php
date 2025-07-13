@@ -77,7 +77,7 @@
                                 <span class="badge bg-warning">{{ $alat->condition }}</span>
                             @endif
                         </td>
-                        <td>{{ $alat->date_received ?? '-' }}</td>
+                        <td>{{ $alat->date_received ? \Carbon\Carbon::parse($alat->date_received)->format('d/m/Y') : '-' }}</td>
                         <td>{{ $alat->source ?? '-' }}</td>
                         <td>
                             @if ($alat->status == 'Tersedia')
@@ -137,7 +137,7 @@
                         <td>{{ $loop->iteration + ($alat_groups->currentPage() - 1) * $alat_groups->perPage() }}</td>
                         <td>{{ $key }}</td>
                         <td>{{ $group->first()->category->name ?? '-' }}</td>
-                        <td>{{ $group->first()->date_received ?? '-' }}</td>
+                        <td>{{ $group->first()->date_received ? \Carbon\Carbon::parse($group->first()->date_received)->format('d/m/Y') : '-' }}</td>
                         <td>{{ $group->first()->source ?? '-' }}</td>
                         <td>{{ $group->first()->ruangan->name ?? '-' }}</td>
                         <td>{{ $group->count() }}</td>
