@@ -32,7 +32,7 @@ class TransaksiDummySeeder extends Seeder
         $ruangans = Ruangan::all();
 
         // Hitung jumlah data per hari per fitur
-        $dataPerHari = 30; // jumlah data per hari per fitur
+        $dataPerHari = 3; // jumlah data per hari per fitur
 
         foreach ($dates as $date) {
             // --- Peminjaman ---
