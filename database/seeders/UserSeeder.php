@@ -120,8 +120,8 @@ class UserSeeder extends Seeder
 
         // Doni Bowo Nugroho sebagai Koordinator Laboratorium
         $doni = User::create([
-            'name'     => ucwords(strtolower('Doni Bowo Nugroho, S.Pd., M.Sc.')),
-            'email'    => 'donibowo@itera.ac.id',
+            'name'     => ucwords(strtolower('Koordinator Laboratorium, S.Pd., M.Sc.')),
+            'email'    => 'koorlab@koorlab.com',
             'status'   => 'aktif',
             'no_hp'    => '08123456789',
             'nim'      => '1992092420211411',
@@ -131,8 +131,8 @@ class UserSeeder extends Seeder
 
         // Laboran: Ading Atma Gamilang
         $laboran = User::create([
-            'name'     => ucwords(strtolower('Ading Atma Gamilang')),
-            'email'    => 'adingatma@itera.ac.id',
+            'name'     => ucwords(strtolower('Laboran Uhuy')),
+            'email'    => 'laboran@laboran.com',
             'status'   => 'aktif',
             'no_hp'    => '08123456789',
             'nim'      => '1990010119900101',
