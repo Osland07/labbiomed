@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call(BahanSeeder::class);
         $this->call(RuanganSeeder::class);
         $this->call(AutoValidateSeeder::class);
-        $this->call(TransaksiDummySeeder::class);
+        //$this->call(TransaksiDummySeeder::class);
         //$this->call(LaporanPeminjamanSeeder::class);
         //$this->call(LaporanSeeder::class);
     }
