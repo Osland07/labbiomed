@@ -37,8 +37,13 @@
                 <tr>
                     <td>{{ $laporans->firstItem() + $loop->index }}</td>
                     <td>
-                        <strong>{{ $laporan->user->name ?? '-' }}</strong><br>
-                        <small class="text-muted">{{ $laporan->user->email ?? '-' }}</small>
+                        <span>{{ $laporan->user->name ?? '-' }}</span>
+                        <br> {{ $laporan->user->nim ?? '-' }}<br>
+                        <a href="https://wa.me/+62{{ $laporan->user->no_hp ?? '-' }}">
+                            {{ $laporan->user->no_hp ?? '-' }}
+                            <i class="fa fa-whatsapp text-success"></i></a><br> <a
+                            href="mailto:{{ $laporan->user->email ?? '-' }}">{{ $laporan->user->email ?? '-' }} <i
+                                class="fa fa-envelope text-primary"></i></a>
                     </td>
                     <td>{{ $laporan->judul_penelitian ?? '-' }}</td>
                     <td>{{ $laporan->tujuan_peminjaman ?? '-' }}</td>
