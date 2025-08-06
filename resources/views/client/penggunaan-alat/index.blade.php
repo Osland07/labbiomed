@@ -27,8 +27,6 @@
     <!-- Header dengan tombol penggunaan aktif -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="mb-1">Penggunaan Alat</h4>
-            <p class="text-muted mb-0">Kelola penggunaan alat laboratorium</p>
         </div>
         <button class="btn btn-primary btn-solid-primary position-relative" data-bs-toggle="modal" data-bs-target="#modalPenggunaanAktif" style="padding: 10px 20px; border-radius: 8px; font-weight: 500; transition: all 0.3s ease;">
             <i class="bi bi-clock-history me-2"></i>Lihat Penggunaan Aktif
