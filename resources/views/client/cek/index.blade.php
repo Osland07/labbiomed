@@ -398,7 +398,11 @@
                                 <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#modalDetailRuangan-{{ $ruangan->id }}">Lihat</a>
 
+<<<<<<< HEAD
                                     {{-- Modal --}}
+=======
+                                {{-- Modal --}}
+>>>>>>> ba1dda8b55349036508095fa9b94fad972557b98
                                 <div class="modal fade" id="modalDetailRuangan-{{ $ruangan->id }}" tabindex="-1"
                                     role="dialog" aria-labelledby="modalLabelRuangan-{{ $ruangan->id }}"
                                     aria-hidden="true">
