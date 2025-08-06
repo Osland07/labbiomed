@@ -92,16 +92,21 @@
                             <textarea name="tujuan_penggunaan" id="tujuanPenggunaanInput" class="form-control" required
                                 placeholder="Jelaskan tujuan penggunaan alat ini..."></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Penggunaan<span class="text-danger">*</span></label>
+                            <input type="text" name="tanggal_penggunaan" id="tanggalPenggunaanInput" class="form-control"
+                                required placeholder="Pilih tanggal">
+                        </div>
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label">Tanggal Mulai<span class="text-danger">*</span></label>
-                                <input type="text" name="waktu_mulai" id="waktuMulaiInput" class="form-control"
-                                    required placeholder="Pilih tanggal">
+                                <label class="form-label">Waktu Mulai<span class="text-danger">*</span></label>
+                                <input type="time" name="waktu_mulai" id="waktuMulaiInput" class="form-control"
+                                    required min="08:00" max="17:00">
                             </div>
                             <div class="col-6">
-                                <label class="form-label">Tanggal Selesai<span class="text-danger">*</span></label>
-                                <input type="text" name="waktu_selesai" id="waktuSelesaiInput" class="form-control"
-                                    required placeholder="Pilih tanggal">
+                                <label class="form-label">Waktu Selesai<span class="text-danger">*</span></label>
+                                <input type="time" name="waktu_selesai" id="waktuSelesaiInput" class="form-control"
+                                    required min="08:00" max="17:00">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -175,22 +180,26 @@
         let modalAlatIds = [];
 
         document.addEventListener('DOMContentLoaded', function() {
-            // === Flatpickr Init ===
-            flatpickr('#waktuMulaiInput', {
-                enableTime: true,
-                dateFormat: 'Y-m-d H:i',
-                time_24hr: true,
-                minDate: 'today',
-                onChange: function(selectedDates, dateStr) {
-                    document.getElementById('waktuSelesaiInput')._flatpickr.set('minDate', dateStr);
-                }
-            });
+            // === Flatpickr Init untuk Tanggal ===
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 7); // Maksimal 1 minggu ke depan
 
-            flatpickr('#waktuSelesaiInput', {
-                enableTime: true,
-                dateFormat: 'Y-m-d H:i',
-                time_24hr: true,
+            flatpickr('#tanggalPenggunaanInput', {
+                dateFormat: 'Y-m-d',
                 minDate: 'today',
+                maxDate: maxDate,
+                locale: {
+                    firstDayOfWeek: 1, // Senin sebagai hari pertama
+                    weekdays: {
+                        shorthand: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
+                        longhand: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+                    },
+                    months: {
+                        shorthand: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+                        longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                    }
+                }
             });
 
             // === Modal Penggunaan - Saat dibuka ===
@@ -208,6 +217,7 @@
                 document.getElementById('qtyInput').setAttribute('max', modalMaxQty);
                 document.getElementById('maxQtyText').textContent = modalMaxQty;
                 document.getElementById('tujuanPenggunaanInput').value = '';
+                document.getElementById('tanggalPenggunaanInput').value = '';
                 document.getElementById('waktuMulaiInput').value = '';
                 document.getElementById('waktuSelesaiInput').value = '';
                 document.getElementById('errorMessage').style.display = 'none';
@@ -226,6 +236,7 @@
             // === Handle Submit Form Penggunaan
             document.getElementById('formPenggunaanAlat').addEventListener('submit', function(e) {
                 const tujuan = document.getElementById('tujuanPenggunaanInput').value.trim();
+                const tanggal = document.getElementById('tanggalPenggunaanInput').value;
                 const mulai = document.getElementById('waktuMulaiInput').value;
                 const selesai = document.getElementById('waktuSelesaiInput').value;
                 const qty = parseInt(document.getElementById('qtyInput').value);
@@ -236,7 +247,7 @@
                 errorDiv.textContent = '';
                 errorDiv.style.display = 'none';
 
-                if (!tujuan || !mulai || !selesai || !qty) {
+                if (!tujuan || !tanggal || !mulai || !selesai || !qty) {
                     errorDiv.textContent = 'Semua field wajib diisi.';
                     errorDiv.style.display = 'block';
                     e.preventDefault();
@@ -250,8 +261,16 @@
                     return;
                 }
 
-                if (selesai < mulai) {
-                    errorDiv.textContent = 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.';
+                // Validasi waktu (08:00 - 17:00)
+                if (mulai < '08:00' || mulai > '17:00' || selesai < '08:00' || selesai > '17:00') {
+                    errorDiv.textContent = 'Waktu penggunaan harus antara 08:00 - 17:00.';
+                    errorDiv.style.display = 'block';
+                    e.preventDefault();
+                    return;
+                }
+
+                if (selesai <= mulai) {
+                    errorDiv.textContent = 'Waktu selesai harus lebih besar dari waktu mulai.';
                     errorDiv.style.display = 'block';
                     e.preventDefault();
                     return;
@@ -266,6 +285,19 @@
                     input.value = id;
                     alatIdContainer.appendChild(input);
                 });
+
+                // === Set hidden input untuk datetime gabungan (kompatibilitas backend) ===
+                const waktuMulaiGabungan = document.createElement('input');
+                waktuMulaiGabungan.type = 'hidden';
+                waktuMulaiGabungan.name = 'waktu_mulai_datetime';
+                waktuMulaiGabungan.value = tanggal + ' ' + mulai;
+                alatIdContainer.appendChild(waktuMulaiGabungan);
+
+                const waktuSelesaiGabungan = document.createElement('input');
+                waktuSelesaiGabungan.type = 'hidden';
+                waktuSelesaiGabungan.name = 'waktu_selesai_datetime';
+                waktuSelesaiGabungan.value = tanggal + ' ' + selesai;
+                alatIdContainer.appendChild(waktuSelesaiGabungan);
             });
 
             // === Modal Detail

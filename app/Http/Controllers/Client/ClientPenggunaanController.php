@@ -52,6 +52,30 @@ class ClientPenggunaanController extends Controller
 
     public function storeAlat(LaporanRequest $request)
     {
+        // Validasi tambahan untuk waktu
+        $request->validate([
+            'tanggal_penggunaan' => 'required|date|after_or_equal:today|before_or_equal:' . now()->addWeek()->toDateString(),
+            'waktu_mulai' => 'required|date_format:H:i',
+            'waktu_selesai' => 'required|date_format:H:i|after:waktu_mulai',
+        ], [
+            'tanggal_penggunaan.required' => 'Tanggal penggunaan wajib diisi.',
+            'tanggal_penggunaan.after_or_equal' => 'Tanggal penggunaan tidak boleh kurang dari hari ini.',
+            'tanggal_penggunaan.before_or_equal' => 'Tanggal penggunaan tidak boleh lebih dari 1 minggu ke depan.',
+            'waktu_selesai.after' => 'Waktu selesai harus lebih besar dari waktu mulai.',
+        ]);
+
+        // Validasi waktu operasional (08:00 - 17:00)
+        $waktuMulai = $request->input('waktu_mulai');
+        $waktuSelesai = $request->input('waktu_selesai');
+        
+        if ($waktuMulai < '08:00' || $waktuMulai > '17:00') {
+            return redirect()->back()->withErrors(['waktu_mulai' => 'Waktu mulai harus antara 08:00 - 17:00.'])->withInput();
+        }
+        
+        if ($waktuSelesai < '08:00' || $waktuSelesai > '17:00') {
+            return redirect()->back()->withErrors(['waktu_selesai' => 'Waktu selesai harus antara 08:00 - 17:00.'])->withInput();
+        }
+
         $alatIds = $request->input('alat_id');
 
         // Pastikan ini adalah array
@@ -68,8 +92,14 @@ class ClientPenggunaanController extends Controller
 
         $laporans = [];
         $userId = Auth::id();
-        $waktuMulai = Carbon::parse($request->input('waktu_mulai'));
-        $waktuSelesai = Carbon::parse($request->input('waktu_selesai'));
+        
+        // Gabungkan tanggal dengan waktu
+        $tanggal = $request->input('tanggal_penggunaan');
+        $waktuMulaiStr = $request->input('waktu_mulai');
+        $waktuSelesaiStr = $request->input('waktu_selesai');
+        
+        $waktuMulai = Carbon::parse($tanggal . ' ' . $waktuMulaiStr);
+        $waktuSelesai = Carbon::parse($tanggal . ' ' . $waktuSelesaiStr);
         $tujuan = $request->input('tujuan_penggunaan');
 
         foreach ($alatIds as $alatId) {
