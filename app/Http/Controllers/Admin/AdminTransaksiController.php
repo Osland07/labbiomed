@@ -340,12 +340,18 @@ class AdminTransaksiController extends Controller
 
         $validPerPage = in_array($perPage, [10, 50, 100]) ? $perPage : 10;
 
-        $query = Laporan::where('status_peminjaman', 'Diterima')->where('status_pengembalian', 'Belum Dikembalikan');
+        // Tampilkan alat yang belum dikembalikan dan yang sudah dikembalikan user (butuh validasi)
+        $query = Laporan::where('status_peminjaman', 'Diterima')
+            ->where('status_pengembalian', 'Belum Dikembalikan');
 
-        $query->orderByRaw("CASE WHEN status_pengembalian = 'Belum Dikembalikan' THEN 0 ELSE 1 END");
+        // Urutkan: yang butuh validasi (sudah dikembalikan user) di atas
+        $query->orderByRaw("CASE WHEN tgl_pengembalian IS NOT NULL THEN 0 ELSE 1 END")
+              ->orderBy('updated_at', 'desc');
 
         if ($search) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
         }
 
         $laporans = $query->paginate($validPerPage);

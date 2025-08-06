@@ -22,8 +22,21 @@ class ClientPenggunaanController extends Controller
 
     public function indexAlat()
     {
-        $today = Carbon::today();
+        // Ambil laporan alat aktif user (status Diterima, Belum Dikembalikan)
+        // Exclude yang sudah dikembalikan user (meskipun belum divalidasi admin)
+        $laporanAlatAktif = \App\Models\Laporan::where('user_id', Auth::id())
+            ->whereNotNull('alat_id')
+            ->where('status_peminjaman', 'Diterima')
+            ->where(function($query) {
+                $query->where('status_pengembalian', 'Belum Dikembalikan')
+                      ->orWhereNull('status_pengembalian');
+            })
+            ->whereNull('tgl_pengembalian') // Hanya yang belum dikembalikan user
+            ->with(['alat', 'alat.ruangan'])
+            ->get();
 
+        // Ambil semua alat yang tersedia untuk user (berdasarkan laporan yang sudah selesai)
+        $today = Carbon::today();
         $allSelesai = LaporanPeminjaman::where('user_id', Auth::user()->id)
             ->where('status_validasi', LaporanPeminjaman::STATUS_SELESAI)
             ->whereNotNull('surat')
@@ -38,14 +51,6 @@ class ClientPenggunaanController extends Controller
             ->toArray();
 
         $alats = Alat::with('ruangan')->whereIn('id', $alatIds)->get();
-
-        // Ambil laporan alat aktif user (status Diterima, Belum Dikembalikan)
-        $laporanAlatAktif = \App\Models\Laporan::where('user_id', Auth::id())
-            ->whereNotNull('alat_id')
-            ->where('status_peminjaman', 'Diterima')
-            ->where('status_pengembalian', 'Belum Dikembalikan')
-            ->with(['alat', 'alat.ruangan'])
-            ->get();
 
         return view("client.penggunaan-alat.index", compact('alats', 'laporanAlatAktif'));
     }
@@ -231,7 +236,10 @@ class ClientPenggunaanController extends Controller
         $laporan = Laporan::where('user_id', $userId)
             ->where('alat_id', $alatId)
             ->where('status_peminjaman', 'Diterima')
-            ->where('status_pengembalian', 'Belum Dikembalikan')
+            ->where(function($query) {
+                $query->where('status_pengembalian', 'Belum Dikembalikan')
+                      ->orWhereNull('status_pengembalian');
+            })
             ->latest()
             ->first();
 
@@ -239,16 +247,19 @@ class ClientPenggunaanController extends Controller
             return response()->json(['success' => false, 'message' => 'Laporan penggunaan tidak ditemukan atau sudah dikembalikan.']);
         }
 
+        // Update status pengembalian - masih perlu validasi admin
         $laporan->tgl_pengembalian = now();
+        $laporan->status_pengembalian = 'Belum Dikembalikan'; // Tetap 'Belum Dikembalikan' agar admin bisa validasi
         $laporan->save();
 
-        $alat = Alat::find($alatId);
-        if ($alat) {
-            $alat->status = 'Tersedia';
-            $alat->save();
-        }
+        // Status alat belum diubah - tunggu validasi admin
+        // $alat = Alat::find($alatId);
+        // if ($alat) {
+        //     $alat->status = 'Tersedia';
+        //     $alat->save();
+        // }
 
-        return response()->json(['success' => true, 'message' => 'Alat berhasil dikembalikan.']);
+        return response()->json(['success' => true, 'message' => 'Alat berhasil dikembalikan dan menunggu validasi admin.']);
     }
 
     public function ajaxJadwalBookingRuangan($ruanganId)

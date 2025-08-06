@@ -23,6 +23,7 @@
                 <th>{{ __('Durasi Penggunaan') }}</th>
                 <th>{{ __('Waktu Pengembalian') }}</th>
                 <th>{{ __('Status Penggunaan') }}</th>
+                <th>{{ __('Status Pengembalian') }}</th>
                 <th>{{ __('Kondisi Setelah Penggunaan') }}</th>
                 <th>{{ __('Catatan') }}</th>
             </tr>
@@ -54,6 +55,17 @@
                         @endif
                     </td>
                     <td>
+                        @if ($laporan->status_pengembalian == 'Belum Dikembalikan')
+                            <span class="badge badge-warning">Belum Dikembalikan</span>
+                        @elseif ($laporan->status_pengembalian == 'Sudah Dikembalikan')
+                            <span class="badge badge-success">Sudah Dikembalikan</span>
+                        @elseif ($laporan->tgl_pengembalian && $laporan->status_pengembalian == 'Belum Dikembalikan')
+                            <span class="badge badge-info">Menunggu Validasi</span>
+                        @else
+                            <span class="badge badge-secondary">-</span>
+                        @endif
+                    </td>
+                    <td>
                         @if ($laporan->kondisi_setelah == 'Baik')
                             <span class="badge bg-success">{{ $laporan->kondisi_setelah ?? '-' }}</span>
                         @elseif($laporan->kondisi_setelah == 'Rusak')
@@ -66,7 +78,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="11" class="text-center">Data tidak ditemukan</td>
+                    <td colspan="12" class="text-center">Data tidak ditemukan</td>
                 </tr>
             @endforelse
         </tbody>

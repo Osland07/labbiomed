@@ -7,6 +7,23 @@
 
     @include('components.alert')
 
+    <!-- Info Status -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <div>
+                    <strong>Informasi Status Pengembalian:</strong>
+                    <ul class="mb-0 mt-1">
+                        <li><span class="badge badge-info"><i class="fas fa-clock me-1"></i>Butuh Validasi</span> - Alat sudah dikembalikan user, menunggu validasi kondisi</li>
+                        <li><span class="badge badge-warning">Belum Dikembalikan</span> - Alat masih digunakan user</li>
+                        <li><span class="badge badge-success">Sudah Dikembalikan</span> - Alat sudah divalidasi admin</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Search & Pagination -->
     <x-slot name="search">
         @include('components.search')
@@ -31,7 +48,7 @@
         </thead>
         <tbody>
             @forelse ($laporans as $laporan)
-                <tr>
+                <tr class="@if($laporan->tgl_pengembalian && $laporan->status_pengembalian == 'Belum Dikembalikan') table-info @endif">
                     <td>{{ $laporans->firstItem() + $loop->index }}</td>
                     <td class="text-center" style="max-width: 220px; word-wrap: break-word; white-space: normal;">
                         <span>{{ $laporan->user->name ?? '-' }}</span>
@@ -49,10 +66,14 @@
                     <td>{{ $laporan->waktu_selesai ?? '-' }}</td>
                     <td>{{ $laporan->tgl_pengembalian ?? '-' }}</td>
                     <td>
-                        @if ($laporan->status_pengembalian == 'Belum Dikembalikan')
-                            <span class="badge badge-warning">Belum Dikembalikan</span>
-                        @elseif ($laporan->status_pengembalian == 'Sudah Dikembalikan')
+                        @if ($laporan->status_pengembalian == 'Sudah Dikembalikan')
                             <span class="badge badge-success">Sudah Dikembalikan</span>
+                        @elseif ($laporan->tgl_pengembalian && $laporan->status_pengembalian == 'Belum Dikembalikan')
+                            <span class="badge badge-info">
+                                <i class="fas fa-clock me-1"></i>Butuh Validasi
+                            </span>
+                        @elseif ($laporan->status_pengembalian == 'Belum Dikembalikan')
+                            <span class="badge badge-warning">Belum Dikembalikan</span>
                         @endif
                     </td>
                     <td>
@@ -68,13 +89,15 @@
                     <td class="manage-row text-center">
                         @if ($laporan->status_pengembalian == 'Sudah Dikembalikan')
                             <span class="badge badge-success">Selesai</span>
-                        @elseif($laporan->status_pengembalian == 'Belum Dikembalikan')
+                        @elseif($laporan->tgl_pengembalian && $laporan->status_pengembalian == 'Belum Dikembalikan')
                             @can('pengembalian-transaksi')
                                 <button role="button" class="btn btn-xs m-1 btn-primary"
                                     onclick="openPengembalianModal({{ $laporan->id }}, '{{ $laporan->alat->name ?? ($laporan->bahan->name ?? ($laporan->ruangan->name ?? '-')) }}', '{{ $laporan->alat->serial_number ?? ($laporan->bahan->serial_number ?? ($laporan->ruangan->serial_number ?? '-')) }}', '{{ $laporan->user->name ?? '-' }}', '{{ $laporan->waktu_selesai ?? '-' }}')">
                                     <i class="fas fa-check"></i> Validasi
                                 </button>
                             @endcan
+                        @elseif($laporan->status_pengembalian == 'Belum Dikembalikan')
+                            <span class="badge badge-secondary">Belum Dikembalikan</span>
                         @endif
                     </td>
                 </tr>

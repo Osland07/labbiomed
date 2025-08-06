@@ -7,6 +7,17 @@
 
     @include('components.alert')
 
+    <!-- Header dengan tombol penggunaan aktif -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="mb-1">Penggunaan Alat</h4>
+            <p class="text-muted mb-0">Kelola penggunaan alat laboratorium</p>
+        </div>
+        <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalPenggunaanAktif">
+            <i class="bi bi-list-check me-2"></i>Lihat Penggunaan Aktif
+        </button>
+    </div>
+
     <!-- Flatpickr CSS & JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -61,11 +72,8 @@
                         <div class="mt-auto">
                             <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal"
                                 data-bs-target="#modalPenggunaan" data-basename="{{ $baseName }}">Gunakan Alat</button>
-                            <button class="btn btn-secondary w-100 mb-2" data-bs-toggle="modal"
+                            <button class="btn btn-secondary w-100" data-bs-toggle="modal"
                                 data-bs-target="#modalDetail" data-basename="{{ $baseName }}">Detail</button>
-                            <button class="btn btn-success w-100" data-bs-toggle="modal"
-                                data-bs-target="#modalKembalikan"
-                                data-basename="{{ $baseName }}">Kembalikan</button>
                         </div>
                     </div>
                 </div>
@@ -141,14 +149,16 @@
         </div>
     </div>
 
-    <!-- Modal Kembalikan Alat (dummy, implement as needed) -->
-    <div class="modal fade" id="modalKembalikan" tabindex="-1" aria-labelledby="modalKembalikanLabel"
+
+
+    <!-- Modal Penggunaan Aktif -->
+    <div class="modal fade" id="modalPenggunaanAktif" tabindex="-1" aria-labelledby="modalPenggunaanAktifLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalKembalikanLabel">
-                        <i class="bi bi-arrow-counterclockwise text-primary me-2"></i> Kembalikan Alat
+                    <h5 class="modal-title" id="modalPenggunaanAktifLabel">
+                        <i class="bi bi-clock-history text-info me-2"></i> Penggunaan Aktif Anda
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -156,11 +166,11 @@
                     <div class="mb-4 p-3 bg-light rounded border d-flex align-items-center">
                         <i class="bi bi-info-circle-fill text-info fs-3 me-3"></i>
                         <div>
-                            <div class="fw-bold mb-1">Proses Pengembalian Alat</div>
-                            <div class="text-muted small">Silakan kembalikan alat yang sudah selesai digunakan. Pastikan alat dalam kondisi baik dan sesuai dengan data di bawah. Klik tombol <span class='badge bg-success'>Kembalikan</span> pada alat yang ingin dikembalikan.</div>
+                            <div class="fw-bold mb-1">Status Penggunaan Alat</div>
+                            <div class="text-muted small">Daftar semua alat yang sedang Anda gunakan. Anda dapat melihat detail penggunaan dan mengembalikan alat yang sudah selesai digunakan.</div>
                         </div>
                     </div>
-                    <div id="kembalikanContent"></div>
+                    <div id="penggunaanAktifContent"></div>
                 </div>
             </div>
         </div>
@@ -320,19 +330,132 @@
                 document.getElementById('detailContent').innerHTML = html;
             });
 
-            // === Modal Kembalikan Alat
-            document.getElementById('modalKembalikan').addEventListener('show.bs.modal', function(event) {
-                const baseName = event.relatedTarget.getAttribute('data-basename');
-                const group = compactedAlat[baseName] || [];
 
+
+            // === Fungsi untuk update statistik cards
+            function updateStatisticsCards() {
+                const tbody = document.querySelector('#penggunaanAktifContent tbody');
+                if (!tbody) return;
+                
+                // Hitung ulang statistik berdasarkan baris yang tersisa
+                const remainingRows = tbody.querySelectorAll('tr:not(.empty-state)');
+                const totalAktif = remainingRows.length;
+                
+                // Hitung berdasarkan badge status yang ada
+                let diterima = 0;
+                let pending = 0;
+                let belumDikembalikan = 0;
+                
+                remainingRows.forEach(row => {
+                    const statusCell = row.querySelector('td:nth-child(4)'); // Kolom status
+                    if (statusCell) {
+                        const statusText = statusCell.textContent.trim();
+                        if (statusText.includes('Diterima')) {
+                            diterima++;
+                            // Cek apakah ada tombol kembalikan (belum dikembalikan)
+                            const actionCell = row.querySelector('td:last-child');
+                            if (actionCell && actionCell.querySelector('.btn-kembalikan-alat-aktif')) {
+                                belumDikembalikan++;
+                            }
+                        } else if (statusText.includes('Pending')) {
+                            pending++;
+                        }
+                    }
+                });
+                
+                // Update statistik cards
+                const cards = document.querySelectorAll('#penggunaanAktifContent .card h4');
+                if (cards.length >= 4) {
+                    cards[0].textContent = totalAktif; // Total Aktif
+                    cards[1].textContent = diterima; // Diterima
+                    cards[2].textContent = pending; // Pending
+                    cards[3].textContent = belumDikembalikan; // Belum Dikembalikan
+                }
+                
+                // Jika tidak ada alat aktif, update semua statistik menjadi 0
+                if (totalAktif === 0) {
+                    if (cards.length >= 4) {
+                        cards[0].textContent = '0'; // Total Aktif
+                        cards[1].textContent = '0'; // Diterima
+                        cards[2].textContent = '0'; // Pending
+                        cards[3].textContent = '0'; // Belum Dikembalikan
+                    }
+                }
+            }
+
+            // === Modal Penggunaan Aktif
+            document.getElementById('modalPenggunaanAktif').addEventListener('show.bs.modal', function(event) {
                 let html = '';
                 // Data laporan alat aktif dari blade
                 const laporanAlatAktif = @json($laporanAlatAktif);
-                html += `<div class="table-responsive"><table class="table table-bordered table-sm align-middle"><thead><tr><th>Nama Alat</th><th>Nomor Seri</th><th>Kondisi</th><th>Status</th><th>Tanggal Pinjam</th><th>Estimasi Kembali</th><th>Lokasi</th><th>Aksi</th></tr></thead><tbody>`;
+                
+                // Statistik penggunaan aktif
+                const totalAktif = laporanAlatAktif.length;
+                const diterima = laporanAlatAktif.filter(l => l.status_peminjaman === 'Diterima').length;
+                const pending = laporanAlatAktif.filter(l => l.status_peminjaman === 'Pending').length;
+                const belumDikembalikan = laporanAlatAktif.filter(l => l.status_peminjaman === 'Diterima' && l.status_pengembalian === 'Belum Dikembalikan').length;
+                
+                html += `<div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clock-history fs-2 mb-2"></i>
+                                <h4>${totalAktif}</h4>
+                                <p class="mb-0">Total Aktif</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <i class="bi bi-check-circle fs-2 mb-2"></i>
+                                <h4>${diterima}</h4>
+                                <p class="mb-0">Diterima</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <i class="bi bi-hourglass-split fs-2 mb-2"></i>
+                                <h4>${pending}</h4>
+                                <p class="mb-0">Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <i class="bi bi-arrow-return-left fs-2 mb-2"></i>
+                                <h4>${belumDikembalikan}</h4>
+                                <p class="mb-0">Belum Dikembalikan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                
+                html += `<div class="table-responsive">
+                    <table class="table table-bordered table-sm align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Nama Alat</th>
+                                <th>Nomor Seri</th>
+                                <th>Kondisi</th>
+                                <th>Status Peminjaman</th>
+                                <th>Tanggal Pinjam</th>
+                                <th>Estimasi Kembali</th>
+                                <th>Lokasi</th>
+                                <th>Tujuan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
                 if (laporanAlatAktif.length === 0) {
-                    html += `<tr><td colspan='8' class='text-center text-muted py-5'>
-                        <div class='mb-3'><i class='bi bi-patch-check-fill text-success' style='font-size:3rem;'></i></div>
-                        <div class='fw-bold'>Semua alat sudah dikembalikan!</div>
+                    html += `<tr class="empty-state"><td colspan='9' class='text-center text-muted py-5'>
+                        <div class='mb-3'><i class='bi bi-clock text-info' style='font-size:3rem;'></i></div>
+                        <div class='fw-bold'>Tidak ada penggunaan aktif</div>
+                        <div class='text-muted small mt-1'>Mulai gunakan alat untuk melihat status di sini</div>
                     </td></tr>`;
                 } else {
                     laporanAlatAktif.forEach(laporan => {
@@ -342,20 +465,61 @@
                         if (alat.condition === 'Baik') badgeKondisi = '<span class="badge bg-success">Baik</span>';
                         else if (alat.condition === 'Rusak') badgeKondisi = '<span class="badge bg-danger">Rusak</span>';
                         else badgeKondisi = `<span class='badge bg-secondary'>${alat.condition || '-'}</span>`;
+                        
+                        // Badge status peminjaman
+                        let badgeStatus = '';
+                        if (laporan.status_peminjaman === 'Diterima') badgeStatus = '<span class="badge bg-success">Diterima</span>';
+                        else if (laporan.status_peminjaman === 'Pending') badgeStatus = '<span class="badge bg-warning">Pending</span>';
+                        else if (laporan.status_peminjaman === 'Ditolak') badgeStatus = '<span class="badge bg-danger">Ditolak</span>';
+                        else badgeStatus = `<span class='badge bg-secondary'>${laporan.status_peminjaman || '-'}</span>`;
+                        
                         // Nomor seri hanya jika status Diterima
                         let serialNumber = (laporan.status_peminjaman === 'Diterima') ? (alat.serial_number || '-') : '-';
-                        html += `<tr><td>${alat.name || '-'}</td><td>${serialNumber}</td><td>${badgeKondisi}</td><td>${alat.status || '-'}</td><td>${laporan.waktu_mulai || '-'}</td><td>${laporan.waktu_selesai || '-'}</td><td>${alat.ruangan?.name || '-'}</td><td>`;
-                        html += `<button class='btn btn-sm btn-success btn-kembalikan-alat' data-alatid='${alat.id}'>Kembalikan</button>`;
+                        
+                        // Format tanggal
+                        const waktuMulai = laporan.waktu_mulai ? new Date(laporan.waktu_mulai).toLocaleString('id-ID') : '-';
+                        const waktuSelesai = laporan.waktu_selesai ? new Date(laporan.waktu_selesai).toLocaleString('id-ID') : '-';
+                        
+                        // Potong tujuan jika terlalu panjang
+                        const tujuan = laporan.tujuan_penggunaan ? 
+                            (laporan.tujuan_penggunaan.length > 50 ? 
+                                laporan.tujuan_penggunaan.substring(0, 47) + '...' : 
+                                laporan.tujuan_penggunaan) : '-';
+                        
+                        html += `<tr>
+                            <td class="fw-semibold">${alat.name || '-'}</td>
+                            <td>${serialNumber}</td>
+                            <td class="text-center">${badgeKondisi}</td>
+                            <td class="text-center">${badgeStatus}</td>
+                            <td class="text-muted small">${waktuMulai}</td>
+                            <td class="text-muted small">${waktuSelesai}</td>
+                            <td>${alat.ruangan?.name || '-'}</td>
+                            <td><span title="${laporan.tujuan_penggunaan || ''}">${tujuan}</span></td>
+                            <td class="text-center">`;
+                        
+                        // Tombol kembalikan hanya muncul jika status Diterima dan belum dikembalikan
+                        if (laporan.status_peminjaman === 'Diterima' && laporan.status_pengembalian === 'Belum Dikembalikan') {
+                            html += `<button class='btn btn-sm btn-success btn-kembalikan-alat-aktif' data-alatid='${alat.id}'>
+                                <i class='bi bi-arrow-return-left me-1'></i>Kembalikan
+                            </button>`;
+                        } else if (laporan.status_pengembalian === 'Dikembalikan') {
+                            html += `<span class='badge bg-success'>
+                                <i class='bi bi-check-circle me-1'></i>Dikembalikan
+                            </span>`;
+                        } else {
+                            html += `<span class='text-muted'>-</span>`;
+                        }
+                        
                         html += `</td></tr>`;
                     });
                 }
                 html += `</tbody></table></div>`;
-                document.getElementById('kembalikanContent').innerHTML = html;
+                document.getElementById('penggunaanAktifContent').innerHTML = html;
             });
 
-            // === Proses Kembalikan Alat (AJAX)
-            document.getElementById('kembalikanContent').addEventListener('click', function(e) {
-                if (e.target.classList.contains('btn-kembalikan-alat')) {
+            // === Proses Kembalikan Alat dari Modal Aktif (AJAX)
+            document.getElementById('penggunaanAktifContent').addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-kembalikan-alat-aktif')) {
                     const alatId = e.target.getAttribute('data-alatid');
                     Swal.fire({
                         title: 'Konfirmasi',
@@ -381,22 +545,27 @@
                                         Swal.fire({
                                             icon: 'success',
                                             title: 'Berhasil',
-                                            text: 'Alat berhasil dikembalikan!',
-                                            timer: 1500,
+                                            text: 'Alat berhasil dikembalikan dan menunggu validasi admin!',
+                                            timer: 2000,
                                             showConfirmButton: false
                                         });
                                         // Hapus baris alat dari tabel
                                         const btn = e.target;
                                         const row = btn.closest('tr');
                                         row.parentNode.removeChild(row);
+                                        
                                         // Jika tidak ada baris alat tersisa (selain header), tampilkan pesan semua alat sudah dikembalikan
-                                        const tbody = document.querySelector('#kembalikanContent tbody');
+                                        const tbody = document.querySelector('#penggunaanAktifContent tbody');
                                         if (tbody && tbody.children.length === 0) {
-                                            tbody.innerHTML = `<tr><td colspan='8' class='text-center text-muted py-5'>
+                                            tbody.innerHTML = `<tr class="empty-state"><td colspan='9' class='text-center text-muted py-5'>
                                                 <div class='mb-3'><i class='bi bi-patch-check-fill text-success' style='font-size:3rem;'></i></div>
                                                 <div class='fw-bold'>Semua alat sudah dikembalikan!</div>
+                                                <div class='text-muted small mt-1'>Tidak ada penggunaan aktif saat ini</div>
                                             </td></tr>`;
                                         }
+                                        
+                                        // Update statistik cards
+                                        updateStatisticsCards();
                                     } else {
                                         Swal.fire('Gagal', data.message || 'Gagal mengembalikan alat.', 'error');
                                     }
@@ -406,6 +575,8 @@
                     });
                 }
             });
+
+
         });
     </script>
 
