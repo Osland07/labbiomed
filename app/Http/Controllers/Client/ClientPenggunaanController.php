@@ -163,7 +163,8 @@ class ClientPenggunaanController extends Controller
         $ruangans = Ruangan::where('status', 'Tersedia')->get();
         $now = now();
         $jadwalBooking = 
-            \App\Models\Laporan::where('status_peminjaman', 'Diterima')
+            \App\Models\Laporan::whereNotNull('ruangan_id')
+            ->where('status_peminjaman', 'Diterima')
             ->where('waktu_selesai', '>=', $now)
             ->with(['user', 'ruangan'])
             ->orderBy('waktu_mulai')
