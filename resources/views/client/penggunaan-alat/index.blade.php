@@ -7,14 +7,36 @@
 
     @include('components.alert')
 
+    <!-- Custom CSS untuk tombol solid -->
+    <style>
+        .btn-solid-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+        
+        .animate__pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+    </style>
+
     <!-- Header dengan tombol penggunaan aktif -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h4 class="mb-1">Penggunaan Alat</h4>
             <p class="text-muted mb-0">Kelola penggunaan alat laboratorium</p>
         </div>
-        <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalPenggunaanAktif">
-            <i class="bi bi-list-check me-2"></i>Lihat Penggunaan Aktif
+        <button class="btn btn-primary btn-solid-primary position-relative" data-bs-toggle="modal" data-bs-target="#modalPenggunaanAktif" style="padding: 10px 20px; border-radius: 8px; font-weight: 500; transition: all 0.3s ease;">
+            <i class="bi bi-clock-history me-2"></i>Lihat Penggunaan Aktif
+            @if($laporanAlatAktif->count() > 0)
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger animate__pulse" style="font-size: 0.7em;">
+                    {{ $laporanAlatAktif->count() }}
+                </span>
+            @endif
         </button>
     </div>
 
@@ -108,13 +130,13 @@
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="form-label">Waktu Mulai<span class="text-danger">*</span></label>
-                                <input type="time" name="waktu_mulai" id="waktuMulaiInput" class="form-control"
-                                    required min="08:00" max="17:00">
+                                <input type="text" name="waktu_mulai" id="waktuMulaiInput" class="form-control"
+                                    required placeholder="08:00">
                             </div>
                             <div class="col-6">
                                 <label class="form-label">Waktu Selesai<span class="text-danger">*</span></label>
-                                <input type="time" name="waktu_selesai" id="waktuSelesaiInput" class="form-control"
-                                    required min="08:00" max="17:00">
+                                <input type="text" name="waktu_selesai" id="waktuSelesaiInput" class="form-control"
+                                    required placeholder="17:00">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -215,6 +237,29 @@
                         longhand: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
                     }
                 }
+            });
+
+            // === Flatpickr Init untuk Time Picker (Format 24 Jam) ===
+            flatpickr('#waktuMulaiInput', {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: 'H:i',
+                time_24hr: true,
+                defaultHour: 8,
+                defaultMinute: 0,
+                minTime: '08:00',
+                maxTime: '17:00'
+            });
+
+            flatpickr('#waktuSelesaiInput', {
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: 'H:i',
+                time_24hr: true,
+                defaultHour: 9,
+                defaultMinute: 0,
+                minTime: '08:00',
+                maxTime: '17:00'
             });
 
             // === Modal Penggunaan - Saat dibuka ===
@@ -700,6 +745,7 @@
                     });
                 }
             });
+
 
 
         });
