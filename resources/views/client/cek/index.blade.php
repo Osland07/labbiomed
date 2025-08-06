@@ -277,6 +277,202 @@
                                 <p class="card-text m-0 p-0 text-muted">Lantai: {{ $ruangan->lantai }}</p>
                                 <p class="card-text m-0 p-0">Kapasitas: <span
                                         class="badge bg-success">{{ $ruangan->kapasitas }}</span></p>
+                                
+                                {{-- Tombol untuk membuka modal --}}
+                                <a href="#" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#modalDetailRuangan-{{ $ruangan->id }}">Lihat</a>
+
+                                {{-- Modal --}}
+                                <div class="modal fade" id="modalDetailRuangan-{{ $ruangan->id }}" tabindex="-1"
+                                    role="dialog" aria-labelledby="modalLabelRuangan-{{ $ruangan->id }}"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <div>
+                                                    <h5 class="modal-title mb-0" id="modalLabelRuangan-{{ $ruangan->id }}">
+                                                        <i class="bi bi-building me-2"></i>Detail Informasi {{ $ruangan->name }}
+                                                    </h5>
+                                                    <small class="text-white-50">Informasi lengkap dan status terkini ruangan laboratorium</small>
+                                                </div>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                                    aria-label="Tutup"></button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <!-- Header dengan gambar dan informasi utama -->
+                                                <div class="row mb-4">
+                                                    <div class="col-md-4">
+                                                        <div class="text-center">
+                                                            <img src="{{ $ruangan->foto_ruangan ? asset('storage/' . $ruangan->foto_ruangan) : asset('assets/img/default.png') }}" 
+                                                                 class="img-fluid rounded shadow" 
+                                                                 style="max-height: 200px; object-fit: cover;" 
+                                                                 alt="{{ $ruangan->name }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <h4 class="text-primary mb-3">{{ $ruangan->name }}</h4>
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <p class="mb-2"><strong>Gedung:</strong> {{ $ruangan->gedung }}</p>
+                                                                <p class="mb-2"><strong>Lantai:</strong> {{ $ruangan->lantai }}</p>
+                                                                <p class="mb-2"><strong>Kapasitas:</strong> {{ $ruangan->kapasitas }} orang</p>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <p class="mb-2"><strong>Status:</strong> 
+                                                                    @if ($ruangan->status == 'Tersedia')
+                                                                        <span class="badge bg-success">Tersedia</span>
+                                                                    @elseif ($ruangan->status == 'Digunakan')
+                                                                        <span class="badge bg-warning text-dark">Digunakan</span>
+                                                                    @elseif ($ruangan->status == 'Maintenance')
+                                                                        <span class="badge bg-info text-dark">Maintenance</span>
+                                                                    @else
+                                                                        <span class="badge bg-secondary">{{ $ruangan->status }}</span>
+                                                                    @endif
+                                                                </p>
+                                                                <p class="mb-2"><strong>Kategori:</strong> {{ $ruangan->category->name ?? 'Tidak ada kategori' }}</p>
+                                                                @if($ruangan->serial_number)
+                                                                    <p class="mb-2"><strong>Serial Number:</strong> <code>{{ $ruangan->serial_number }}</code></p>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        @if($ruangan->keterangan)
+                                                            <div class="mt-3">
+                                                                <strong>Keterangan:</strong><br>
+                                                                <p class="text-muted">{{ $ruangan->keterangan }}</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <!-- Kunjungan Aktif -->
+                                                <div class="row mb-4">
+                                                    <div class="col-12">
+                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                            <i class="bi bi-people me-2"></i>Kunjungan Aktif
+                                                        </h5>
+                                                        @php
+                                                            $kunjunganAktif = \App\Models\Kunjungan::where('ruangan_id', $ruangan->id)
+                                                                ->whereNull('waktu_keluar')
+                                                                ->whereDate('waktu_masuk', \Carbon\Carbon::today())
+                                                                ->get();
+                                                        @endphp
+                                                        
+                                                        @if($kunjunganAktif->count() > 0)
+                                                            <div class="row g-3">
+                                                                @foreach($kunjunganAktif as $kunjungan)
+                                                                    <div class="col-md-6">
+                                                                        <div class="card border-primary">
+                                                                            <div class="card-body">
+                                                                                <div class="d-flex align-items-center">
+                                                                                    <div class="flex-shrink-0">
+                                                                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                                                                             style="width: 50px; height: 50px;">
+                                                                                            <i class="bi bi-person"></i>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="flex-grow-1 ms-3">
+                                                                                        <h6 class="mb-1">{{ $kunjungan->nama ?? $kunjungan->user->name ?? 'Tidak diketahui' }}</h6>
+                                                                                        <p class="mb-1 text-muted small">
+                                                                                            @if($kunjungan->nim_nip)
+                                                                                                {{ $kunjungan->nim_nip }}
+                                                                                            @elseif($kunjungan->user && $kunjungan->user->nim_nip)
+                                                                                                {{ $kunjungan->user->nim_nip }}
+                                                                                            @else
+                                                                                                -
+                                                                                            @endif
+                                                                                        </p>
+                                                                                        <p class="mb-0 text-muted small">
+                                                                                            <i class="bi bi-clock me-1"></i>
+                                                                                            Masuk: {{ \Carbon\Carbon::parse($kunjungan->waktu_masuk)->format('H:i') }}
+                                                                                        </p>
+                                                                                        @if($kunjungan->tujuan)
+                                                                            <p class="mb-0 text-muted small">
+                                                                                <i class="bi bi-info-circle me-1"></i>
+                                                                                {{ Str::limit($kunjungan->tujuan, 50) }}
+                                                                            </p>
+                                                                        @endif
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @else
+                                                            <div class="text-center py-4">
+                                                                <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                                                                <p class="text-muted mt-2">Tidak ada kunjungan aktif saat ini</p>
+                                                                <small class="text-muted">Ruangan ini sedang kosong</small>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <!-- Statistik Kunjungan -->
+                                                <div class="row mb-4">
+                                                    <div class="col-12">
+                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                            <i class="bi bi-graph-up me-2"></i>Statistik Kunjungan Hari Ini
+                                                        </h5>
+                                                        @php
+                                                            $totalKunjunganHariIni = \App\Models\Kunjungan::where('ruangan_id', $ruangan->id)
+                                                                ->whereDate('waktu_masuk', \Carbon\Carbon::today())
+                                                                ->count();
+                                                            $kunjunganMasihDiDalam = $kunjunganAktif->count();
+                                                            $kunjunganSudahKeluar = $totalKunjunganHariIni - $kunjunganMasihDiDalam;
+                                                        @endphp
+                                                        <div class="row g-3">
+                                                            <div class="col-md-4">
+                                                                <div class="card bg-primary text-white text-center">
+                                                                    <div class="card-body py-3">
+                                                                        <h4 class="mb-0">{{ $totalKunjunganHariIni }}</h4>
+                                                                        <small>Total Kunjungan Hari Ini</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="card bg-success text-white text-center">
+                                                                    <div class="card-body py-3">
+                                                                        <h4 class="mb-0">{{ $kunjunganMasihDiDalam }}</h4>
+                                                                        <small>Sedang di Laboratorium</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <div class="card bg-info text-white text-center">
+                                                                    <div class="card-body py-3">
+                                                                        <h4 class="mb-0">{{ $kunjunganSudahKeluar }}</h4>
+                                                                        <small>Selesai Kunjungan</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Denah Ruangan -->
+                                                @if ($ruangan->foto_denah)
+                                                    <div class="row mt-4">
+                                                        <div class="col-12">
+                                                            <h5 class="border-bottom pb-2 mb-3">
+                                                                <i class="bi bi-map me-2"></i>Denah Ruangan
+                                                            </h5>
+                                                            <div class="text-center">
+                                                                <img src="{{ asset('storage/' . $ruangan->foto_denah) }}"
+                                                                    alt="Denah {{ $ruangan->name }}" class="img-fluid rounded shadow"
+                                                                    style="max-height: 300px; object-fit: cover;">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
