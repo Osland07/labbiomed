@@ -65,84 +65,146 @@
                                 <div class="modal fade" id="modalDetail-{{ \Str::slug($groupName) }}" tabindex="-1"
                                     role="dialog" aria-labelledby="modalLabel-{{ \Str::slug($groupName) }}"
                                     aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-dialog modal-xl" role="document">
                                         <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="modalLabel-{{ \Str::slug($groupName) }}">
-                                                    Detail
-                                                    {{ $groupName }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            <div class="modal-header bg-primary text-white">
+                                                <div>
+                                                    <h5 class="modal-title mb-0" id="modalLabel-{{ \Str::slug($groupName) }}">
+                                                        <i class="bi bi-info-circle me-2"></i>Detail Informasi {{ $groupName }}
+                                                    </h5>
+                                                    <small class="text-white-50">Informasi lengkap dan status terkini alat laboratorium</small>
+                                                </div>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                                     aria-label="Tutup"></button>
                                             </div>
-                                            <div class="modal-body">
+                                            <div class="modal-body p-4">
                                                 @php
                                                     $total = $items->count();
                                                     $jumlah_baik = $items->where('condition', 'Baik')->count();
                                                     $jumlah_rusak = $items->where('condition', 'Rusak')->count();
                                                     $jumlah_tersedia = $items->where('status', 'Tersedia')->count();
+                                                    $jumlah_dipinjam = $items->where('status', 'Dipinjam')->count();
+                                                    $firstAlat = $items->first();
                                                 @endphp
 
-                                                <!-- Ringkasan Jumlah -->
-                                                <div class="mb-3">
-                                                    <span class="fw-bold">Ringkasan:</span>
-                                                    <p class="m-0 p-0">Total Alat: {{ $total }}
-                                                    </p>
-                                                    <p class="m-0 p-0">Jumlah Baik: <span
-                                                            class="text-success">{{ $jumlah_baik }}</span>
-                                                    </p>
-                                                    <p class="m-0 p-0">Jumlah Rusak: <span
-                                                            class="text-danger">{{ $jumlah_rusak }}</span>
-                                                    </p>
-                                                    <p class="m-0 p-0">Jumlah Tersedia: <span
-                                                            class="text-primary">{{ $jumlah_tersedia }}</span>
-                                                    </p>
+                                                <!-- Header dengan gambar dan informasi utama -->
+                                                <div class="row mb-4">
+                                                    <div class="col-md-4">
+                                                        <div class="text-center">
+                                                            <img src="{{ $firstAlat->img ? asset('storage/' . $firstAlat->img) : asset('assets/img/default.png') }}" 
+                                                                 class="img-fluid rounded shadow" 
+                                                                 style="max-height: 200px; object-fit: cover;" 
+                                                                 alt="{{ $groupName }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <h4 class="text-primary mb-3">{{ $groupName }}</h4>
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <p class="mb-2"><strong>Kategori:</strong> {{ $firstAlat->category->name ?? 'Tidak ada kategori' }}</p>
+                                                                <p class="mb-2"><strong>Lokasi:</strong> {{ $firstAlat->ruangan->name ?? 'Tidak ditentukan' }}</p>
+                                                                <p class="mb-2"><strong>Detail Lokasi:</strong> {{ $firstAlat->detail_location ?? 'Tidak ada detail' }}</p>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <p class="mb-2"><strong>Sumber:</strong> {{ $firstAlat->source ?? 'Tidak diketahui' }}</p>
+                                                                <p class="mb-2"><strong>Tanggal Diterima:</strong> {{ $firstAlat->date_received ? \Carbon\Carbon::parse($firstAlat->date_received)->format('d/m/Y') : 'Tidak diketahui' }}</p>
+                                                            </div>
+                                                        </div>
+                                                        @if($firstAlat->desc)
+                                                            <div class="mt-3">
+                                                                <strong>Deskripsi:</strong><br>
+                                                                <p class="text-muted">{{ $firstAlat->desc }}</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
-                                                <!-- Tabel Detail -->
-                                                <table class="table table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Nama Alat</th>
-                                                            <th>Kondisi</th>
-                                                            <th>Status</th>
-                                                            <th>Lokasi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($items as $alat)
-                                                            <tr>
-                                                                <td>{{ $alat->name }}</td>
-                                                                <td>
-                                                                    @if ($alat->condition == 'Baik')
-                                                                        <span
-                                                                            class="badge bg-success">{{ $alat->condition }}
-                                                                        </span>
-                                                                    @elseif ($alat->condition == 'Rusak')
-                                                                        <span
-                                                                            class="badge bg-danger">{{ $alat->condition }}
-                                                                        </span>
-                                                                    @else
-                                                                        <span
-                                                                            class="badge bg-warning">{{ $alat->condition }}
-                                                                        </span>
-                                                                    @endif
-                                                                </td>
-                                                                <td>
-                                                                    @if ($alat->status == 'Tersedia')
-                                                                        <span
-                                                                            class="badge bg-primary">{{ $alat->status }}
-                                                                        </span>
-                                                                    @else
-                                                                        <span
-                                                                            class="badge bg-warning">{{ $alat->status }}
-                                                                        </span>
-                                                                    @endif
-                                                                </td>
-                                                                <td>{{ $alat->ruangan->name ?? '-' }}</td>
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
+                                                <!-- Statistik Ringkasan -->
+                                                <div class="row mb-4">
+                                                    <div class="col-12">
+                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                            <i class="bi bi-graph-up me-2"></i>Statistik Alat
+                                                        </h5>
+                                                        <div class="row g-3">
+                                                            <div class="col-md-6">
+                                                                <div class="card bg-info text-white text-center">
+                                                                    <div class="card-body py-3">
+                                                                        <h4 class="mb-0">{{ $jumlah_tersedia }}</h4>
+                                                                        <small>Tersedia</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="card bg-warning text-dark text-center">
+                                                                    <div class="card-body py-3">
+                                                                        <h4 class="mb-0">{{ $jumlah_dipinjam }}</h4>
+                                                                        <small>Dipinjam</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Tabel Detail Per Unit -->
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <h5 class="border-bottom pb-2 mb-3">
+                                                            <i class="bi bi-list-ul me-2"></i>Detail Per Unit
+                                                        </h5>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover table-striped">
+                                                                <thead class="table-dark">
+                                                                    <tr>
+                                                                        <th>No</th>
+                                                                        <th>Nama Alat</th>
+                                                                        <th>Serial Number</th>
+                                                                        <th>Kondisi</th>
+                                                                        <th>Status</th>
+                                                                        <th>Lokasi</th>
+                                                                        <th>Gambar</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($items as $index => $alat)
+                                                                        <tr>
+                                                                            <td>{{ $index + 1 }}</td>
+                                                                            <td><strong>{{ $alat->name }}</strong></td>
+                                                                            <td><code>{{ $alat->serial_number ?? 'Tidak ada' }}</code></td>
+                                                                            <td>
+                                                                                @if ($alat->condition == 'Baik')
+                                                                                    <span class="badge bg-success">Baik</span>
+                                                                                @else
+                                                                                    <span class="badge bg-danger">Rusak</span>
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>
+                                                                                @if ($alat->status == 'Tersedia')
+                                                                                    <span class="badge bg-primary">Tersedia</span>
+                                                                                @elseif ($alat->status == 'Dipinjam')
+                                                                                    <span class="badge bg-warning text-dark">Dipinjam</span>
+                                                                                @elseif ($alat->status == 'Maintenance')
+                                                                                    <span class="badge bg-info text-dark">Maintenance</span>
+                                                                                @elseif ($alat->status == 'Rusak')
+                                                                                    <span class="badge bg-danger">Rusak</span>
+                                                                                @else
+                                                                                    <span class="badge bg-secondary">{{ $alat->status }}</span>
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>{{ $alat->ruangan->name ?? '-' }}</td>
+                                                                            <td>
+                                                                                <img src="{{ $alat->img ? asset('storage/' . $alat->img) : asset('assets/img/default.png') }}" 
+                                                                                     class="img-thumbnail" 
+                                                                                     style="width: 50px; height: 50px; object-fit: cover;" 
+                                                                                     alt="{{ $alat->name }}">
+                                                                            </td>
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"

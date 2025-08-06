@@ -136,13 +136,18 @@
 
     <!-- Modal Detail Alat -->
     <div class="modal fade" id="modalDetail" tabindex="-1" aria-labelledby="modalDetailLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalDetailLabel">Detail Alat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-header bg-primary text-white">
+                    <div>
+                        <h5 class="modal-title mb-0" id="modalDetailLabel">
+                            <i class="bi bi-info-circle me-2"></i>Detail Informasi Alat
+                        </h5>
+                        <small class="text-white-50">Informasi lengkap dan status terkini alat laboratorium</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div id="detailContent"></div>
                 </div>
             </div>
@@ -314,19 +319,139 @@
             document.getElementById('modalDetail').addEventListener('show.bs.modal', function(event) {
                 const baseName = event.relatedTarget.getAttribute('data-basename');
                 const group = compactedAlat[baseName] || [];
-                let html =
-                    `<div class="mb-3"><strong>Ringkasan:</strong><br>
-                        Total Alat: <span>${group.length}</span><br>
-                        Jumlah Baik: <span class="text-success">${group.filter(a => a.condition === 'Baik').length}</span><br>
-                        Jumlah Rusak: <span class="text-danger">${group.filter(a => a.condition === 'Rusak').length}</span><br>
-                        Jumlah Tersedia: <span class="text-primary">${group.filter(a => a.status === 'Tersedia').length}</span></div>`;
-                html +=
-                    `<div class="table-responsive"><table class="table table-bordered table-sm"><thead><tr><th>Nama Alat</th><th>Kondisi</th><th>Status</th><th>Lokasi</th></tr></thead><tbody>`;
-                group.forEach(alat => {
-                    html +=
-                        `<tr><td>${alat.name}</td><td>${alat.condition}</td><td>${alat.status}</td><td>${alat.ruangan?.name || '-'}</td></tr>`;
+                const firstAlat = group[0];
+                
+                // Statistik
+                const totalAlat = group.length;
+                const jumlahBaik = group.filter(a => a.condition === 'Baik').length;
+                const jumlahRusak = group.filter(a => a.condition === 'Rusak').length;
+                const jumlahTersedia = group.filter(a => a.status === 'Tersedia').length;
+                const jumlahDipinjam = group.filter(a => a.status === 'Dipinjam').length;
+                const jumlahMaintenance = group.filter(a => a.status === 'Maintenance').length;
+                
+                let html = `
+                    <!-- Header dengan gambar dan informasi utama -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <img src="${firstAlat.img ? '/storage/' + firstAlat.img : '/assets/img/default.png'}" 
+                                     class="img-fluid rounded shadow" 
+                                     style="max-height: 200px; object-fit: cover;" 
+                                     alt="${baseName}">
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <h4 class="text-primary mb-3">${baseName}</h4>
+                            <div class="row">
+                                <div class="col-6">
+                                    <p class="mb-2"><strong>Kategori:</strong> ${firstAlat.category?.name || 'Tidak ada kategori'}</p>
+                                    <p class="mb-2"><strong>Lokasi:</strong> ${firstAlat.ruangan?.name || 'Tidak ditentukan'}</p>
+                                    <p class="mb-2"><strong>Detail Lokasi:</strong> ${firstAlat.detail_location || 'Tidak ada detail'}</p>
+                                </div>
+                                <div class="col-6">
+                                    <p class="mb-2"><strong>Sumber:</strong> ${firstAlat.source || 'Tidak diketahui'}</p>
+                                    <p class="mb-2"><strong>Tanggal Diterima:</strong> ${firstAlat.date_received ? new Date(firstAlat.date_received).toLocaleDateString('id-ID') : 'Tidak diketahui'}</p>
+                                </div>
+                            </div>
+                            ${firstAlat.desc ? `<div class="mt-3"><strong>Deskripsi:</strong><br><p class="text-muted">${firstAlat.desc}</p></div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Statistik Ringkasan -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="bi bi-graph-up me-2"></i>Statistik Alat
+                            </h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="card bg-info text-white text-center">
+                                        <div class="card-body py-3">
+                                            <h4 class="mb-0">${jumlahTersedia}</h4>
+                                            <small>Tersedia</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-warning text-dark text-center">
+                                        <div class="card-body py-3">
+                                            <h4 class="mb-0">${jumlahDipinjam}</h4>
+                                            <small>Dipinjam</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel Detail Per Unit -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="border-bottom pb-2 mb-3">
+                                <i class="bi bi-list-ul me-2"></i>Detail Per Unit
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Alat</th>
+                                            <th>Serial Number</th>
+                                            <th>Kondisi</th>
+                                            <th>Status</th>
+                                            <th>Lokasi</th>
+                                            <th>Gambar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                
+                group.forEach((alat, index) => {
+                    const conditionBadge = alat.condition === 'Baik' 
+                        ? '<span class="badge bg-success">Baik</span>'
+                        : '<span class="badge bg-danger">Rusak</span>';
+                    
+                    let statusBadge = '';
+                    switch(alat.status) {
+                        case 'Tersedia':
+                            statusBadge = '<span class="badge bg-primary">Tersedia</span>';
+                            break;
+                        case 'Dipinjam':
+                            statusBadge = '<span class="badge bg-warning text-dark">Dipinjam</span>';
+                            break;
+                        case 'Maintenance':
+                            statusBadge = '<span class="badge bg-info text-dark">Maintenance</span>';
+                            break;
+                        case 'Rusak':
+                            statusBadge = '<span class="badge bg-danger">Rusak</span>';
+                            break;
+                        default:
+                            statusBadge = '<span class="badge bg-secondary">' + alat.status + '</span>';
+                    }
+                    
+                    html += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><strong>${alat.name}</strong></td>
+                            <td><code>${alat.serial_number || 'Tidak ada'}</code></td>
+                            <td>${conditionBadge}</td>
+                            <td>${statusBadge}</td>
+                            <td>${alat.ruangan?.name || '-'}</td>
+                            <td>
+                                <img src="${alat.img ? '/storage/' + alat.img : '/assets/img/default.png'}" 
+                                     class="img-thumbnail" 
+                                     style="width: 50px; height: 50px; object-fit: cover;" 
+                                     alt="${alat.name}">
+                            </td>
+                        </tr>`;
                 });
-                html += `</tbody></table></div>`;
+                
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>`;
+                
                 document.getElementById('detailContent').innerHTML = html;
             });
 
