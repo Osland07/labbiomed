@@ -1,6 +1,6 @@
 <x-admin-table>
     <x-slot name="title">
-        Upload Surat
+        Pengajuan Saya
     </x-slot>
 
     <x-slot name="search">
