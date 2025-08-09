@@ -221,7 +221,7 @@
                         <ul class="nav nav-treeview">
                             <x-sidebar-link route="client.pengajuan-peminjaman.index" label="Formulir Pengajuan"
                                 can="pengajuan-peminjaman-client" />
-                            <x-sidebar-link route="client.pengajuan-peminjaman.upload" label="Upload Surat"
+                            <x-sidebar-link route="client.pengajuan-peminjaman.upload" label="Pengajuan Saya"
                                 can="pengajuan-peminjaman-client" />
                         </ul>
                     </li>
