@@ -10,7 +10,17 @@
     <!-- Informasi -->
     <div class="alert alert-info mb-3">
         <i class="fas fa-info-circle"></i>
-        <strong>Informasi:</strong> Silakan ajukan tanda tangan surat yang telah divalidasi ke fakultas dan unggah kembali melalui form dengan format pdf ukuran maks 2mb.
+        <strong>Informasi:</strong>
+        <ul class="mb-0">
+            <li>Harap menunggu validasi dari Laboran dan Koordinator Laboran sebelum mengajukan tanda tangan surat ke fakultas.</li>
+            <li>Setelah divalidasi, silakan ajukan tanda tangan surat ke fakultas.</li>
+            <li>Unggah kembali surat yang telah ditandatangani dengan ketentuan:
+            <ul>
+                <li>Format file: PDF</li>
+                <li>Ukuran maksimal: 2MB</li>
+            </ul>
+            </li>
+        </ul>
     </div>
 
     <table class="table table-bordered table-striped text-center">
