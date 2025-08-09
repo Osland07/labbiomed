@@ -2,7 +2,7 @@
 
     <!-- Title -->
     <x-slot name="title">
-        Riwayat Pengajuan Penggunaan
+        Riwayat Pengajuan Saya
     </x-slot>
 
     <!-- Search & Pagination -->
