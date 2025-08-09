@@ -29,7 +29,7 @@
         <div>
         </div>
         <button class="btn btn-primary btn-solid-primary position-relative" data-bs-toggle="modal" data-bs-target="#modalPenggunaanAktif" style="padding: 10px 20px; border-radius: 8px; font-weight: 500; transition: all 0.3s ease;">
-            <i class="bi bi-clock-history me-2"></i>Lihat Penggunaan Aktif
+            <i class="bi bi-clock-history me-2"></i>Penggunaan Saya
             @if($laporanAlatAktif->count() > 0)
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger animate__pulse" style="font-size: 0.7em;">
                     {{ $laporanAlatAktif->count() }}
