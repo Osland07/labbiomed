@@ -13,7 +13,8 @@
         <strong>Informasi:</strong>
         <ul class="mb-0">
             <li>Harap menunggu validasi dari Laboran dan Koordinator Laboran.</li>
-            <li>Setelah divalidasi, silakan unduh dan cetak surat yang kemudian diajukan tanda tangan surat ke fakultas.</li>
+            <li>Setelah divalidasi, silakan unduh dan cetak surat tersedia.</li>
+            <li>Ajukan surat ke fakultas untuk mendapatkan tanda tangan dari koordinator laboratorium fakultas.
             <li>Unggah kembali surat yang telah ditandatangani dengan ketentuan:
             <ul>
                 <li>Format file: PDF</li>
