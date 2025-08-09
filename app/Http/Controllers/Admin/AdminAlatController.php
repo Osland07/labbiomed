@@ -28,7 +28,7 @@ class AdminAlatController extends Controller
             'search' => 'nullable|string|max:255',
             'perPage' => 'nullable|integer|in:10,50,100',
             'view' => 'nullable|in:compact,detail',
-            'status' => 'nullable|string|in:Tersedia,Sedang Digunakan,Maintenance,Rusak',
+            'status' => 'nullable|string|in:Tersedia,Dipinjam,Sedang Digunakan,Maintenance,Rusak',
         ]);
 
         $search = $request->input('search');
