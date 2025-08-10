@@ -35,8 +35,8 @@
                 <th>{{ __('No') }}</th>
                 <th class="text-center">{{ __('Pengguna') }}</th>
                 <th>{{ __('Tujuan Penggunaan') }}</th>
-                <th>{{ __('Item yang Digunakan') }}</th>
-                <th>{{ __('Jumlah Item') }}</th>
+                <th>{{ __('Item') }}</th>
+                <th>{{ __('Jumlah') }}</th>
                 <th>{{ __('Waktu Mulai') }}</th>
                 <th>{{ __('Estimasi Pengembalian') }}</th>
                 <th>{{ __('Status Validasi') }}</th>
